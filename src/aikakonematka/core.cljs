@@ -1,7 +1,7 @@
 (ns aikakonematka.core
-  (:require [play-cljs.core :as p]
-            [goog.events :as events]
-            [nightlight.repl-server]))
+  (:require [goog.events :as events]
+            [nightlight.repl-server]
+            [play-cljs.core :as p]))
 
 (defonce game (p/create-game (.-innerWidth js/window) (.-innerHeight js/window)))
 (defonce state (atom {}))

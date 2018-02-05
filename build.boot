@@ -8,8 +8,13 @@
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
                   [nightlight "RELEASE" :scope "test"]
+                  [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
                   [play-cljs "1.1.0"]])
+
+;generate 'project.clj' every time boot task is run
+(require 'boot.lein)
+(boot.lein/generate)
 
 (require
   '[adzerk.boot-cljs :refer [cljs]]
