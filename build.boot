@@ -7,13 +7,15 @@
                   [pandeiro/boot-http "0.8.3" :scope "test"]
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
+                  [nightlight "RELEASE" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
                   [play-cljs "1.1.0"]])
 
 (require
   '[adzerk.boot-cljs :refer [cljs]]
   '[adzerk.boot-reload :refer [reload]]
-  '[pandeiro.boot-http :refer [serve]])
+  '[pandeiro.boot-http :refer [serve]]
+  '[nightlight.boot :refer [nightlight]])
 
 (deftask run []
   (comp
@@ -21,7 +23,8 @@
     (watch)
     (reload)
     (cljs :source-map true :optimizations :none)
-    (target)))
+    (target)
+    (nightlight :port 4000 :url "http://localhost:3000")))
 
 (deftask build []
   (comp (cljs :optimizations :advanced) (target)))
