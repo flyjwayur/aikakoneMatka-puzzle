@@ -6,6 +6,27 @@
 (defonce game (p/create-game (.-innerWidth js/window) (.-innerHeight js/window)))
 (defonce state (atom {}))
 
+(def ^:const image-width 192)
+(def ^:const image-height 192)
+(def ^:const column-number 6)
+(def ^:const row-number 6)
+(def ^:const piece-width (/ image-width column-number))
+(def ^:const piece-height (/ image-height row-number))
+(def ^:const image-url "tileset.png")
+(doto game
+  (p/load-image image-url))
+
+(defn createGameImage [colNum rowNum]
+  (for [x (range colNum)
+        y (range rowNum)]
+    (vector :image (hash-map :name image-url :width piece-width :height piece-height
+                             :x (+ (/ js/window.innerWidth 2) (* piece-width x) ) :y (+ (/ js/window.innerHeight 2) (* piece-height y) )
+                             :swidth piece-width :sheight piece-height
+                             :sx (* piece-width x) :sy (* piece-height y)))))
+  ; (loop [column-number row-number]
+  ; (if-not (and (= 0 column-number) (= 0 row-number))
+  ;  (recur)))
+
 (def main-screen
   (reify p/Screen
     (on-show [this]
@@ -13,10 +34,8 @@
     (on-hide [this])
     (on-render [this]
       (p/render game
-        [[:fill {:color "lightblue"}
-          [:rect {:x 0 :y 0 :width (.-innerWidth js/window) :height (.-innerHeight js/window)}]]
-         [:fill {:color "black"}
-          [:text {:value "Hello, world!" :x (:text-x @state) :y (:text-y @state) :size 16 :font "Georgia" :style :italic}]]]))))
+                [[:image {:name image-url :width image-width :height image-height :x 100 :y 100}]
+                 (createGameImage column-number row-number)]))))
 
 (events/listen js/window "mousemove"
   (fn [event]
@@ -29,4 +48,3 @@
 (doto game
   (p/start)
   (p/set-screen main-screen))
-
