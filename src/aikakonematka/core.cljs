@@ -20,9 +20,10 @@
   (for [x (range colNum)
         y (range rowNum)]
     (vector :image (hash-map :name image-url :width piece-width :height piece-height
-                             :x (+ (/ js/window.innerWidth 2) (* piece-width x) ) :y (+ (/ js/window.innerHeight 2) (* piece-height y) )
+                             :x (+ (/ js/window.innerWidth 2) (* (* piece-width x) 2) ) :y (+ (/ js/window.innerHeight 2) (* (* piece-height y) 2) )
                              :swidth piece-width :sheight piece-height
-                             :sx (* piece-width x) :sy (* piece-height y)))))
+                             :sx (* piece-width x) :sy (* piece-height y)
+                             :scale-x 2 :scale-y 2))))
   ; (loop [column-number row-number]
   ; (if-not (and (= 0 column-number) (= 0 row-number))
   ;  (recur)))
