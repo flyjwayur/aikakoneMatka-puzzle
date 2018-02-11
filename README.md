@@ -15,6 +15,9 @@ so that IntelliJ will understand this as a leiningen project and Cursive can hel
 Go to 'localhost:3000' to see running project and, 
 Go to 'localhost:4000' to edit project on the browser with 'Nightlight'.
 
+### Checking the code 
+Run 'boot check' to find out if the code can be improved.
+
 ## Licensing
 Copyright @2018 HyeSoo Park 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

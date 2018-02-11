@@ -11,7 +11,8 @@
                   [nightlight "RELEASE" :scope "test"]
                   [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
-                  [play-cljs "1.1.0"]])
+                  [play-cljs "1.1.0"]
+                  [tolitius/boot-check "0.1.7"]])
 
 ;generate 'project.clj' every time boot task is run
 (require 'boot.lein)
@@ -22,7 +23,17 @@
   '[adzerk.boot-reload :refer [reload]]
   '[pandeiro.boot-http :refer [serve]]
   '[nightlight.boot :refer [nightlight]]
-  '[aikakonematka.core :as core])
+  '[aikakonematka.core :as core]
+  '[tolitius.boot-check :as check])
+
+(deftask check []
+  (comp
+      (check/with-yagni)
+      (check/with-eastwood)
+      (check/with-kibit)
+      (check/with-bikeshed :options {:docstrings      false
+                                     :verbose         true
+                                     :max-line-length 120})))
 
 (deftask run []
   (comp
