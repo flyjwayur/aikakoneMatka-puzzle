@@ -1,4 +1,4 @@
-(ns clj.aikakonematka.core
+(ns aikakonematka.core
   (:require [org.httpkit.server :as server]
             ))
 
