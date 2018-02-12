@@ -7,11 +7,15 @@
                   [pandeiro/boot-http "0.8.3" :scope "test"]
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
+                  [compojure "1.6.0"]
+                  [com.taoensso/sente "1.12.0"]
                   [http-kit "2.2.0"]
                   [nightlight "RELEASE" :scope "test"]
                   [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
                   [play-cljs "1.1.0"]
+                  [ring/ring-defaults "0.2.0"]
+                  [ring-cors "0.1.7"]
                   [tolitius/boot-check "0.1.7"]])
 
 ;generate 'project.clj' every time boot task is run
