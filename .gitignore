@@ -6,5 +6,6 @@ pom.xml.asc
 **/target
 .*
 !.gitignore
+project.clj
 .idea/
 *.iml
