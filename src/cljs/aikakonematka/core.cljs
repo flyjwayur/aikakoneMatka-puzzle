@@ -5,23 +5,75 @@
 
 (enable-console-print!)
 
-(declare game)
+(def window-width (atom (.-innerWidth js/window)))
+(def window-height (atom (.-innerHeight js/window)))
+(def puzzle-width (atom nil))
+(def puzzle-height (atom nil))
+(defn- left-margin [window-width]
+  (/ (- @window-width @puzzle-width) 2))
+(defn- top-margin [window-height]
+  (/ (- @window-height @puzzle-height) 2))
+(def row-num 6)
+(def col-num 6)
+(defn- piece-width [puzzle-width]
+  (/ @puzzle-width col-num))
+(defn- piece-height [puzzle-height]
+  (/ @puzzle-height row-num))
+
+
+(def game (atom nil))
 
 (defn- preload []
-  (.image (.-load game) "puzzle" "images/tileset.png" ))
+  (.spritesheet
+    (.-load @game)
+    "puzzle"
+    "images/tileset.png"
+    (piece-width puzzle-width)
+    (piece-height puzzle-height)
+    (* row-num col-num)))
 
 (defn- create []
-  (.sprite (.-add game) 0 0  "puzzle"))
+  (let [game-object-factory (.-add @game)
+        piece-width (piece-width puzzle-width)
+        piece-height (piece-height puzzle-height)
+        left-margin (centering-width window-width)
+        top-margin (centering-height window-height)]
+    (doseq [row (range row-num)
+            col (range row-num)
+            :let [frame-id (+ (* col-num row) col)
+                  x-pos (+ (* piece-width col) left-margin col)
+                  y-pos (+ (* piece-height row) top-margin row)]]
+      (.sprite
+        game-object-factory
+        x-pos
+        y-pos
+        "puzzle"
+        frame-id))))
 
 (defn- update [])
 
-(defonce game (js/Phaser.Game.
-                (.-innerWidth js/window)
-                (.-innerHeight js/window)
-                js/Phaser.Auto
-                ""
-                (clj->js {:preload preload :create create :update update})))
+(defn- start-game! []
+  (println "starting game")
+  (reset! game
+          (js/Phaser.Game.
+            (.-innerWidth js/window)
+            (.-innerHeight js/window)
+            js/Phaser.Auto
+            ""
+            (clj->js {:preload preload :create create :update update}))))
 
 (defonce state (atom {}))
 
 (web-sck/start-router state)
+
+(let [img (js/Image.)]
+  (set! (.-onload img)
+        (clj->js
+          (fn []
+            (reset! puzzle-width (.-width img))
+            (reset! puzzle-height (.-height img))
+            (println "Puzzle image loaded")
+            (start-game!))))
+  (set! (.-src img) "images/tileset.png")
+  (println "loading puzzle image"))
+
