@@ -27,20 +27,22 @@
   (.spritesheet
     (.-load @game)
     "puzzle"
-    "images/tileset.png"
+    "images/puzzleImage.jpg"
     (piece-width puzzle-width)
     (piece-height puzzle-height)
     (* row-num col-num)))
 
 (defn- create []
+  "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @game)
         piece-width (piece-width puzzle-width)
         piece-height (piece-height puzzle-height)
-        left-margin (centering-width window-width)
-        top-margin (centering-height window-height)]
+        left-margin (left-margin window-width)
+        top-margin (top-margin window-height)]
     (doseq [row (range row-num)
             col (range row-num)
             :let [frame-id (+ (* col-num row) col)
+                  ;shuffled-frame-id (shuffle (range frame-id)
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
       (.sprite
@@ -56,8 +58,8 @@
   (println "starting game")
   (reset! game
           (js/Phaser.Game.
-            (.-innerWidth js/window)
-            (.-innerHeight js/window)
+            @window-width
+            @window-height
             js/Phaser.Auto
             ""
             (clj->js {:preload preload :create create :update update}))))
@@ -74,6 +76,7 @@
             (reset! puzzle-height (.-height img))
             (println "Puzzle image loaded")
             (start-game!))))
-  (set! (.-src img) "images/tileset.png")
+  (set! (.-src img) "images/puzzleImage.jpg")
   (println "loading puzzle image"))
+
 
