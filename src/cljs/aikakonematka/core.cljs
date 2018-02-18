@@ -38,19 +38,24 @@
         piece-width (piece-width puzzle-width)
         piece-height (piece-height puzzle-height)
         left-margin (left-margin window-width)
-        top-margin (top-margin window-height)]
+        top-margin (top-margin window-height)
+        shuffled-frame-ids (shuffle (range (* row-num col-num)))]
     (doseq [row (range row-num)
             col (range row-num)
-            :let [frame-id (+ (* col-num row) col)
-                  ;shuffled-frame-id (shuffle (range frame-id)
+            :let [shuffled-frame-id (shuffled-frame-ids (+ (* col row-num) row))
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
-      (.sprite
-        game-object-factory
-        x-pos
-        y-pos
-        "puzzle"
-        frame-id))))
+      (if (= 1 shuffled-frame-id)
+        (.sprite
+          game-object-factory
+          x-pos
+          y-pos)
+        (.sprite
+          game-object-factory
+          x-pos
+          y-pos
+          "puzzle"
+          shuffled-frame-id)))))
 
 (defn- update [])
 
