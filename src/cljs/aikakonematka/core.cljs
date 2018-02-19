@@ -42,7 +42,7 @@
     )
   (.spritesheet
     (.-load @game)
-    "flip-button"
+    "flip-buttons"
     "images/control-buttons.png"
     (get-button-width @button-sprite-sheet-width button-sprite-col-num)
     (get-button-height @button-sprite-sheet-height button-sprite-row-num)
@@ -63,6 +63,19 @@
             :let [frame-id (+ (* col-num row)col)
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
+      (println "x-pos : " x-pos ", y-pos : " y-pos)
+      (cond
+        (zero? col)
+        (.setTo
+          (.-scale
+            (.sprite
+              game-object-factory
+              (- x-pos piece-width)
+              y-pos
+              "flip-buttons"
+              row))
+          (/ piece-width button-height)
+          (/ piece-height button-height)))
       (assoc sprites
               [x-pos y-pos]
               (.sprite
@@ -70,20 +83,7 @@
                 x-pos
                 y-pos
                 "puzzle"
-                frame-id)))
-    (doseq [button-id (range (* button-sprite-row-num button-sprite-col-num))]
-      (println "button-id : " button-id)
-      (println button-width :* button-height)
-      (.setTo
-        (.-scale
-         (.sprite                                    ;
-           game-object-factory
-           (* button-id button-width)
-           (* button-id button-height)
-           "flip-button"
-           button-id))
-        (/ piece-width button-width)
-        (/ piece-height button-height)))))
+                frame-id)))))
 
 (defn- update [])
 
