@@ -25,8 +25,8 @@
 (def button-sprite-row-num 2)
 (defn- button-width [sheet-width btn-sprite-col-num]
   (/ sheet-width btn-sprite-col-num))
-(defn- button-height [sheet-height btn-sprtie-row-num]
-  (/ sheet-height btn-sprtie-row-num))
+(defn- button-height [sheet-height btn-sprite-row-num]
+  (/ sheet-height btn-sprite-row-num))
 
 
 (def game (atom nil))
@@ -56,25 +56,19 @@
         piece-height (piece-height @puzzle-image-height row-num)
         left-margin (left-margin @window-width @puzzle-image-width)
         top-margin (top-margin @window-height @puzzle-image-height)
-        shuffled-frame-ids (shuffle (range (* row-num col-num)))
         button-width (button-width @button-sprite-sheet-width button-sprite-col-num)
         button-height (button-height @button-sprite-sheet-height button-sprite-row-num)]
     (doseq [row (range row-num)
             col (range row-num)
-            :let [shuffled-frame-id (shuffled-frame-ids (+ (* col row-num) row))
+            :let [frame-id (+ (* col-num row)col)
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
-      (if (= 1 shuffled-frame-id)
-        (.sprite
-          game-object-factory
-          x-pos
-          y-pos)
-        (.sprite
-          game-object-factory
-          x-pos
-          y-pos
-          "puzzle"
-          shuffled-frame-id)))
+      (.sprite
+        game-object-factory
+        x-pos
+        y-pos
+        "puzzle"
+        frame-id))
     (doseq [button-id (range (* button-sprite-row-num button-sprite-col-num))]
       (println "button-id : " button-id)
       (println button-width :* button-height)
