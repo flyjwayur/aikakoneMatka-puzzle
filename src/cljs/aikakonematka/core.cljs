@@ -9,24 +9,24 @@
 (def window-height (atom (.-innerHeight js/window)))
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
-(defn- left-margin [window-width]
-  (/ (- @window-width @puzzle-image-width) 2))
-(defn- top-margin [window-height]
-  (/ (- @window-height @puzzle-image-height) 2))
+(defn- left-margin [window-width puzzle-width]
+  (/ (- window-width puzzle-width) 2))
+(defn- top-margin [window-height puzzle-height]
+  (/ (- window-height puzzle-height) 2))
 (def row-num 6)
 (def col-num 6)
-(defn- piece-width [puzzle-width]
-  (/ @puzzle-width col-num))
-(defn- piece-height [puzzle-height]
-  (/ @puzzle-height row-num))
+(defn- piece-width [puzzle-width col-number]
+  (/ puzzle-width col-number))
+(defn- piece-height [puzzle-height row-number]
+  (/ puzzle-height row-number))
 (def button-sprite-sheet-width (atom nil))
 (def button-sprite-sheet-height (atom nil))
 (def button-sprite-col-num 3)
 (def button-sprite-row-num 2)
-(defn- button-width [sheet-width]
-  (/ @sheet-width button-sprite-col-num))
-(defn- button-height [sheet-height]
-  (/ @sheet-height button-sprite-row-num))
+(defn- button-width [sheet-width btn-sprite-col-num]
+  (/ sheet-width btn-sprite-col-num))
+(defn- button-height [sheet-height btn-sprtie-row-num]
+  (/ sheet-height btn-sprtie-row-num))
 
 
 (def game (atom nil))
@@ -36,29 +36,29 @@
     (.-load @game)
     "puzzle"
     "images/puzzleImage.jpg"
-    (piece-width puzzle-image-width)
-    (piece-height puzzle-image-height)
+    (piece-width @puzzle-image-width col-num)
+    (piece-height @puzzle-image-height row-num)
     (* row-num col-num)
     )
   (.spritesheet
     (.-load @game)
     "flip-button"
     "images/control-buttons.png"
-    (button-width button-sprite-sheet-width)
-    (button-height button-sprite-sheet-height)
+    (button-width @button-sprite-sheet-width button-sprite-col-num)
+    (button-height @button-sprite-sheet-height button-sprite-row-num)
     (* button-sprite-row-num button-sprite-col-num)
     ))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @game)
-        piece-width (piece-width puzzle-image-width)
-        piece-height (piece-height puzzle-image-height)
-        left-margin (left-margin window-width)
-        top-margin (top-margin window-height)
+        piece-width (piece-width @puzzle-image-width col-num)
+        piece-height (piece-height @puzzle-image-height row-num)
+        left-margin (left-margin @window-width @puzzle-image-width)
+        top-margin (top-margin @window-height @puzzle-image-height)
         shuffled-frame-ids (shuffle (range (* row-num col-num)))
-        button-width (button-width button-sprite-sheet-width)
-        button-height (button-height button-sprite-sheet-height)]
+        button-width (button-width @button-sprite-sheet-width button-sprite-col-num)
+        button-height (button-height @button-sprite-sheet-height button-sprite-row-num)]
     (doseq [row (range row-num)
             col (range row-num)
             :let [shuffled-frame-id (shuffled-frame-ids (+ (* col row-num) row))
