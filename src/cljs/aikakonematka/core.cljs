@@ -19,6 +19,14 @@
   (/ @puzzle-width col-num))
 (defn- piece-height [puzzle-height]
   (/ @puzzle-height row-num))
+(def button-sprite-sheet-width (atom nil))
+(def button-sprite-sheet-height (atom nil))
+(def button-sprite-col-num 3)
+(def button-sprite-row-num 2)
+(defn- button-width [sheet-width]
+  (/ @sheet-width button-sprite-col-num))
+(defn- button-height [sheet-height]
+  (/ @sheet-height button-sprite-row-num))
 
 
 (def game (atom nil))
@@ -30,7 +38,16 @@
     "images/puzzleImage.jpg"
     (piece-width puzzle-width)
     (piece-height puzzle-height)
-    (* row-num col-num)))
+    (* row-num col-num)
+    )
+  (.spritesheet
+    (.-load @game)
+    "flip-button"
+    "images/control-buttons.png"
+    (button-width button-sprite-sheet-width)
+    (button-height button-sprite-sheet-height)
+    (* button-sprite-row-num button-sprite-col-num)
+    ))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
@@ -39,7 +56,9 @@
         piece-height (piece-height puzzle-height)
         left-margin (left-margin window-width)
         top-margin (top-margin window-height)
-        shuffled-frame-ids (shuffle (range (* row-num col-num)))]
+        shuffled-frame-ids (shuffle (range (* row-num col-num)))
+        button-width (button-width button-sprite-sheet-width)
+        button-height (button-height button-sprite-sheet-height)]
     (doseq [row (range row-num)
             col (range row-num)
             :let [shuffled-frame-id (shuffled-frame-ids (+ (* col row-num) row))
@@ -55,7 +74,16 @@
           x-pos
           y-pos
           "puzzle"
-          shuffled-frame-id)))))
+          shuffled-frame-id)))
+    (doseq [ button-id (range (* button-sprite-row-num button-sprite-col-num))]
+      (println "button-id : " button-id)
+      (println button-width :* button-height)
+      (.sprite                                                ;
+        game-object-factory
+        (+ (* button-id button-width) puzzle-width left-margin)
+        (+ (* button-id button-height) puzzle-height top-margin)
+        "flip-button"
+        button-id))))
 
 (defn- update [])
 
@@ -73,15 +101,30 @@
 
 (web-sck/start-router state)
 
-(let [img (js/Image.)]
-  (set! (.-onload img)
-        (clj->js
-          (fn []
-            (reset! puzzle-width (.-width img))
-            (reset! puzzle-height (.-height img))
-            (println "Puzzle image loaded")
-            (start-game!))))
-  (set! (.-src img) "images/puzzleImage.jpg")
-  (println "loading puzzle image"))
+; this is the game program's entry point
+(let [puzzle-img (js/Image.)
+      buttons-img (js/Image.)]
+  ; finding out size of image. https://stackoverflow.com/a/626505/5802173
+  ; image loading is done asynchronously. The way to start the game after image is loaded is
+  ; we start the game in `onload` callback of the image. After loading buttons-img first,
+  ; start loading puzzle image then start the game.
+  (set!
+    (.-onload buttons-img)
+    (clj->js
+      (fn []
+        (reset! button-sprite-sheet-width (.-width buttons-img))
+        (reset! button-sprite-sheet-height (.-height buttons-img))
+        (println "buttons image loaded")
+        (set! (.-src puzzle-img) "images/puzzleImage.jpg"))))
+  (set!
+    (.-onload puzzle-img)
+    (clj->js
+      (fn []
+        (reset! puzzle-width (.-width puzzle-img))
+        (reset! puzzle-height (.-height puzzle-img))
+        (println "Puzzle image loaded")
+        (start-game!))))                                    ; start game after loading image
+  (set! (.-src buttons-img) "images/control-buttons.png")
+  (println "loading images"))
 
 
