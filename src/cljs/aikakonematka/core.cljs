@@ -60,12 +60,11 @@
         button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)]
     (doseq [row (range row-num)
             col (range row-num)
-            :let [frame-id (+ (* col-num row)col)
+            :let [frame-id (+ (* col-num row) col)
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
       (println "x-pos : " x-pos ", y-pos : " y-pos)
-      (cond
-        (zero? col)
+      (when (zero? col)
         (.setTo
           (.-scale
             (.sprite
@@ -74,16 +73,27 @@
               y-pos
               "flip-buttons"
               row))
-          (/ piece-width button-height)
+          (/ piece-width button-width)
+          (/ piece-height button-height)))
+      (when (= row (dec row-num))
+        (.setTo
+          (.-scale
+            (.sprite
+              game-object-factory
+              x-pos
+              (+ y-pos piece-height)
+              "flip-buttons"
+              col))
+          (/ piece-width button-width)
           (/ piece-height button-height)))
       (assoc sprites
-              [x-pos y-pos]
-              (.sprite
-                game-object-factory
-                x-pos
-                y-pos
-                "puzzle"
-                frame-id)))))
+        [x-pos y-pos]
+        (.sprite
+          game-object-factory
+          x-pos
+          y-pos
+          "puzzle"
+          frame-id)))))
 
 (defn- update [])
 
