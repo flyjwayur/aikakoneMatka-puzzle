@@ -7,12 +7,12 @@
 
 (def window-width (atom (.-innerWidth js/window)))
 (def window-height (atom (.-innerHeight js/window)))
-(def puzzle-width (atom nil))
-(def puzzle-height (atom nil))
+(def puzzle-image-width (atom nil))
+(def puzzle-image-height (atom nil))
 (defn- left-margin [window-width]
-  (/ (- @window-width @puzzle-width) 2))
+  (/ (- @window-width @puzzle-image-width) 2))
 (defn- top-margin [window-height]
-  (/ (- @window-height @puzzle-height) 2))
+  (/ (- @window-height @puzzle-image-height) 2))
 (def row-num 6)
 (def col-num 6)
 (defn- piece-width [puzzle-width]
@@ -36,8 +36,8 @@
     (.-load @game)
     "puzzle"
     "images/puzzleImage.jpg"
-    (piece-width puzzle-width)
-    (piece-height puzzle-height)
+    (piece-width puzzle-image-width)
+    (piece-height puzzle-image-height)
     (* row-num col-num)
     )
   (.spritesheet
@@ -52,8 +52,8 @@
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @game)
-        piece-width (piece-width puzzle-width)
-        piece-height (piece-height puzzle-height)
+        piece-width (piece-width puzzle-image-width)
+        piece-height (piece-height puzzle-image-height)
         left-margin (left-margin window-width)
         top-margin (top-margin window-height)
         shuffled-frame-ids (shuffle (range (* row-num col-num)))
@@ -75,15 +75,19 @@
           y-pos
           "puzzle"
           shuffled-frame-id)))
-    (doseq [ button-id (range (* button-sprite-row-num button-sprite-col-num))]
+    (doseq [button-id (range (* button-sprite-row-num button-sprite-col-num))]
       (println "button-id : " button-id)
       (println button-width :* button-height)
-      (.sprite                                                ;
-        game-object-factory
-        (+ (* button-id button-width) puzzle-width left-margin)
-        (+ (* button-id button-height) puzzle-height top-margin)
-        "flip-button"
-        button-id))))
+      (.setTo
+        (.-scale
+         (.sprite                                    ;
+           game-object-factory
+           (* button-id button-width)
+           (* button-id button-height)
+           "flip-button"
+           button-id))
+        (/ piece-width button-width)
+        (/ piece-height button-height)))))
 
 (defn- update [])
 
@@ -120,8 +124,8 @@
     (.-onload puzzle-img)
     (clj->js
       (fn []
-        (reset! puzzle-width (.-width puzzle-img))
-        (reset! puzzle-height (.-height puzzle-img))
+        (reset! puzzle-image-width (.-width puzzle-img))
+        (reset! puzzle-image-height (.-height puzzle-img))
         (println "Puzzle image loaded")
         (start-game!))))                                    ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png")
