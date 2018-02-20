@@ -57,7 +57,12 @@
         left-margin (get-left-margin @window-width @puzzle-image-width)
         top-margin (get-top-margin @window-height @puzzle-image-height)
         button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
-        button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)]
+        button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)
+        make-buttons-same-size-as-puzzle-piece (fn [sprite]
+                                                 (.setTo
+                                                   (.-scale sprite)
+                                                   (/ piece-width button-width)
+                                                   (/ piece-height button-height)))]
     (doseq [row (range row-num)
             col (range row-num)
             :let [frame-id (+ (* col-num row) col)
@@ -65,27 +70,21 @@
                   y-pos (+ (* piece-height row) top-margin row)]]
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when (zero? col)
-        (.setTo
-          (.-scale
-            (.sprite
-              game-object-factory
-              (- x-pos piece-width)
-              y-pos
-              "flip-buttons"
-              row))
-          (/ piece-width button-width)
-          (/ piece-height button-height)))
+        (make-buttons-same-size-as-puzzle-piece
+          (.sprite
+            game-object-factory
+            (- x-pos piece-width)
+            y-pos
+            "flip-buttons"
+            row)))
       (when (= row (dec row-num))
-        (.setTo
-          (.-scale
-            (.sprite
-              game-object-factory
-              x-pos
-              (+ y-pos piece-height)
-              "flip-buttons"
-              col))
-          (/ piece-width button-width)
-          (/ piece-height button-height)))
+        (make-buttons-same-size-as-puzzle-piece
+          (.sprite
+            game-object-factory
+            x-pos
+            (+ y-pos piece-height)
+            "flip-buttons"
+            col)))
       (assoc sprites
         [x-pos y-pos]
         (.sprite
