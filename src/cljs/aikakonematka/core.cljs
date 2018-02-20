@@ -27,7 +27,7 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
-(def sprites {})
+(def sprites (atom nil))
 
 (def game (atom nil))
 
@@ -38,16 +38,14 @@
     "images/puzzleImage.jpg"
     (get-piece-width @puzzle-image-width col-num)
     (get-piece-height @puzzle-image-height row-num)
-    (* row-num col-num)
-    )
+    (* row-num col-num))
   (.spritesheet
     (.-load @game)
     "flip-buttons"
     "images/control-buttons.png"
     (get-button-width @button-sprite-sheet-width button-sprite-col-num)
     (get-button-height @button-sprite-sheet-height button-sprite-row-num)
-    (* button-sprite-row-num button-sprite-col-num)
-    ))
+    (* button-sprite-row-num button-sprite-col-num)))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
@@ -85,14 +83,15 @@
             (+ y-pos piece-height)
             "flip-buttons"
             col)))
-      (assoc sprites
-        [x-pos y-pos]
-        (.sprite
-          game-object-factory
-          x-pos
-          y-pos
-          "puzzle"
-          frame-id)))))
+      (swap! sprites
+             assoc
+             [x-pos y-pos]
+             (.sprite
+               game-object-factory
+               x-pos
+               y-pos
+              "puzzle"
+              frame-id)))))
 
 (defn- update [])
 
