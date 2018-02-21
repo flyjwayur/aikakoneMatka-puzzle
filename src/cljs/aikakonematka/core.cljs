@@ -103,15 +103,13 @@
             (+ y-pos piece-height)
             "flip-buttons"
             col)))
-      (swap! sprites
-             assoc
-             [row col]
-             (.sprite
-               game-object-factory
-               x-pos
-               y-pos
-              "puzzle"
-              frame-id)))))
+      (let [piece (.sprite
+                    game-object-factory
+                    x-pos
+                    y-pos
+                    "puzzle"
+                    frame-id)]
+        (swap! sprites [row col] piece)))))
 
 (defn- update [])
 
