@@ -83,7 +83,7 @@
           (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
           (set-on-click-callback!
             bottom-left-button
-            (fn [] (println "bottom-left-button clicked"))))
+            (fn [] (println "bottom-left-button clicked")))))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
@@ -105,7 +105,7 @@
             col)))
       (swap! sprites
              assoc
-             [x-pos y-pos]
+             [row col]
              (.sprite
                game-object-factory
                x-pos
