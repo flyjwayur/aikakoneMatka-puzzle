@@ -94,7 +94,7 @@
              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
              (doseq [row (range row-num)
                      :let [col (- (dec col-num) row)]]
-               (toggle-visibility! (@sprites [row col])))))))
+               (toggle-visibility! (@sprites [col row])))))))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
@@ -121,7 +121,7 @@
                     y-pos
                     "puzzle"
                     frame-id)]
-        (swap! sprites assoc [row col] piece)))))
+        (swap! sprites assoc [col row] piece)))))
 
 (defn- update [])
 
