@@ -65,7 +65,12 @@
                                  (set! (.-inputEnabled sprite) true)
                                  (.add
                                    (.-onInputDown (.-events sprite))
-                                   callback-fn))]
+                                   callback-fn))
+        toggle-visibility! (fn [sprite]
+                             (let [piece-scale (.-scale sprite)]
+                               (if (zero? (.-x piece-scale))
+                                 (.setTo piece-scale 1 1)
+                                 (.setTo piece-scale 0 0))))]
     (doseq [row (range row-num)
             col (range row-num)
             :let [frame-id (+ (* col-num row) col)
@@ -88,11 +93,8 @@
              ;Without getting new row & col range with doseq for flipping,
              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
              (doseq [row (range row-num)
-                     :let [col (- (dec col-num) row)
-                           piece-scale (.-scale (@sprites [row col]))]]
-               (if (zero? (.-x piece-scale))
-                 (.setTo piece-scale 1 1)
-                 (.setTo piece-scale 0 0)))))))
+                     :let [col (- (dec col-num) row)]]
+               (toggle-visibility! (@sprites [row col])))))))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
@@ -103,7 +105,8 @@
           (make-buttons-same-size-as-puzzle-piece! left-button)
           (set-on-click-callback!
             left-button
-            (fn [] (println "left-button row #" row " clicked")))))
+            (fn []
+              (println "left-button row #" row " clicked")))))
       (when (= row (dec row-num))
         (make-buttons-same-size-as-puzzle-piece!
           (.sprite
