@@ -88,10 +88,11 @@
              ;Without getting new row & col range with doseq for flipping,
              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
              (doseq [row (range row-num)
-                     :let [col (- (dec col-num) row)]]
-               (.setTo (.-scale (@sprites [row col])) 0 0))
-             (println "row : " row " , col : " col))
-            )))
+                     :let [col (- (dec col-num) row)
+                           piece-scale (.-scale (@sprites [row col]))]]
+               (if (zero? (.-x piece-scale))
+                 (.setTo piece-scale 1 1)
+                 (.setTo piece-scale 0 0)))))))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
