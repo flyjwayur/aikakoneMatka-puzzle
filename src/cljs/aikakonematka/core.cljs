@@ -83,7 +83,15 @@
           (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
           (set-on-click-callback!
             bottom-left-button
-            (fn [] (println "bottom-left-button clicked")))))
+           (fn []
+             (println "bottom-left-button is clicked!")
+             ;Without getting new row & col range with doseq for flipping,
+             ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+             (doseq [row (range row-num)
+                     :let [col (- (dec col-num) row)]]
+               (.setTo (.-scale (@sprites [row col])) 0 0))
+             (println "row : " row " , col : " col))
+            )))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
@@ -109,7 +117,7 @@
                     y-pos
                     "puzzle"
                     frame-id)]
-        (swap! sprites [row col] piece)))))
+        (swap! sprites assoc [row col] piece)))))
 
 (defn- update [])
 
