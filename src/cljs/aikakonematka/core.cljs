@@ -27,7 +27,10 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
-(defonce game-state (atom {:sprites {}}))
+(defonce game-state (atom {:sprites {}
+                           :sprites-state {}}))
+(def flipped-state "FLIPPED")
+(def non-flipped-state "NON-FLIPPED")
 
 (def game (atom nil))
 
@@ -88,7 +91,8 @@
                     y-pos
                     "puzzle"
                     frame-id)]
-        (swap! game-state update :sprites assoc [col row] piece))
+        (swap! game-state update :sprites assoc [col row] piece)
+        (swap! game-state update :sprites-state assoc [col row] non-flipped-state))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
         (and (zero? col) (= row (dec row-num)))
