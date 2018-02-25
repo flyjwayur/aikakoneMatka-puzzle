@@ -154,9 +154,8 @@
             ""
             (clj->js {:preload preload :create create :update update}))))
 
-(defonce state (atom {}))
 
-(web-sck/start-router state)
+(web-sck/start-router game-state)
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
