@@ -57,10 +57,10 @@
         button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
         button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)
         make-buttons-same-size-as-puzzle-piece! (fn [sprite]
-                                                 (.setTo
-                                                   (.-scale sprite)
-                                                   (/ piece-width button-width)
-                                                   (/ piece-height button-height)))
+                                                  (.setTo
+                                                    (.-scale sprite)
+                                                    (/ piece-width button-width)
+                                                    (/ piece-height button-height)))
         set-on-click-callback! (fn [sprite callback-fn]
                                  (set! (.-inputEnabled sprite) true)
                                  (.add
@@ -70,7 +70,12 @@
                              (let [piece-scale (.-scale sprite)]
                                (if (zero? (.-x piece-scale))
                                  (.setTo piece-scale 1 1)
-                                 (.setTo piece-scale 0 0))))]
+                                 (.setTo piece-scale 0 0))))
+        randomly-flipped-on-start! (fn [piece-sprite]
+                                     (let [piece-scale (.-scale piece-sprite)]
+                                       (if (< (rand) 0.5)
+                                         (.setTo piece-scale 1 1)
+                                         (.setTo piece-scale 0 0))))]
     (doseq [row (range row-num)
             col (range row-num)
             :let [frame-id (+ (* col-num row) col)
@@ -82,7 +87,8 @@
                     y-pos
                     "puzzle"
                     frame-id)]
-        (swap! sprites assoc [col row] piece))
+        (swap! sprites assoc [col row] piece)
+        (randomly-flipped-on-start! piece))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
         (and (zero? col) (= row (dec row-num)))
@@ -95,13 +101,13 @@
           (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
           (set-on-click-callback!
             bottom-left-button
-           (fn []
-             (println "bottom-left-button is clicked!")
-             ;Without getting new row & col range with doseq for flipping,
-             ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-             (doseq [row (range row-num)
-                     :let [col (- (dec col-num) row)]]
-               (toggle-visibility! (@sprites [col row])))))))
+            (fn []
+              (println "bottom-left-button is clicked!")
+              ;Without getting new row & col range with doseq for flipping,
+              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+              (doseq [row (range row-num)
+                      :let [col (- (dec col-num) row)]]
+                (toggle-visibility! (@sprites [col row])))))))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
