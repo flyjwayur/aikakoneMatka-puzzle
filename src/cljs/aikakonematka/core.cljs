@@ -106,7 +106,9 @@
           (set-on-click-callback!
             left-button
             (fn []
-              (println "left-button row #" row " clicked")))))
+              (doseq [col (range col-num)]
+                (toggle-visibility! (@sprites [col row])))
+              (println "left-button row #" row " clicked, " "which col : " col)))))
       (when (= row (dec row-num))
         (make-buttons-same-size-as-puzzle-piece!
           (.sprite
