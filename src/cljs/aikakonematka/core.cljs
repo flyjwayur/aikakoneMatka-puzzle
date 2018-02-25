@@ -70,7 +70,11 @@
                              (let [piece-scale (.-scale sprite)]
                                (if (zero? (.-x piece-scale))
                                  (.setTo piece-scale 1 1)
-                                 (.setTo piece-scale 0 0))))]
+                                 (.setTo piece-scale 0 0))))
+        flip-diagonal-pieces! (fn []
+                                (doseq [row (range row-num)
+                                        :let [col (- (dec col-num) row)]]
+                                  (toggle-visibility! (@sprites [col row]))))]
     (doseq [row (range row-num)
             col (range row-num)
             :let [frame-id (+ (* col-num row) col)
@@ -99,9 +103,9 @@
              (println "bottom-left-button is clicked!")
              ;Without getting new row & col range with doseq for flipping,
              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-             (doseq [row (range row-num)
-                     :let [col (- (dec col-num) row)]]
-               (toggle-visibility! (@sprites [col row])))))))
+             (flip-diagonal-pieces!)))
+          (when (< (rand) 0.5)
+            (flip-diagonal-pieces!))))
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
