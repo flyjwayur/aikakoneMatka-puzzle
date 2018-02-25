@@ -130,14 +130,17 @@
                               x-pos
                               (+ y-pos piece-height)
                               "flip-buttons"
-                              col)]
+                              col)
+              flip-col! (fn []
+                         (doseq [row (range row-num)]
+                           (toggle-visibility! (@sprites [col row]))))]
           (make-buttons-same-size-as-puzzle-piece! bottom-button)
           (set-on-click-callback!
             bottom-button
             (fn []
-              (doseq [row (range row-num)]
-                (toggle-visibility! (@sprites [col row]))
-                (println "bottom button col #" col " clicked, " "which row : " row)))))))))
+              (println "bottom button col #" col " clicked, " "which row : " row)
+              (flip-col!)))
+          (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200))))))))
 
 (defn- update [])
 
