@@ -69,15 +69,15 @@
                                  (.add
                                    (.-onInputDown (.-events sprite))
                                    callback-fn))
-        toggle-visibility! (fn [sprite]
-                             (let [piece-scale (.-scale sprite)]
+        toggle-visibility! (fn [col row]
+                             (let [piece-scale (.-scale ((:sprites @game-state) [col row]))]
                                (if (zero? (.-x piece-scale))
                                  (.setTo piece-scale 1 1)
                                  (.setTo piece-scale 0 0))))
         flip-diagonal-pieces! (fn []
                                 (doseq [row (range row-num)
                                         :let [col (- (dec col-num) row)]]
-                                  (toggle-visibility! ((:sprites @game-state) [col row]))))
+                                  (toggle-visibility! col row)))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
     (doseq [row (range row-num)
@@ -120,7 +120,7 @@
                             row)
               flip-row! (fn []
                          (doseq [col (range col-num)]
-                           (toggle-visibility! ((:sprites @game-state) [col row]))))]
+                           (toggle-visibility! col row)))]
           (make-buttons-same-size-as-puzzle-piece! left-button)
           (set-on-click-callback!
             left-button
@@ -137,7 +137,7 @@
                               col)
               flip-col! (fn []
                          (doseq [row (range row-num)]
-                           (toggle-visibility! ((:sprites @game-state) [col row]))))]
+                           (toggle-visibility! col row)))]
           (make-buttons-same-size-as-puzzle-piece! bottom-button)
           (set-on-click-callback!
             bottom-button
