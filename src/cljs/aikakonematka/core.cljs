@@ -27,7 +27,7 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
-(def sprites (atom nil))
+(defonce sprites (atom nil))
 
 (def game (atom nil))
 
