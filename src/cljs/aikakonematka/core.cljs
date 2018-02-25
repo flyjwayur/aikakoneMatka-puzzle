@@ -69,15 +69,31 @@
                                  (.add
                                    (.-onInputDown (.-events sprite))
                                    callback-fn))
-        toggle-visibility! (fn [col row]
+        toggle-visibility-and-flipped-state! (fn [col row]
                              (let [piece-scale (.-scale ((:sprites @game-state) [col row]))]
                                (if (zero? (.-x piece-scale))
-                                 (.setTo piece-scale 1 1)
-                                 (.setTo piece-scale 0 0))))
+                                 (do
+                                   (swap!
+                                     game-state
+                                     update
+                                     :sprites-state
+                                     assoc
+                                     [col row]
+                                     non-flipped-state)
+                                   (.setTo piece-scale 1 1))
+                                 (do
+                                   (swap!
+                                     game-state
+                                     update
+                                     :sprites-state
+                                     assoc
+                                     [col row]
+                                     flipped-state)
+                                   (.setTo piece-scale 0 0)))))
         flip-diagonal-pieces! (fn []
                                 (doseq [row (range row-num)
                                         :let [col (- (dec col-num) row)]]
-                                  (toggle-visibility! col row)))
+                                  (toggle-visibility-and-flipped-state! col row)))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
     (doseq [row (range row-num)
@@ -120,7 +136,7 @@
                             row)
               flip-row! (fn []
                          (doseq [col (range col-num)]
-                           (toggle-visibility! col row)))]
+                           (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! left-button)
           (set-on-click-callback!
             left-button
@@ -137,7 +153,7 @@
                               col)
               flip-col! (fn []
                          (doseq [row (range row-num)]
-                           (toggle-visibility! col row)))]
+                           (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! bottom-button)
           (set-on-click-callback!
             bottom-button
