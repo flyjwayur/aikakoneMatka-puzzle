@@ -76,6 +76,13 @@
             :let [frame-id (+ (* col-num row) col)
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
+      (let [piece (.sprite
+                    game-object-factory
+                    x-pos
+                    y-pos
+                    "puzzle"
+                    frame-id)]
+        (swap! sprites assoc [col row] piece))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
         (and (zero? col) (= row (dec row-num)))
@@ -123,14 +130,7 @@
             (fn []
               (doseq [row (range row-num)]
                 (toggle-visibility! (@sprites [col row]))
-                (println "bottom button col #" col " clicked, " "which row : " row))))))
-      (let [piece (.sprite
-                    game-object-factory
-                    x-pos
-                    y-pos
-                    "puzzle"
-                    frame-id)]
-        (swap! sprites assoc [col row] piece)))))
+                (println "bottom button col #" col " clicked, " "which row : " row)))))))))
 
 (defn- update [])
 
