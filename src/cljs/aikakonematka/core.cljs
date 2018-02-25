@@ -107,16 +107,23 @@
             left-button
             (fn []
               (doseq [col (range col-num)]
-                (toggle-visibility! (@sprites [col row])))
-              (println "left-button row #" row " clicked, " "which col : " col)))))
+                (toggle-visibility! (@sprites [col row]))
+                (println "left-button row #" row " clicked, " "which col : " col))
+              ))))
       (when (= row (dec row-num))
-        (make-buttons-same-size-as-puzzle-piece!
-          (.sprite
-            game-object-factory
-            x-pos
-            (+ y-pos piece-height)
-            "flip-buttons"
-            col)))
+        (let [bottom-button (.sprite
+                              game-object-factory
+                              x-pos
+                              (+ y-pos piece-height)
+                              "flip-buttons"
+                              col)]
+          (make-buttons-same-size-as-puzzle-piece! bottom-button)
+          (set-on-click-callback!
+            bottom-button
+            (fn []
+              (doseq [row (range row-num)]
+                (toggle-visibility! (@sprites [col row]))
+                (println "bottom button col #" col " clicked, " "which row : " row))))))
       (let [piece (.sprite
                     game-object-factory
                     x-pos
