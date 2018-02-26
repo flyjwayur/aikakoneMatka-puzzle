@@ -15,10 +15,14 @@
   (def chsk-send!                    (:send-fn connection))
   (def connected-uids                (:connected-uids connection)))
 
-(defn- handle-message! [{:keys [id cliend-id ?data]}]
-  (when (= id :aikakone/mouse-moved)
+(defn- handle-message! [{:keys [id client-id ?data]}]
+  (println :id id)
+  (println :client-id client-id)
+  (println :data? ?data)
+
+  (when (= id :aikakone/sprites-state)
     (doseq [uid (:any @connected-uids)]
-      (chsk-send! uid [:aikakone/mouse-moved ?data]))))
+      (chsk-send! uid [:aikakone/sprites-state ?data]))))
 
 (sente/start-chsk-router! ch-chsk handle-message!)
 

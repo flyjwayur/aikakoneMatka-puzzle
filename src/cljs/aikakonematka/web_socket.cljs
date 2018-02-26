@@ -28,11 +28,18 @@
       (println "Channel socket state change:" ?data)))
 
   (defmethod event-msg-handler :chsk/recv [{:keys [?data]}]
-    (let [position (second ?data)]
-      (swap! state assoc :text-x (:x position) :text-y (:y position))))
+    (let [[event-id event-data] ?data]
+      (println "received " [event-id event-data])
+      (case event-id
+        :aikakone/sprites-state (swap! state update :sprite-state assoc event-data)
+        (println event-id " is unknown event type"))))
 
   (defn send-uid []
     (chsk-send! [:aikakone/uid (:uid @state)]))
+
+  (defn send-sprites-state! []
+    (println "sending " (:sprite-state @state))
+    (chsk-send! [:aikakone/sprites-state (:sprites-state @state)]))
 
   (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
     (let [[?uid ?csrf-token ?handshake-data] ?data]
