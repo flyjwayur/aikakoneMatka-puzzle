@@ -32,7 +32,28 @@
     (let [[event-id event-data] ?data]
       (println "received " [event-id event-data])
       (case event-id
-        :aikakone/sprites-state (swap! state update :sprite-state assoc event-data)
+        :aikakone/sprites-state (let [sprites (:sprites @state)]
+                                  (doseq [[[col row] flipped-state] event-data]
+                                    (let [piece-scale (.-scale (sprites [col row]))]
+                                      (if (= "NON-FLIPPED" flipped-state)
+                                        (do
+                                          (swap!
+                                            state
+                                            update
+                                            :sprites-state
+                                            assoc
+                                            [col row]
+                                            "NON-FLIPPED")
+                                          (.setTo piece-scale 1 1))
+                                        (do
+                                          (swap!
+                                            state
+                                            update
+                                            :sprites-state
+                                            assoc
+                                            [col row]
+                                            "FLIPPED")
+                                          (.setTo piece-scale 0 0))))))
         (println event-id " is unknown event type"))))
 
   (defn send-uid []
