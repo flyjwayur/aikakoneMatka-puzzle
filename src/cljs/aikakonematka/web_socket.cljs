@@ -62,9 +62,9 @@
   (defn send-uid []
     (chsk-send! [:aikakone/uid (:uid @state)]))
 
-  (defn send-sprites-state! []
-    (println "sending " (:sprites-state @state))
-    (chsk-send! [:aikakone/sprites-state (:sprites-state @state)]))
+  (defn send-sprites-state! [game-state]
+    (println "sending " (:sprites-state @game-state))
+    (chsk-send! [:aikakone/sprites-state (:sprites-state @game-state)]))
 
   (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
     (let [[?uid ?csrf-token ?handshake-data] ?data]

@@ -126,7 +126,7 @@
              ;Without getting new row & col range with doseq for flipping,
              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
              (flip-diagonal-pieces!)
-             (web-sck/send-sprites-state!)))
+             (web-sck/send-sprites-state! game-state)))
           (randomly-execute-a-fn flip-diagonal-pieces!)))
       (when (zero? col)
         (let [left-button (.sprite
@@ -144,7 +144,7 @@
             (fn []
               (println "left-button row #" row " clicked, " "which col : " col)
               (flip-row!)
-              (web-sck/send-sprites-state!)))
+              (web-sck/send-sprites-state! game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-row! 200)))))
       (when (= row (dec row-num))
         (let [bottom-button (.sprite
@@ -162,7 +162,7 @@
             (fn []
               (println "bottom button col #" col " clicked, " "which row : " row)
               (flip-col!)
-              (web-sck/send-sprites-state!)))
+              (web-sck/send-sprites-state! game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200))))))))
 
 (defn- update [])
