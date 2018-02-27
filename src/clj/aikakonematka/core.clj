@@ -15,20 +15,22 @@
   (def chsk-send!                    (:send-fn connection))
   (def connected-uids                (:connected-uids connection)))
 
-(defn- handle-message! [{:keys [id client-id ?data]}]
-  (println :id id)
-  (println :client-id client-id)
-  (println :data? ?data)
+(defn- handle-message! [{:keys [id client-id ?data]}]       ; To check requested ID to see if it matches the :aikakone/sprites-state
+  (println :id id)                                          ; To identify type of msg and handle them accordingly
+  (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
+  (println :data? ?data)                                    ; To contain the request payload.
 
-  (when (= id :aikakone/sprites-state)
-    (doseq [uid (:any @connected-uids)]
+  (when (= id :aikakone/sprites-state)                      ; To broadcast the response to all the connected clients
+    (doseq [uid (:any @connected-uids)]                     ; -listed by the connected uuids variable.
       (chsk-send! uid [:aikakone/sprites-state ?data]))))
 
-(sente/start-chsk-router! ch-chsk handle-message!)
+(sente/start-chsk-router! ch-chsk handle-message!)          ; To initialize the router which uses core.async go-loop
+                                                            ; to manage msg routing between clients
+                                                            ; and pass it handle-message! as the event handler.
 
 (defroutes app
-           (GET  "/chsk" req (ring-ajax-get-or-ws-handshake req))
-           (POST "/chsk" req (ring-ajax-post                req)))
+           (GET  "/chsk" req (ring-ajax-get-or-ws-handshake req))  ; To update the routes with these two fns
+           (POST "/chsk" req (ring-ajax-post                req))) ; to handle client requests.
 
 (def handler
   (-> #'app
