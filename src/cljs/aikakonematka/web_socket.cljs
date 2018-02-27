@@ -15,6 +15,30 @@
 (defonce ch-chsk (:ch-recv channel-socket))                 ;To receive the msg
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
 
+(defn- synchronize-puzzle-board [state sprite-state]
+  (let [sprites (:sprites @state)]
+    (doseq [[[col row] flipped-state] sprite-state]
+      (let [piece-scale (.-scale (sprites [col row]))]
+        (if (= "NON-FLIPPED" flipped-state)
+          (do
+            (swap!
+              state
+              update
+              :sprites-state
+              assoc
+              [col row]
+              "NON-FLIPPED")
+            (.setTo piece-scale 1 1))
+          (do
+            (swap!
+              state
+              update
+              :sprites-state
+              assoc
+              [col row]
+              "FLIPPED")
+            (.setTo piece-scale 0 0)))))))
+
 ;Initialize event-msg-hanlders for handling different socket events.
 (defn- define-event-msg-handler [state]                     ; To check the :id key on the msg and route it accordingly.
   (defmulti event-msg-handler :id)                          ; To initialize it with a map containing fns
@@ -32,28 +56,7 @@
     (let [[event-id event-data] ?data]
       (println "received " [event-id event-data])
       (case event-id
-        :aikakone/sprites-state (let [sprites (:sprites @state)]
-                                  (doseq [[[col row] flipped-state] event-data]
-                                    (let [piece-scale (.-scale (sprites [col row]))]
-                                      (if (= "NON-FLIPPED" flipped-state)
-                                        (do
-                                          (swap!
-                                            state
-                                            update
-                                            :sprites-state
-                                            assoc
-                                            [col row]
-                                            "NON-FLIPPED")
-                                          (.setTo piece-scale 1 1))
-                                        (do
-                                          (swap!
-                                            state
-                                            update
-                                            :sprites-state
-                                            assoc
-                                            [col row]
-                                            "FLIPPED")
-                                          (.setTo piece-scale 0 0))))))
+        :aikakone/sprites-state (synchronize-puzzle-board state event-data)
         (println event-id " is unknown event type"))))
 
   (defn send-uid []
