@@ -80,7 +80,9 @@
                                      assoc
                                      [col row]
                                      non-flipped-state)
-                                   (.setTo piece-scale 1 1))
+                                   (.setTo piece-scale
+                                           (/ puzzle-width-height @puzzle-image-width)
+                                           (/ puzzle-width-height @puzzle-image-height)))
                                  (do
                                    (swap!
                                      game-state
