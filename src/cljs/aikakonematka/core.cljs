@@ -7,10 +7,10 @@
 
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
-(defn- get-left-margin [puzzle-width]
-  (/ (- (.-innerWidth js/window) puzzle-width) 2))
-(defn- get-top-margin [puzzle-height]
-  (/ (- (.-innerHeight js/window) puzzle-height) 4))
+(defn- get-left-margin [puzzle-width-height]
+  (/ (- (.-innerWidth js/window) puzzle-width-height) 2))
+(defn- get-top-margin [puzzle-width-height]
+  (/ (- (.-innerHeight js/window) puzzle-width-height) 4))
 (def row-col-num 6)
 (defn- get-piece-width-height [puzzle-width-height]
   (/ puzzle-width-height row-col-num))
@@ -23,7 +23,10 @@
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
 (defonce game-state (atom {:sprites {}
-                           :sprites-state {}}))
+                           :sprites-state {}
+                           :puzzle-width-height 0
+                           :piece-x-scale 0
+                           :piece-y-scale 0}))
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
 
@@ -48,14 +51,10 @@
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @game)
-        puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
-                                             (.-innerHeight js/window))))
-        piece-x-scale (/ puzzle-width-height @puzzle-image-width)
-        piece-y-scale (/ puzzle-width-height @puzzle-image-height)
-        piece-width (get-piece-width-height puzzle-width-height)
-        piece-height (get-piece-width-height puzzle-width-height)
-        left-margin (get-left-margin @puzzle-image-width)
-        top-margin (get-top-margin @puzzle-image-height)
+        piece-width (get-piece-width-height (:puzzle-width-height @game-state))
+        piece-height (get-piece-width-height (:puzzle-width-height @game-state))
+        left-margin (get-left-margin (:puzzle-width-height @game-state))
+        top-margin (get-top-margin (:puzzle-width-height @game-state))
         button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
         button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)
         make-buttons-same-size-as-puzzle-piece! (fn [sprite]
@@ -79,7 +78,10 @@
                                      assoc
                                      [col row]
                                      non-flipped-state)
-                                   (.setTo piece-scale piece-x-scale piece-y-scale))
+                                   (.setTo
+                                     piece-scale
+                                     (:piece-x-scale @game-state)
+                                     (:piece-y-scale @game-state)))
                                  (do
                                    (swap!
                                      game-state
@@ -89,15 +91,12 @@
                                      [col row]
                                      flipped-state)
                                    (.setTo piece-scale 0 0)))))
-        flip-diagonal-pieces! (fn []
-                                (doseq [row (range row-col-num)
-                                        :let [col (- (dec row-col-num) row)]]
-                                  (toggle-visibility-and-flipped-state! col row)))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
-    (println "puzzle-width-height(* 0.7) : " puzzle-width-height)
+    (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @game-state))
+    (println :game-state @game-state)
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
@@ -111,7 +110,7 @@
                     frame-id)]
         (swap! game-state update :sprites assoc [col row] piece)
         (swap! game-state update :sprites-state assoc [col row] non-flipped-state)
-        (.setTo (.-scale piece) piece-x-scale piece-y-scale))
+        (.setTo (.-scale piece) (:piece-x-scale @game-state) (:piece-y-scale @game-state)))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
         (and (zero? col) (= row (dec row-col-num)))
@@ -120,7 +119,11 @@
                                    (- x-pos piece-width)
                                    (+ y-pos piece-height)
                                    "flip-buttons"
-                                   5)]
+                                   5)
+              flip-diagonal-pieces! (fn []
+                                      (doseq [row (range row-col-num)
+                                              :let [col (- (dec row-col-num) row)]]
+                                        (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
           (set-on-click-callback!
             bottom-left-button
@@ -204,6 +207,12 @@
       (fn []
         (reset! puzzle-image-width (.-width puzzle-img))
         (reset! puzzle-image-height (.-height puzzle-img))
+        (swap! game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
+                                                                      (.-innerHeight js/window)))))
+        (swap! game-state assoc :piece-x-scale (/ (:puzzle-width-height @game-state)
+                                                  @puzzle-image-width))
+        (swap! game-state assoc :piece-y-scale (/ (:puzzle-width-height @game-state)
+                                                  @puzzle-image-height))
         (println "Puzzle image loaded")
         (start-game!))))                                    ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png")
