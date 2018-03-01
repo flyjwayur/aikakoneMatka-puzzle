@@ -19,9 +19,9 @@
   (let [sprites (:sprites @state)
         piece-x-scale (:piece-x-scale @state)
         piece-y-scale (:piece-y-scale @state)]
-    (doseq [[[col row] flipped-state] sprite-state]
+    (doseq [[[col row] sprite-flipped-state] sprite-state]
       (let [piece-scale (.-scale (sprites [col row]))]
-        (if (= "NON-FLIPPED" flipped-state)
+        (if (= "NON-FLIPPED" sprite-flipped-state)
           (do
             (swap!
               state
