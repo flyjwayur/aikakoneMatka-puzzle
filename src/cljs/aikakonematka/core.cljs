@@ -53,6 +53,8 @@
   (let [game-object-factory (.-add @game)
         puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
                                              (.-innerHeight js/window))))
+        piece-x-scale (/ puzzle-width-height @puzzle-image-width)
+        piece-y-scale (/ puzzle-width-height @puzzle-image-height)
         piece-width (get-piece-width puzzle-width-height)
         piece-height (get-piece-height puzzle-width-height)
         left-margin (get-left-margin @puzzle-image-width)
@@ -80,9 +82,7 @@
                                      assoc
                                      [col row]
                                      non-flipped-state)
-                                   (.setTo piece-scale
-                                           (/ puzzle-width-height @puzzle-image-width)
-                                           (/ puzzle-width-height @puzzle-image-height)))
+                                   (.setTo piece-scale piece-x-scale piece-y-scale))
                                  (do
                                    (swap!
                                      game-state
@@ -114,9 +114,7 @@
                     frame-id)]
         (swap! game-state update :sprites assoc [col row] piece)
         (swap! game-state update :sprites-state assoc [col row] non-flipped-state)
-        (.setTo (.-scale piece)
-                (/ puzzle-width-height @puzzle-image-width)
-                (/ puzzle-width-height @puzzle-image-height)))
+        (.setTo (.-scale piece) piece-x-scale piece-y-scale))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
         (and (zero? col) (= row (dec row-num)))
