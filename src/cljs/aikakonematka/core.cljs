@@ -53,6 +53,8 @@
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @game)
+        puzzle-width-height (int (* 0.8 (min (.-innerWidth js/window)
+                                             (.-innerHeight js/window))))
         piece-width (get-piece-width @puzzle-image-width col-num)
         piece-height (get-piece-height @puzzle-image-height row-num)
         left-margin (get-left-margin @window-width @puzzle-image-width)
@@ -96,6 +98,9 @@
                                   (toggle-visibility-and-flipped-state! col row)))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
+    (println "puzzle-image-width : " @puzzle-image-width)
+    (println "puzzle-image-height : " @puzzle-image-height)
+    (println "puzzle-width-height(* 0.7) : " puzzle-width-height)
     (doseq [row (range row-num)
             col (range row-num)
             :let [frame-id (+ (* col-num row) col)
@@ -108,7 +113,10 @@
                     "puzzle"
                     frame-id)]
         (swap! game-state update :sprites assoc [col row] piece)
-        (swap! game-state update :sprites-state assoc [col row] non-flipped-state))
+        (swap! game-state update :sprites-state assoc [col row] non-flipped-state)
+        (.setTo (.-scale piece)
+                (/ puzzle-width-height @puzzle-image-width)
+                (/ puzzle-width-height @puzzle-image-height)))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
         (and (zero? col) (= row (dec row-num)))
