@@ -16,7 +16,9 @@
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
 
 (defn- synchronize-puzzle-board [state sprite-state]
-  (let [sprites (:sprites @state)]
+  (let [sprites (:sprites @state)
+        piece-x-scale (:piece-x-scale @state)
+        piece-y-scale (:piece-y-scale @state)]
     (doseq [[[col row] flipped-state] sprite-state]
       (let [piece-scale (.-scale (sprites [col row]))]
         (if (= "NON-FLIPPED" flipped-state)
@@ -28,7 +30,7 @@
               assoc
               [col row]
               "NON-FLIPPED")
-            (.setTo piece-scale 1 1))
+            (.setTo piece-scale piece-x-scale piece-y-scale))
           (do
             (swap!
               state
