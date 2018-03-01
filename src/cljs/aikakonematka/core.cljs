@@ -51,7 +51,7 @@
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @game)
-        puzzle-width-height (int (* 0.8 (min (.-innerWidth js/window)
+        puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
                                              (.-innerHeight js/window))))
         piece-width (get-piece-width puzzle-width-height)
         piece-height (get-piece-height puzzle-width-height)
