@@ -5,14 +5,12 @@
 
 (enable-console-print!)
 
-(def window-width (atom (.-innerWidth js/window)))
-(def window-height (atom (.-innerHeight js/window)))
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
 (defn- get-left-margin [puzzle-width]
-  (/ (- @window-width puzzle-width) 2))
+  (/ (- (.-innerWidth js/window) puzzle-width) 2))
 (defn- get-top-margin [puzzle-height]
-  (/ (- @window-height puzzle-height) 4))
+  (/ (- (.-innerHeight js/window) puzzle-height) 4))
 (def row-num 6)
 (def col-num 6)
 (defn- get-piece-width [puzzle-width]
@@ -179,8 +177,8 @@
   (println "starting game")
   (reset! game
           (js/Phaser.Game.
-            @window-width
-            @window-height
+            (.-innerWidth js/window)
+            (.-innerHeight js/window)
             js/Phaser.Auto
             ""
             (clj->js {:preload preload :create create :update update}))))
