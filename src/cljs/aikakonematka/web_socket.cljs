@@ -1,6 +1,9 @@
 (ns aikakonematka.web-socket
   (:require [taoensso.sente :as sente :refer (cb-success?)]))
 
+(def flipped-state "FLIPPED")
+(def non-flipped-state "NON-FLIPPED")
+
 ;Establish the websocket connection
 (defn get-chsk-url
   "Connect to a configured server instead of the page host"
@@ -21,7 +24,7 @@
         piece-y-scale (:piece-y-scale @state)]
     (doseq [[[col row] sprite-flipped-state] sprite-state]
       (let [piece-scale (.-scale (sprites [col row]))]
-        (if (= "NON-FLIPPED" sprite-flipped-state)
+        (if (= non-flipped-state sprite-flipped-state)
           (do
             (swap!
               state
@@ -29,7 +32,7 @@
               :sprites-state
               assoc
               [col row]
-              "NON-FLIPPED")
+              non-flipped-state)
             (.setTo piece-scale piece-x-scale piece-y-scale))
           (do
             (swap!
@@ -38,7 +41,7 @@
               :sprites-state
               assoc
               [col row]
-              "FLIPPED")
+              flipped-state)
             (.setTo piece-scale 0 0)))))))
 
 ;Initialize event-msg-hanlders for handling different socket events.
