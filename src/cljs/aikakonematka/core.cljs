@@ -11,12 +11,9 @@
   (/ (- (.-innerWidth js/window) puzzle-width) 2))
 (defn- get-top-margin [puzzle-height]
   (/ (- (.-innerHeight js/window) puzzle-height) 4))
-(def row-num 6)
-(def col-num 6)
-(defn- get-piece-width [puzzle-width]
-  (/ puzzle-width col-num))
-(defn- get-piece-height [puzzle-height]
-  (/ puzzle-height row-num))
+(def row-col-num 6)
+(defn- get-piece-width-height [puzzle-width-height]
+  (/ puzzle-width-height row-col-num))
 (def button-sprite-sheet-width (atom nil))
 (def button-sprite-sheet-height (atom nil))
 (def button-sprite-col-num 3)
@@ -37,9 +34,9 @@
     (.-load @game)
     "puzzle"
     "images/puzzleImage.jpg"
-    (get-piece-width @puzzle-image-width)
-    (get-piece-height @puzzle-image-height)
-    (* row-num col-num))
+    (get-piece-width-height @puzzle-image-width)
+    (get-piece-width-height @puzzle-image-height)
+    (* row-col-num row-col-num))
   (.spritesheet
     (.-load @game)
     "flip-buttons"
@@ -55,8 +52,8 @@
                                              (.-innerHeight js/window))))
         piece-x-scale (/ puzzle-width-height @puzzle-image-width)
         piece-y-scale (/ puzzle-width-height @puzzle-image-height)
-        piece-width (get-piece-width puzzle-width-height)
-        piece-height (get-piece-height puzzle-width-height)
+        piece-width (get-piece-width-height puzzle-width-height)
+        piece-height (get-piece-width-height puzzle-width-height)
         left-margin (get-left-margin @puzzle-image-width)
         top-margin (get-top-margin @puzzle-image-height)
         button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
@@ -93,17 +90,17 @@
                                      flipped-state)
                                    (.setTo piece-scale 0 0)))))
         flip-diagonal-pieces! (fn []
-                                (doseq [row (range row-num)
-                                        :let [col (- (dec col-num) row)]]
+                                (doseq [row (range row-col-num)
+                                        :let [col (- (dec row-col-num) row)]]
                                   (toggle-visibility-and-flipped-state! col row)))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " puzzle-width-height)
-    (doseq [row (range row-num)
-            col (range row-num)
-            :let [frame-id (+ (* col-num row) col)
+    (doseq [row (range row-col-num)
+            col (range row-col-num)
+            :let [frame-id (+ (* row-col-num row) col)
                   x-pos (+ (* piece-width col) left-margin col)
                   y-pos (+ (* piece-height row) top-margin row)]]
       (let [piece (.sprite
@@ -117,7 +114,7 @@
         (.setTo (.-scale piece) piece-x-scale piece-y-scale))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
-        (and (zero? col) (= row (dec row-num)))
+        (and (zero? col) (= row (dec row-col-num)))
         (let [bottom-left-button (.sprite
                                    game-object-factory
                                    (- x-pos piece-width)
@@ -142,7 +139,7 @@
                             "flip-buttons"
                             row)
               flip-row! (fn []
-                         (doseq [col (range col-num)]
+                         (doseq [col (range row-col-num)]
                            (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! left-button)
           (set-on-click-callback!
@@ -152,7 +149,7 @@
               (flip-row!)
               (web-sck/send-sprites-state! game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-row! 200)))))
-      (when (= row (dec row-num))
+      (when (= row (dec row-col-num))
         (let [bottom-button (.sprite
                               game-object-factory
                               x-pos
@@ -160,7 +157,7 @@
                               "flip-buttons"
                               col)
               flip-col! (fn []
-                         (doseq [row (range row-num)]
+                         (doseq [row (range row-col-num)]
                            (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! bottom-button)
           (set-on-click-callback!
