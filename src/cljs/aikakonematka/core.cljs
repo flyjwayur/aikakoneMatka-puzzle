@@ -27,10 +27,16 @@
                            :puzzle-width-height 0
                            :piece-x-scale 0
                            :piece-y-scale 0}))
+
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
 
 (def game (atom nil))
+
+(defn puzzle-is-completed []
+  (when (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
+    (println "From puzzle-is-completed : " (:sprites-state @game-state))
+    (println "Congrats" "You've got a great start to solving!")))
 
 (defn- preload []
   (.spritesheet
@@ -132,7 +138,9 @@
              ;Without getting new row & col range with doseq for flipping,
              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
              (flip-diagonal-pieces!)
-             (web-sck/send-sprites-state! game-state)))
+             (web-sck/send-sprites-state! game-state)
+             (puzzle-is-completed)
+             (println "bottom-left-button : " :game-state @game-state)))
           (randomly-execute-a-fn flip-diagonal-pieces!)))
       (when (zero? col)
         (let [left-button (.sprite
@@ -150,7 +158,9 @@
             (fn []
               (println "left-button row #" row " clicked, " "which col : " col)
               (flip-row!)
-              (web-sck/send-sprites-state! game-state)))
+              (web-sck/send-sprites-state! game-state)
+              (puzzle-is-completed)
+              (println "left-button : " :game-state @game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-row! 200)))))
       (when (= row (dec row-col-num))
         (let [bottom-button (.sprite
@@ -168,7 +178,9 @@
             (fn []
               (println "bottom button col #" col " clicked, " "which row : " row)
               (flip-col!)
-              (web-sck/send-sprites-state! game-state)))
+              (web-sck/send-sprites-state! game-state)
+              (puzzle-is-completed)
+              (println "bottom-button : " :game-state @game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200))))))))
 
 (defn- update [])
