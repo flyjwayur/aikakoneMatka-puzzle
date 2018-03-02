@@ -1,7 +1,8 @@
 (ns aikakonematka.core
   (:require [goog.events :as events]
             [nightlight.repl-server]
-            [aikakonematka.web-socket :as web-sck]))
+            [aikakonematka.web-socket :as web-sck]
+            [aikakonematka.util :as util]))
 
 (enable-console-print!)
 
@@ -29,9 +30,6 @@
                            :piece-y-scale          0
                            :puzzle-completion-text nil}))
 
-(def flipped-state "FLIPPED")
-(def non-flipped-state "NON-FLIPPED")
-
 (def game (atom nil))
 
 (defn show-completion-text []
@@ -49,7 +47,7 @@
 
 
 (defn puzzle-is-completed []
-  (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
+  (when (and (every? #(= util/non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
@@ -104,7 +102,7 @@
                                                        :sprites-state
                                                        assoc
                                                        [col row]
-                                                       non-flipped-state)
+                                                       util/non-flipped-state)
                                                      (.setTo
                                                        piece-scale
                                                        (:piece-x-scale @game-state)
@@ -116,7 +114,7 @@
                                                        :sprites-state
                                                        assoc
                                                        [col row]
-                                                       flipped-state)
+                                                       util/flipped-state)
                                                      (.setTo piece-scale 0 0)))))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
@@ -136,7 +134,7 @@
                     "puzzle"
                     frame-id)]
         (swap! game-state update :sprites assoc [col row] piece)
-        (swap! game-state update :sprites-state assoc [col row] non-flipped-state)
+        (swap! game-state update :sprites-state assoc [col row] util/non-flipped-state)
         (.setTo (.-scale piece) (:piece-x-scale @game-state) (:piece-y-scale @game-state)))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
