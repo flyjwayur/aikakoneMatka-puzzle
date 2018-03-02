@@ -16,16 +16,17 @@
 (defonce ch-chsk (:ch-recv channel-socket))                 ;To receive the msg
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
 
-(defn- synchronize-puzzle-board [game-state sprite-state]
-  (let [sprites (:sprites @game-state)
-        piece-x-scale (:piece-x-scale @game-state)
-        piece-y-scale (:piece-y-scale @game-state)]
+(defn- synchronize-puzzle-board [sprite-state]
+  (let [derefed-state @util/game-state
+        sprites (:sprites derefed-state)
+        piece-x-scale (:piece-x-scale derefed-state)
+        piece-y-scale (:piece-y-scale derefed-state)]
     (doseq [[[col row] sprite-flipped-state] sprite-state]
       (let [piece-scale (.-scale (sprites [col row]))]
         (if (= util/non-flipped-state sprite-flipped-state)
           (do
             (swap!
-              game-state
+              util/game-state
               update
               :sprites-state
               assoc
@@ -34,7 +35,7 @@
             (.setTo piece-scale piece-x-scale piece-y-scale))
           (do
             (swap!
-              game-state
+              util/game-state
               update
               :sprites-state
               assoc
@@ -59,7 +60,7 @@
     (println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
-                                (synchronize-puzzle-board util/game-state event-data)
+                                (synchronize-puzzle-board event-data)
                                 (util/puzzle-is-completed))
       (println event-id " is unknown event type"))))
 
