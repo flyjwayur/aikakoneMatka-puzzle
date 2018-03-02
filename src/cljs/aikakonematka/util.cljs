@@ -26,7 +26,7 @@
                   :align           "center"}))) 0.1))
 
 
-(defn puzzle-is-completed [game game-state]
+(defn puzzle-is-completed []
   (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
