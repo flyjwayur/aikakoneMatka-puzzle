@@ -182,7 +182,7 @@
             (clj->js {:preload preload :create create :update update}))))
 
 
-(web-sck/start-router util/game-state)
+(web-sck/start-router)
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
