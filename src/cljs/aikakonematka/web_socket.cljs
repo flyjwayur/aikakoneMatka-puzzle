@@ -9,7 +9,7 @@
   "Connect to a configured server instead of the page host"
   [protocol chsk-host chsk-path type]
   (let [protocol (case type :ajax protocol
-                            :ws   (if (= protocol "https:") "wss:" "ws:"))] ; To specify the route /ws where the connection is made
+                            :ws (if (= protocol "https:") "wss:" "ws:"))] ; To specify the route /ws where the connection is made
     (str protocol "//" "localhost:2222" chsk-path)))
 
 (defonce channel-socket                                     ;To initialize the connection
@@ -47,7 +47,7 @@
 ;Initialize event-msg-hanlders for handling different socket events.
 (defn- define-event-msg-handler [state]                     ; To check the :id key on the msg and route it accordingly.
   (defmulti event-msg-handler :id)                          ; To initialize it with a map containing fns
-                                                            ; for handshake, state change, and incoming msg.
+  ; for handshake, state change, and incoming msg.
   (defmethod event-msg-handler :default [{:keys [event]}]   ; To define a default event-handling fns.
     (println "Unhandled event: " event))
 

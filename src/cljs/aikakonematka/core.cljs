@@ -22,11 +22,11 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
-(defonce game-state (atom {:sprites {}
-                           :sprites-state {}
+(defonce game-state (atom {:sprites             {}
+                           :sprites-state       {}
                            :puzzle-width-height 0
-                           :piece-x-scale 0
-                           :piece-y-scale 0}))
+                           :piece-x-scale       0
+                           :piece-y-scale       0}))
 
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
@@ -64,39 +64,39 @@
         button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
         button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)
         make-buttons-same-size-as-puzzle-piece! (fn [sprite]
-                                                 (.setTo
-                                                   (.-scale sprite)
-                                                   (/ piece-width button-width)
-                                                   (/ piece-height button-height)))
+                                                  (.setTo
+                                                    (.-scale sprite)
+                                                    (/ piece-width button-width)
+                                                    (/ piece-height button-height)))
         set-on-click-callback! (fn [sprite callback-fn]
                                  (set! (.-inputEnabled sprite) true)
                                  (.add
                                    (.-onInputDown (.-events sprite))
                                    callback-fn))
         toggle-visibility-and-flipped-state! (fn [col row]
-                             (let [piece-scale (.-scale ((:sprites @game-state) [col row]))]
-                               (if (zero? (.-x piece-scale))
-                                 (do
-                                   (swap!
-                                     game-state
-                                     update
-                                     :sprites-state
-                                     assoc
-                                     [col row]
-                                     non-flipped-state)
-                                   (.setTo
-                                     piece-scale
-                                     (:piece-x-scale @game-state)
-                                     (:piece-y-scale @game-state)))
-                                 (do
-                                   (swap!
-                                     game-state
-                                     update
-                                     :sprites-state
-                                     assoc
-                                     [col row]
-                                     flipped-state)
-                                   (.setTo piece-scale 0 0)))))
+                                               (let [piece-scale (.-scale ((:sprites @game-state) [col row]))]
+                                                 (if (zero? (.-x piece-scale))
+                                                   (do
+                                                     (swap!
+                                                       game-state
+                                                       update
+                                                       :sprites-state
+                                                       assoc
+                                                       [col row]
+                                                       non-flipped-state)
+                                                     (.setTo
+                                                       piece-scale
+                                                       (:piece-x-scale @game-state)
+                                                       (:piece-y-scale @game-state)))
+                                                   (do
+                                                     (swap!
+                                                       game-state
+                                                       update
+                                                       :sprites-state
+                                                       assoc
+                                                       [col row]
+                                                       flipped-state)
+                                                     (.setTo piece-scale 0 0)))))
         randomly-execute-a-fn (fn [f]
                                 (when (< (rand) 0.5) (f)))]
     (println "puzzle-image-width : " @puzzle-image-width)
@@ -133,14 +133,14 @@
           (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
           (set-on-click-callback!
             bottom-left-button
-           (fn []
-             (println "bottom-left-button is clicked!")
-             ;Without getting new row & col range with doseq for flipping,
-             ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-             (flip-diagonal-pieces!)
-             (web-sck/send-sprites-state! game-state)
-             (puzzle-is-completed)
-             (println "bottom-left-button : " :game-state @game-state)))
+            (fn []
+              (println "bottom-left-button is clicked!")
+              ;Without getting new row & col range with doseq for flipping,
+              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+              (flip-diagonal-pieces!)
+              (web-sck/send-sprites-state! game-state)
+              (puzzle-is-completed)
+              (println "bottom-left-button : " :game-state @game-state)))
           (randomly-execute-a-fn flip-diagonal-pieces!)))
       (when (zero? col)
         (let [left-button (.sprite
@@ -150,8 +150,8 @@
                             "flip-buttons"
                             row)
               flip-row! (fn []
-                         (doseq [col (range row-col-num)]
-                           (toggle-visibility-and-flipped-state! col row)))]
+                          (doseq [col (range row-col-num)]
+                            (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! left-button)
           (set-on-click-callback!
             left-button
@@ -170,8 +170,8 @@
                               "flip-buttons"
                               col)
               flip-col! (fn []
-                         (doseq [row (range row-col-num)]
-                           (toggle-visibility-and-flipped-state! col row)))]
+                          (doseq [row (range row-col-num)]
+                            (toggle-visibility-and-flipped-state! col row)))]
           (make-buttons-same-size-as-puzzle-piece! bottom-button)
           (set-on-click-callback!
             bottom-button
