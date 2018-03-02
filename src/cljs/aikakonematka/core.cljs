@@ -32,31 +32,6 @@
 
 (def game (atom nil))
 
-(defn show-completion-text []
-  (.setTo
-    (.-anchor
-      (.text
-        (.-add @game)
-        (/ (.-innerWidth js/window) 5)
-        (/ (.-innerHeight js/window) 20)
-        "Congrats! \n You made it :D Yeahhhh!"
-        (clj->js {:font            "40px Arial"
-                  :fill            "#06184c"
-                  :backgroundColor "#f7eb7e"
-                  :align           "center"}))) 0.1))
-
-
-(defn puzzle-is-completed []
-  (when (and (every? #(= util/non-flipped-state (val %)) (:sprites-state @game-state))
-             (not (:puzzle-completion-text @game-state)))
-    (println "From puzzle-is-completed : " (:sprites-state @game-state))
-    (println "Congrats" "You've got a great start to solving!")
-    (swap!
-      game-state
-      assoc
-      :puzzle-completion-text
-      (show-completion-text))))
-
 (defn- preload []
   (.spritesheet
     (.-load @game)
@@ -158,7 +133,7 @@
               ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
               (flip-diagonal-pieces!)
               (web-sck/send-sprites-state! game-state)
-              (puzzle-is-completed)
+              (util/puzzle-is-completed game game-state)
               (println "bottom-left-button : " :game-state @game-state)))
           (randomly-execute-a-fn flip-diagonal-pieces!)))
       (when (zero? col)
@@ -178,7 +153,7 @@
               (println "left-button row #" row " clicked, " "which col : " col)
               (flip-row!)
               (web-sck/send-sprites-state! game-state)
-              (puzzle-is-completed)
+              (util/puzzle-is-completed game game-state)
               (println "left-button : " :game-state @game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-row! 200)))))
       (when (= row (dec row-col-num))
@@ -198,7 +173,7 @@
               (println "bottom button col #" col " clicked, " "which row : " row)
               (flip-col!)
               (web-sck/send-sprites-state! game-state)
-              (puzzle-is-completed)
+              (util/puzzle-is-completed game game-state)
               (println "bottom-button : " :game-state @game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200))))))))
 
