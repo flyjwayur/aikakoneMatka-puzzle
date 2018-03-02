@@ -12,7 +12,7 @@
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
 
-(defn show-completion-text [game]
+(defn show-completion-text []
   (.setTo
     (.-anchor
       (.text
@@ -35,4 +35,4 @@
       game-state
       assoc
       :puzzle-completion-text
-      (show-completion-text game))))
+      (show-completion-text))))

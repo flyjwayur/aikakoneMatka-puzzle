@@ -59,7 +59,9 @@
     (let [[event-id event-data] ?data]
       (println "received " [event-id event-data])
       (case event-id
-        :aikakone/sprites-state (synchronize-puzzle-board state event-data)
+        :aikakone/sprites-state (do
+                                  (synchronize-puzzle-board state event-data)
+                                  (util/puzzle-is-completed))
         (println event-id " is unknown event type"))))
 
   (defn send-uid []
