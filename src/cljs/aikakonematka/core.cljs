@@ -4,8 +4,6 @@
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]))
 
-(enable-console-print!)
-
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
 (defn- get-left-margin [puzzle-width-height]

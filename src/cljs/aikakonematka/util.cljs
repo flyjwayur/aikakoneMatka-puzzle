@@ -1,5 +1,7 @@
 (ns aikakonematka.util)
 
+(enable-console-print!)
+
 (def game (atom nil))
 
 (defonce game-state (atom {:sprites                {}
