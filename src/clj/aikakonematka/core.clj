@@ -15,17 +15,20 @@
   (def chsk-send! (:send-fn connection))
   (def connected-uids (:connected-uids connection)))
 
+(def sprites-state (atom nil))
+
 (defn- handle-message! [{:keys [id client-id ?data]}]       ; To check requested ID to see if it matches the :aikakone/sprites-state
   (println :id id)                                          ; To identify type of msg and handle them accordingly
   (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
   (println :data? ?data)                                    ; To contain the request payload.
 
-  (when (= id :aikakone/sprites-state)                      ; To broadcast the response to all the connected clients
+  (when (= id :aikakone/sprites-state) ; To broadcast the response to all the connected clients
+    (reset! sprites-state ?data)
     (doseq [uid (:any @connected-uids)]
       ; -listed by the connected uuids variable.
       (println :uid uid)
       (when (not= client-id uid)
-        (chsk-send! uid [:aikakone/sprites-state ?data])))))
+        (chsk-send! uid [:aikakone/sprites-state sprites-state])))))
 
 (sente/start-chsk-router! ch-chsk handle-message!)          ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
