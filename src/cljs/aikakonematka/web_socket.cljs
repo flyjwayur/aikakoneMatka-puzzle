@@ -61,7 +61,7 @@
     (case event-id
       :aikakone/sprites-state (do
                                 (synchronize-puzzle-board event-data)
-                                (util/puzzle-is-completed))
+                                (util/show-congrats-msg-when-puzzle-is-completed))
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
