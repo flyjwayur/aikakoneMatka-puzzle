@@ -98,8 +98,8 @@
                     y-pos
                     "puzzle"
                     frame-id)]
-        (swap! util/game-state update :sprites assoc [col row] piece)
-        (swap! util/game-state update :sprites-state assoc [col row] util/non-flipped-state)
+        (swap! util/game-state assoc-in [:sprites [col row]] piece)
+        (swap! util/game-state assoc-in [:sprites-state [col row]] util/non-flipped-state)
         (.setTo (.-scale piece) (:piece-x-scale @util/game-state) (:piece-y-scale @util/game-state)))
       (println "x-pos : " x-pos ", y-pos : " y-pos)
       (when
