@@ -219,7 +219,8 @@
       (fn []
         (reset! play-button-width (.-width play-button))
         (reset! play-button-height (.-height play-button))
-        (println "play button image is loaded"))))
+        (println "play button image is loaded")
+        (set! (.-src buttons-img) "images/control-buttons.png"))))
   (set!
     (.-onload buttons-img)
     (clj->js
@@ -242,6 +243,5 @@
                                                        @puzzle-image-height))
         (println "Puzzle image loaded")
         (start-game!))))                                    ; start game after loading image
-  (set! (.-src buttons-img) "images/control-buttons.png")
   (set! (.-src play-button) "images/play-button.jpg")
   (println "loading images"))
