@@ -99,7 +99,7 @@
                           (println "play button clicked"))
           play-button (this-as this
                         (.button
-                          (.-add @util/game)
+                          game-object-factory
                           10
                           10
                           "play-button"
