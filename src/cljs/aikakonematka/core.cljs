@@ -93,9 +93,7 @@
                         10
                         10
                         "play-button"
-                        (fn []
-                          (println "play button clicked")
-                          )
+                        util/check-time-to-get-start-time
                         this))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
