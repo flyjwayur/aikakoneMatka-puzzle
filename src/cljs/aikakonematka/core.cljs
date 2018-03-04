@@ -90,20 +90,20 @@
                                                        util/flipped-state)
                                                      (.setTo piece-scale 0 0)))))
         randomly-execute-a-fn (fn [f]
-                                (when (< (rand) 0.5) (f)))]
+                                (when (< (rand) 0.5) (f)))
+        play-button (this-as this
+                      (.button
+                        game-object-factory
+                        10
+                        10
+                        "play-button"
+                        (fn []
+                          (println "play button clicked"))
+                        this))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
     (println :game-state @util/game-state)
-    (let [play-button (this-as this
-                        (.button
-                          game-object-factory
-                          10
-                          10
-                          "play-button"
-                          (fn []
-                            (println "play button clicked"))
-                          this))])
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
