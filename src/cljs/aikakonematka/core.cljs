@@ -21,6 +21,8 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
+(def play-button-width (atom nil))
+(def play-button-height (atom nil))
 
 (defn- preload []
   (.spritesheet
@@ -36,7 +38,11 @@
     "images/control-buttons.png"
     (get-button-width @button-sprite-sheet-width button-sprite-col-num)
     (get-button-height @button-sprite-sheet-height button-sprite-row-num)
-    (* button-sprite-row-num button-sprite-col-num)))
+    (* button-sprite-row-num button-sprite-col-num))
+  (.image
+    (.-load @util/game)
+    "play-button"
+    "images/play-button.png"))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
@@ -87,6 +93,11 @@
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
     (println :game-state @util/game-state)
+    (.sprite
+      game-object-factory
+      10
+      10
+      "play-button")
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
@@ -184,11 +195,19 @@
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
-      buttons-img (js/Image.)]
+      buttons-img (js/Image.)
+      play-button (js/Image.)]
   ; finding out size of image. https://stackoverflow.com/a/626505/5802173
   ; image loading is done asynchronously. The way to start the game after image is loaded is
   ; we start the game in `onload` callback of the image. After loading buttons-img first,
   ; start loading puzzle image then start the game.
+  (set!
+    (.-onload play-button)
+    (clj->js
+      (fn []
+        (reset! play-button-width (.-width play-button))
+        (reset! play-button-height (.-height play-button))
+        (println "play button image is loaded"))))
   (set!
     (.-onload buttons-img)
     (clj->js
@@ -212,4 +231,5 @@
         (println "Puzzle image loaded")
         (start-game!))))                                    ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png")
+  (set! (.-src play-button) "images/play-button.jpg")
   (println "loading images"))
