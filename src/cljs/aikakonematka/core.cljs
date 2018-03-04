@@ -21,8 +21,6 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
-(def play-button-width (atom nil))
-(def play-button-height (atom nil))
 
 (defn- preload []
   (.spritesheet
@@ -88,16 +86,21 @@
                                                        util/flipped-state)
                                                      (.setTo piece-scale 0 0)))))
         randomly-execute-a-fn (fn [f]
-                                (when (< (rand) 0.5) (f)))]
+                                (when (< (rand) 0.5) (f)))
+        play-button (this-as this
+                      (.button
+                        game-object-factory
+                        10
+                        10
+                        "play-button"
+                        (fn []
+                          (println "play button clicked")
+                          )
+                        this))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
     (println :game-state @util/game-state)
-    (.sprite
-      game-object-factory
-      10
-      10
-      "play-button")
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
@@ -205,9 +208,8 @@
     (.-onload play-button)
     (clj->js
       (fn []
-        (reset! play-button-width (.-width play-button))
-        (reset! play-button-height (.-height play-button))
-        (println "play button image is loaded"))))
+        (println "play button image is loaded")
+        (set! (.-src buttons-img) "images/control-buttons.png"))))
   (set!
     (.-onload buttons-img)
     (clj->js
@@ -215,7 +217,8 @@
         (reset! button-sprite-sheet-width (.-width buttons-img))
         (reset! button-sprite-sheet-height (.-height buttons-img))
         (println "buttons image loaded")
-        (set! (.-src puzzle-img) "images/puzzleImage.jpg"))))
+        (set! (.-src puzzle-img) "images/puzzleImage.jpg")
+        )))
   (set!
     (.-onload puzzle-img)
     (clj->js
@@ -230,6 +233,5 @@
                                                        @puzzle-image-height))
         (println "Puzzle image loaded")
         (start-game!))))                                    ; start game after loading image
-  (set! (.-src buttons-img) "images/control-buttons.png")
-  (set! (.-src play-button) "images/play-button.jpg")
+  (set! (.-src play-button) "images/play-button.png")
   (println "loading images"))
