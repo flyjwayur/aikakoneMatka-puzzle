@@ -98,13 +98,13 @@
     (let [actionOnClick (fn []
                           (println "play button clicked"))
           play-button (this-as this
-                        (.-button
-                          (.add @util/game
-                                10
-                                10
-                                "play-button"
-                                actionOnClick
-                                this)))])
+                        (.button
+                          (.-add @util/game)
+                          10
+                          10
+                          "play-button"
+                          actionOnClick
+                          this))])
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
