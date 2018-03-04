@@ -28,6 +28,14 @@
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
+(defn check-time-to-get-start-time []
+  (let [start-time (.getTime (js/Date.))]
+    (println "start time : " start-time)))
+
+(defn check-time-to-solve-puzzle []
+  (let [last-time (.getTime (js/Date.))]
+    (println "last time : " last-time)))
+
 (defn show-completion-text []
   (.setTo
     (.-anchor
@@ -47,6 +55,7 @@
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
+    (check-time-to-solve-puzzle)
     (swap!
       game-state
       assoc
