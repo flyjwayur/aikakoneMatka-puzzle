@@ -95,15 +95,14 @@
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
     (println :game-state @util/game-state)
-    (let [actionOnClick (fn []
-                          (println "play button clicked"))
-          play-button (this-as this
+    (let [play-button (this-as this
                         (.button
                           game-object-factory
                           10
                           10
                           "play-button"
-                          actionOnClick
+                          (fn []
+                            (println "play button clicked"))
                           this))])
     (doseq [row (range row-col-num)
             col (range row-col-num)
