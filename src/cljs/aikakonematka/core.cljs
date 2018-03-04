@@ -93,11 +93,23 @@
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
     (println :game-state @util/game-state)
-    (.sprite
-      game-object-factory
-      10
-      10
-      "play-button")
+    (let [actionOnClick (fn []
+                          (println "play button clicked"))
+          play-button (fn []
+                        (this-as this
+                          (.-button
+                            (.add @util/game
+                                   10
+                                   10
+                                   "play-button"
+                                   actionOnClick
+                                   this
+                                   1
+                                   2
+                                   3))))]
+      (this-as this
+        (.add
+          (.-onInputOver play-button) over this)))
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
