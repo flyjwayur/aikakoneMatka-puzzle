@@ -42,5 +42,3 @@
 
 (defn start-router [state]
   (sente/start-chsk-router! ch-chsk (define-event-msg-handler state)))
-
-
