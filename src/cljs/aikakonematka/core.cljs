@@ -243,5 +243,5 @@
                                                        @puzzle-image-height))
         (println "Puzzle image loaded")
         (start-game!))))                                    ; start game after loading image
-  (set! (.-src play-button) "images/play-button.jpg")
+  (set! (.-src play-button) "images/play-button.png")
   (println "loading images"))
