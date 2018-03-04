@@ -39,10 +39,12 @@
     (get-button-width @button-sprite-sheet-width button-sprite-col-num)
     (get-button-height @button-sprite-sheet-height button-sprite-row-num)
     (* button-sprite-row-num button-sprite-col-num))
-  (.image
+  (.spritesheet
     (.-load @util/game)
     "play-button"
-    "images/play-button.png"))
+    "images/play-button.png"
+    @play-button-width
+    @play-button-height))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
