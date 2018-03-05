@@ -11,6 +11,9 @@
                            :piece-y-scale          0
                            :puzzle-completion-text nil}))
 
+(def start-time (atom nil))
+(def finish-time (atom nil))
+
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
 (def puzzle-image-width (atom nil))
@@ -29,12 +32,15 @@
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
 (defn check-time-to-get-start-time []
-  (let [start-time (.getTime (js/Date.))]
-    (println "start time : " start-time)))
+  (reset! start-time (.getTime (js/Date.)))
+  (println "start time : " start-time))
 
 (defn check-time-to-solve-puzzle []
-  (let [last-time (.getTime (js/Date.))]
-    (println "last time : " last-time)))
+  (reset! finish-time (.getTime (js/Date.)))
+  (println "finish time : " finish-time))
+
+(defn find-time-to-solve-puzzle []
+  (println "The total time to solve the puzzle : " (- @finish-time @start-time)))
 
 (defn show-completion-text []
   (.setTo
@@ -56,6 +62,7 @@
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
     (check-time-to-solve-puzzle)
+    (find-time-to-solve-puzzle)
     (swap!
       game-state
       assoc
