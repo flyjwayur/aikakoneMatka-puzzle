@@ -34,12 +34,15 @@
   (reset! start-time (.getTime (js/Date.)))
   (println "start time : " start-time))
 
+(defn get-play-time []
+  (/ (- (.getTime (js/Date.)) @start-time) 1000))
+
 (defn show-completion-text []
   (.text
     (.-add @game)
     (/ (.-innerWidth js/window) 5)
     (/ (.-innerHeight js/window) 20)
-    (str "Congrats! \n You made it :D Yeahhhh! \n Total time is : " (- (.getTime (js/Date.)) @start-time))
+    (str "Congrats! \n You made it :D Yeahhhh! \n Total time is : " (get-play-time) " seconds :)")
     (clj->js {:font            "40px Arial"
               :fill            "#06184c"
               :backgroundColor "#f7eb7e"
