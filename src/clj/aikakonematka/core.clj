@@ -24,11 +24,12 @@
 
   (when (= id :aikakone/sprites-state) ; To broadcast the response to all the connected clients
     (reset! sprites-state ?data)
+    (println "This is sprites-state from the server : " sprites-state)
     (doseq [uid (:any @connected-uids)]
       ; -listed by the connected uuids variable.
       (println :uid uid)
       (when (not= client-id uid)
-        (chsk-send! uid [:aikakone/sprites-state sprites-state])))))
+        (chsk-send! uid [:aikakone/sprites-state ?data])))))
 
 (sente/start-chsk-router! ch-chsk handle-message!)          ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
