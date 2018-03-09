@@ -41,7 +41,9 @@
 
 (defn- sync-reset-puzzle-board [event-data]
   (let [derefed-state @util/game-state]
-    (reset! derefed-state @util/initial-game-state)))
+    (println "From sync-reset-puzzle-board : " derefed-state)
+    (swap! derefed-state empty)
+    (swap! derefed-state assoc @util/initial-game-state)))
 
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.
