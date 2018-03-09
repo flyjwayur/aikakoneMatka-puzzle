@@ -10,6 +10,12 @@
                            :piece-x-scale          0
                            :piece-y-scale          0
                            :puzzle-completion-text nil}))
+(def initial-game-state (atom {:sprites                {}
+                               :sprites-state          {}
+                               :puzzle-width-height    0
+                               :piece-x-scale          0
+                               :piece-y-scale          0
+                               :puzzle-completion-text nil}))
 
 (def start-time (atom nil))
 

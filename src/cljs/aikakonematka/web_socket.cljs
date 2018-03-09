@@ -39,6 +39,10 @@
               util/flipped-state)
             (.setTo piece-scale 0 0)))))))
 
+(defn- sync-reset-puzzle-board [event-data]
+  (let [derefed-state @util/game-state]
+    (reset! derefed-state @util/initial-game-state)))
+
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.
 ; for handshake, state change, and incoming msg.          ; To initialize it with a map containing fns
@@ -58,19 +62,30 @@
       :aikakone/sprites-state (do
                                 (synchronize-puzzle-board event-data)
                                 (util/show-congrats-msg-when-puzzle-is-completed))
+      :aikakone/initial-game-state (do
+                                     (println "received from initial-game-state " [event-id event-data])
+                                     (sync-reset-puzzle-board event-data))
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
   (chsk-send! [:aikakone/uid (:uid @util/game-state)]))
 
 (defn send-sprites-state! []
-  (println "sending " (:sprites-state @util/game-state))
-  ;(println "sending game-state" (@util/game-state))
-  (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)])
-  ;(chsk-send! [:aikakone/game-state (@util/game-state)])
-  )
+  (if (every? #(= util/non-flipped-state (val %)) (:sprites-state @util/game-state))
+    (do
+      (println "sending inital-game-state " @util/initial-game-state)
+      (swap! util/game-state empty)
+      (swap! util/game-state assoc @util/initial-game-state)
+      (chsk-send! [:aikakone/initial-game-state @util/initial-game-state])
+      (println "from reset-puzzle : " @util/initial-game-state))
+    (do
+      (println "sending " (:sprites-state @util/game-state))
+      ;(println "sending game-state" (@util/game-state))
+      (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)])
+      ;(chsk-send! [:aikakone/game-state (@util/game-state)])))
+      )))
 
-(defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
+  (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
