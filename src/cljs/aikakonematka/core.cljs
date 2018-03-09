@@ -32,6 +32,13 @@
     (* row-col-num row-col-num))
   (.spritesheet
     (.-load @util/game)
+    "puzzle2"
+    "images/puzzle-Image2.jpg"
+    (get-piece-width-height @puzzle-image-width)
+    (get-piece-width-height @puzzle-image-height)
+    (* row-col-num row-col-num))
+  (.spritesheet
+    (.-load @util/game)
     "flip-buttons"
     "images/control-buttons.png"
     (get-button-width @button-sprite-sheet-width button-sprite-col-num)
@@ -40,7 +47,11 @@
   (.image
     (.-load @util/game)
     "play-button"
-    "images/play-button.png"))
+    "images/play-button.png")
+  (.image
+    (.-load @util/game)
+    "play-game-button2"
+    "images/play-game-button2.png"))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
@@ -196,14 +207,22 @@
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
+      puzzle-img2 (js/Image.)
       buttons-img (js/Image.)
-      play-button (js/Image.)]
+      play-button (js/Image.)
+      play-game-button2 (js/Image.)]
   ; finding out size of image. https://stackoverflow.com/a/626505/5802173
   ; image loading is done asynchronously. The way to start the game after image is loaded is
   ; we start the game in `onload` callback of the image. After loading buttons-img first,
   ; start loading puzzle image then start the game.
   (set!
     (.-onload play-button)
+    (clj->js
+      (fn []
+        (println "play button image is loaded")
+        (set! (.-src play-game-button2) "images/play-game-button2.png"))))
+  (set!
+    (.-onload play-game-button2)
     (clj->js
       (fn []
         (println "play button image is loaded")
@@ -230,6 +249,20 @@
         (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
                                                        @puzzle-image-height))
         (println "Puzzle image loaded")
-        (start-game!))))                                    ; start game after loading image
+        (set! (.-src puzzle-img2) "images/puzzle-image2.jpg")))) ; start game after loading image
+  (set!
+    (.-onload puzzle-img2)
+    (clj->js
+      (fn []
+        (reset! puzzle-image-width (.-width puzzle-img))
+        (reset! puzzle-image-height (.-height puzzle-img))
+        (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
+                                                                           (.-innerHeight js/window)))))
+        (swap! util/game-state assoc :piece-x-scale (/ (:puzzle-width-height @util/game-state)
+                                                       @puzzle-image-width))
+        (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
+                                                       @puzzle-image-height))
+        (println "2nd Puzzle image loaded")
+        (start-game!))))
   (set! (.-src play-button) "images/play-button.png")
   (println "loading images"))
