@@ -21,18 +21,20 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
+(def image-box ["puzzle" "puzzle2"])
+(def current-puzzle-image (atom nil))
 
 (defn- preload []
   (.spritesheet
     (.-load @util/game)
-    "puzzle"
+    (nth image-box 0)
     "images/puzzleImage.jpg"
     (get-piece-width-height @puzzle-image-width)
     (get-piece-width-height @puzzle-image-height)
     (* row-col-num row-col-num))
   (.spritesheet
     (.-load @util/game)
-    "puzzle2"
+    (nth image-box 1)
     "images/puzzle-Image2.jpg"
     (get-piece-width-height @puzzle-image-width)
     (get-piece-width-height @puzzle-image-height)
@@ -53,8 +55,7 @@
     "play-game-button2"
     "images/play-game-button2.png"))
 
-(defn- create []
-  "Create randomized puzzle board with one black piece"
+(defn start-new-game []
   (let [game-object-factory (.-add @util/game)
         piece-width (get-piece-width-height (:puzzle-width-height @util/game-state))
         piece-height (get-piece-width-height (:puzzle-width-height @util/game-state))
@@ -105,7 +106,20 @@
                         10
                         "play-button"
                         util/check-time-to-get-start-time
-                        this))]
+                        this))
+        play-game-button2 (this-as this
+                            (.button
+                              game-object-factory
+                              10
+                              300
+                              "play-game-button2"
+                              util/check-time-to-get-start-time
+                              this))
+        get-puzzle-image (fn [puzzle-image]
+                           (do (println "get puzzle image : " (nth puzzle-image 0))
+                               (nth puzzle-image 0)))]
+    (reset! current-puzzle-image (get-puzzle-image image-box))
+    (println "current-puzzle-image : " @current-puzzle-image)
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
@@ -119,7 +133,7 @@
                     game-object-factory
                     x-pos
                     y-pos
-                    "puzzle"
+                    @current-puzzle-image
                     frame-id)]
         (swap! util/game-state assoc-in [:sprites [col row]] piece)
         (swap! util/game-state assoc-in [:sprites-state [col row]] util/non-flipped-state)
@@ -189,6 +203,9 @@
               (util/show-congrats-msg-when-puzzle-is-completed)
               (println "bottom-button : " :game-state @util/game-state)))
           (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200))))))))
+(defn- create []
+  "Create randomized puzzle board with one black piece"
+  (start-new-game))
 
 (defn- update [])
 
