@@ -28,7 +28,7 @@
       ; -listed by the connected uuids variable.
       (println :uid uid)
       (when (not= client-id uid)
-        (chsk-send! uid [:aikakone/sprites-state sprites-state])))))
+        (chsk-send! uid [:aikakone/sprites-state @sprites-state])))))
 
 (sente/start-chsk-router! ch-chsk handle-message!)          ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
