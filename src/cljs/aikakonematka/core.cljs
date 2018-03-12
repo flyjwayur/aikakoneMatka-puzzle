@@ -165,7 +165,8 @@
               (web-sck/send-sprites-state!)
               (util/show-congrats-msg-when-puzzle-is-completed)
               (println "bottom-button : " :game-state @util/game-state)))
-          (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200))))))))
+          (randomly-execute-a-fn (fn [] (js/setTimeout flip-col! 200)))))))
+  (web-sck/send-sprites-state!))
 
 (defn- update [])
 
