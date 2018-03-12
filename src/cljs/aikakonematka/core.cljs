@@ -21,6 +21,8 @@
   (/ sheet-width btn-sprite-col-num))
 (defn- get-button-height [sheet-height btn-sprite-row-num]
   (/ sheet-height btn-sprite-row-num))
+(defn- randomly-execute-a-fn [f]
+  (when (< (rand) 0.5) (f)))
 
 (defn- preload []
   (.spritesheet
@@ -80,9 +82,7 @@
                                                        assoc
                                                        [col row]
                                                        util/flipped-state)
-                                                     (.setTo piece-scale 0 0)))))
-        randomly-execute-a-fn (fn [f]
-                                (when (< (rand) 0.5) (f)))]
+                                                     (.setTo piece-scale 0 0)))))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
