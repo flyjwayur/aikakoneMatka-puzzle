@@ -21,16 +21,19 @@
   (println :id id)                                          ; To identify type of msg and handle them accordingly
   (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
   (println :data? ?data)                                    ; To contain the request payload.
+  (reset! sprites-state ?data)
 
   (case id
     :aikakone/sprites-state
     (do
-      (reset! sprites-state ?data)
       (doseq [uid (:any @connected-uids)]  ; To broadcast the response to all the connected clients
         ; -listed by the connected uuids variable.
         (println :uid uid)
         (when (not= client-id uid)
-          (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))))
+          (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))
+    :aikakone/game-start
+    (chsk-send! client-id [:aikakone/game-start @sprites-state])
+    nil))
 
 (sente/start-chsk-router! ch-chsk handle-message!)          ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients

@@ -58,6 +58,8 @@
       :aikakone/sprites-state (do
                                 (synchronize-puzzle-board event-data)
                                 (util/show-congrats-msg-when-puzzle-is-completed))
+      :aikakone/game-start (do
+                             (println "Start game with initial state " event-data))
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
@@ -71,6 +73,7 @@
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
+    (chsk-send! [:aikakone/game-start])
     (send-uid)))
 
 (defn start-router []                                       ; To create msg router to handle incoming msg.
