@@ -13,6 +13,16 @@
 
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
+(def puzzle-image-width (atom nil))
+(def puzzle-image-height (atom nil))
+(def button-sprite-sheet-width (atom nil))
+(def button-sprite-sheet-height (atom nil))
+(def button-sprite-col-num 3)
+(def button-sprite-row-num 2)
+(defn- get-button-width [btn-sprite-col-num]
+  (/ @button-sprite-sheet-width btn-sprite-col-num))
+(defn- get-button-height [btn-sprite-row-num]
+  (/ @button-sprite-sheet-height btn-sprite-row-num))
 
 (defn show-completion-text []
   (.setTo
