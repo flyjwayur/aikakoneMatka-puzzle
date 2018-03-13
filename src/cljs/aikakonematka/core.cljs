@@ -43,8 +43,7 @@
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @util/game)
-        piece-width (get-piece-width-height (:puzzle-width-height @util/game-state))
-        piece-height (get-piece-width-height (:puzzle-width-height @util/game-state))
+        piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
         left-margin (get-left-margin (:puzzle-width-height @util/game-state))
         top-margin (get-top-margin (:puzzle-width-height @util/game-state))
         button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
@@ -52,8 +51,8 @@
         make-buttons-same-size-as-puzzle-piece! (fn [sprite]
                                                   (.setTo
                                                     (.-scale sprite)
-                                                    (/ piece-width button-width)
-                                                    (/ piece-height button-height)))
+                                                    (/ piece-width-height button-width)
+                                                    (/ piece-width-height button-height)))
         set-on-click-callback! (fn [sprite callback-fn]
                                  (set! (.-inputEnabled sprite) true)
                                  (.add
@@ -90,8 +89,8 @@
     (doseq [row (range row-col-num)
             col (range row-col-num)
             :let [frame-id (+ (* row-col-num row) col)
-                  x-pos (+ (* piece-width col) left-margin col)
-                  y-pos (+ (* piece-height row) top-margin row)]]
+                  x-pos (+ (* piece-width-height col) left-margin col)
+                  y-pos (+ (* piece-width-height row) top-margin row)]]
       (let [piece (.sprite
                     game-object-factory
                     x-pos
@@ -106,8 +105,8 @@
         (and (zero? col) (= row (dec row-col-num)))
         (let [bottom-left-button (.sprite
                                    game-object-factory
-                                   (- x-pos piece-width)
-                                   (+ y-pos piece-height)
+                                   (- x-pos piece-width-height)
+                                   (+ y-pos piece-width-height)
                                    "flip-buttons"
                                    5)
               flip-diagonal-pieces! (fn []
@@ -129,7 +128,7 @@
       (when (zero? col)
         (let [left-button (.sprite
                             game-object-factory
-                            (- x-pos piece-width)
+                            (- x-pos piece-width-height)
                             y-pos
                             "flip-buttons"
                             row)
@@ -150,7 +149,7 @@
         (let [bottom-button (.sprite
                               game-object-factory
                               x-pos
-                              (+ y-pos piece-height)
+                              (+ y-pos piece-width-height)
                               "flip-buttons"
                               col)
               flip-col! (fn []
