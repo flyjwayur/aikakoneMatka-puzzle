@@ -1,4 +1,4 @@
-(ns aikakonematka.user
+(ns user
   (:require [aikakonematka.core :as core]
             ))
 
@@ -13,5 +13,3 @@
 
 (defn start-server []
   (reset! server (core/-main)))
-
-

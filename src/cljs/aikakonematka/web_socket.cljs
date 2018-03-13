@@ -17,6 +17,7 @@
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
 
 (defn- synchronize-puzzle-board [sprite-state]
+  (println "synchronizing.... :)")
   (let [derefed-state @util/game-state
         sprites (:sprites derefed-state)
         piece-x-scale (:piece-x-scale derefed-state)
