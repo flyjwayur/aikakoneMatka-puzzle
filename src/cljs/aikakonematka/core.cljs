@@ -17,10 +17,10 @@
 (def button-sprite-sheet-height (atom nil))
 (def button-sprite-col-num 3)
 (def button-sprite-row-num 2)
-(defn- get-button-width [sheet-width btn-sprite-col-num]
-  (/ sheet-width btn-sprite-col-num))
-(defn- get-button-height [sheet-height btn-sprite-row-num]
-  (/ sheet-height btn-sprite-row-num))
+(defn- get-button-width [btn-sprite-col-num]
+  (/ @button-sprite-sheet-width btn-sprite-col-num))
+(defn- get-button-height [btn-sprite-row-num]
+  (/ @button-sprite-sheet-height btn-sprite-row-num))
 (defn- randomly-execute-a-fn [f]
   (when (< (rand) 0.5) (f)))
 
@@ -36,8 +36,8 @@
     (.-load @util/game)
     "flip-buttons"
     "images/control-buttons.png"
-    (get-button-width @button-sprite-sheet-width button-sprite-col-num)
-    (get-button-height @button-sprite-sheet-height button-sprite-row-num)
+    (get-button-width button-sprite-col-num)
+    (get-button-height button-sprite-row-num)
     (* button-sprite-row-num button-sprite-col-num)))
 
 (defn make-buttons-same-size-as-puzzle-piece! [button-sprite]
@@ -46,8 +46,8 @@
      (println "make-button-same-size-as-puzzle-piece! : " button-sprite)
      (.setTo
        (.-scale button-sprite)
-       (/ piece-width-height (get-button-width @button-sprite-sheet-width button-sprite-col-num))
-       (/ piece-width-height (get-button-height @button-sprite-sheet-height button-sprite-row-num))))))
+       (/ piece-width-height (get-button-width button-sprite-col-num))
+       (/ piece-width-height (get-button-height button-sprite-row-num))))))
 
 (defn- create []
   "Create randomized puzzle board with one black piece"
