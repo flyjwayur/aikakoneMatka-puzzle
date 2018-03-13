@@ -40,19 +40,21 @@
     (get-button-height @button-sprite-sheet-height button-sprite-row-num)
     (* button-sprite-row-num button-sprite-col-num)))
 
+(defn make-buttons-same-size-as-puzzle-piece! [button-sprite]
+ (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
+   (do
+     (println "make-button-same-size-as-puzzle-piece! : " button-sprite)
+     (.setTo
+       (.-scale button-sprite)
+       (/ piece-width-height (get-button-width @button-sprite-sheet-width button-sprite-col-num))
+       (/ piece-width-height (get-button-height @button-sprite-sheet-height button-sprite-row-num))))))
+
 (defn- create []
   "Create randomized puzzle board with one black piece"
   (let [game-object-factory (.-add @util/game)
         piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
         left-margin (get-left-margin (:puzzle-width-height @util/game-state))
         top-margin (get-top-margin (:puzzle-width-height @util/game-state))
-        button-width (get-button-width @button-sprite-sheet-width button-sprite-col-num)
-        button-height (get-button-height @button-sprite-sheet-height button-sprite-row-num)
-        make-buttons-same-size-as-puzzle-piece! (fn [sprite]
-                                                  (.setTo
-                                                    (.-scale sprite)
-                                                    (/ piece-width-height button-width)
-                                                    (/ piece-width-height button-height)))
         set-on-click-callback! (fn [sprite callback-fn]
                                  (set! (.-inputEnabled sprite) true)
                                  (.add
