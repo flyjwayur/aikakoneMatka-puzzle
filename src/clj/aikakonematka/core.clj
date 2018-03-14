@@ -17,25 +17,34 @@
 
 (def sprites-state (atom nil))
 
-(defn- handle-message! [{:keys [id client-id ?data]}]       ; To check requested ID to see if it matches the :aikakone/sprites-state
+(defmulti event-msg-handler :id)
+
+(defmethod event-msg-handler :default [{:as ev-msg :keys [event]}]
+  (println "Unhandled event: " event))
+
+(defn broadcast [client-id]
+  (doseq [uid (:any @connected-uids)]
+    ; -listed by the connected uuids variable.
+    (println :uid uid)
+    (when (not= client-id uid)
+      (println "@sprites-state from sprites-state : " @sprites-state)
+      (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))
+
+(defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
   (println :id id)                                          ; To identify type of msg and handle them accordingly
   (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
-  (println :data? ?data)                                    ; To contain the request payload.
+  (println :data? ?data)
 
-  (case id
-    :aikakone/sprites-state
-    (do
-      (reset! sprites-state ?data)
-      (doseq [uid (:any @connected-uids)]  ; To broadcast the response to all the connected clients
-        ; -listed by the connected uuids variable.
-        (println :uid uid)
-        (when (not= client-id uid)
-          (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))
-    :aikakone/game-start
-    (chsk-send! client-id [:aikakone/game-start @sprites-state])
-    nil))
+  ; To broadcast the response to all the connected clients
+  (reset! sprites-state ?data)
+  (println "This is sprites-state from the server : " @sprites-state)
+  (broadcast client-id))
 
-(sente/start-chsk-router! ch-chsk handle-message!)          ; To initialize the router which uses core.async go-loop
+(defmethod event-msg-handler :aikakone/game-start [{:as ev-msg :keys [id client-id ?data]}]
+  (do (println "@sprites-state from game-start : " @sprites-state)
+      (chsk-send! client-id [:aikakone/game-start @sprites-state])))
+
+(sente/start-chsk-router! ch-chsk event-msg-handler) ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
 ; and pass it handle-message! as the event handler.
 
