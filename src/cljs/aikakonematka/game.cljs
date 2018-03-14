@@ -78,7 +78,7 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-game [send-sprites-state-fn!]
+(defn- create-game [send-sprites-state-fn! initial-sprites-state]
   "Create randomized puzzle board with one black piece"
   (fn []
     (let [game-object-factory (.-add @util/game)
@@ -160,12 +160,15 @@
                 (send-sprites-state-fn!)
                 (util/show-congrats-msg-when-puzzle-is-completed)
                 (println "bottom-button : " :game-state @util/game-state))))))
-    (randomize-puzzle-pieces))
-    (js/setTimeout send-sprites-state-fn! 300)))
+    (if (nil? initial-sprites-state)
+      (do
+        (randomize-puzzle-pieces)
+        (js/setTimeout send-sprites-state-fn! 300))
+      (util/synchronize-puzzle-board initial-sprites-state)))))
 
 (defn- update [])
 
-(defn- start-game! [send-sprites-state-fn!]
+(defn- start-game! [send-sprites-state-fn! initial-sprites-state]
   (println "starting game")
   (reset! util/game
           (js/Phaser.Game.
@@ -173,4 +176,6 @@
             (.-innerHeight js/window)
             js/Phaser.Auto
             ""
-            (clj->js {:preload preload :create (create-game send-sprites-state-fn!) :update update}))))
+            (clj->js {:preload preload
+                      :create (create-game send-sprites-state-fn! initial-sprites-state)
+                      :update update}))))
