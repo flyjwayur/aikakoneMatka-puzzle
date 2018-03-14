@@ -3,10 +3,6 @@
 
 (def row-col-num 6)
 
-(defn- get-left-margin [puzzle-width-height]
-  (/ (- (.-innerWidth js/window) puzzle-width-height) 2))
-(defn- get-top-margin [puzzle-width-height]
-  (/ (- (.-innerHeight js/window) puzzle-width-height) 4))
 (defn- get-piece-width-height [puzzle-width-height]
   (/ puzzle-width-height row-col-num))
 (defn- randomly-execute-a-fn [f]
@@ -42,8 +38,8 @@
   (fn []
     (let [game-object-factory (.-add @util/game)
           piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
-          left-margin (get-left-margin (:puzzle-width-height @util/game-state))
-          top-margin (get-top-margin (:puzzle-width-height @util/game-state))
+          left-margin (util/get-left-margin)
+          top-margin (util/get-top-margin)
           set-on-click-callback! (fn [sprite callback-fn]
                                    (set! (.-inputEnabled sprite) true)
                                    (.add

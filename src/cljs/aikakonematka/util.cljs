@@ -23,6 +23,10 @@
   (/ @button-sprite-sheet-width btn-sprite-col-num))
 (defn- get-button-height [btn-sprite-row-num]
   (/ @button-sprite-sheet-height btn-sprite-row-num))
+(defn- get-left-margin []
+  (/ (- (.-innerWidth js/window)(:puzzle-width-height @game-state)) 2))
+(defn- get-top-margin []
+  (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
 (defn show-completion-text []
   (.setTo
