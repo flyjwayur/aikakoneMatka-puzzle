@@ -22,30 +22,6 @@
   (println "sending " (:sprites-state @util/game-state))
   (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
-(defn- synchronize-puzzle-board [sprite-state]
-  (println "synchronizing.... :)")
-  (let [derefed-state @util/game-state
-        sprites (:sprites derefed-state)
-        piece-x-scale (:piece-x-scale derefed-state)
-        piece-y-scale (:piece-y-scale derefed-state)]
-    (doseq [[[col row] sprite-flipped-state] sprite-state]
-      (let [piece-scale (.-scale (sprites [col row]))]
-        (if (= util/non-flipped-state sprite-flipped-state)
-          (do
-            (swap!
-              util/game-state
-              assoc-in
-              [:sprites-state [col row]]
-              util/non-flipped-state)
-            (.setTo piece-scale piece-x-scale piece-y-scale))
-          (do
-            (swap!
-              util/game-state
-              assoc-in
-              [:sprites-state [col row]]
-              util/flipped-state)
-            (.setTo piece-scale 0 0)))))))
-
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.
 ; for handshake, state change, and incoming msg.          ; To initialize it with a map containing fns
@@ -63,7 +39,7 @@
     (println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
-                                (synchronize-puzzle-board event-data)
+                                (util/synchronize-puzzle-board event-data)
                                 (util/show-congrats-msg-when-puzzle-is-completed))
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)

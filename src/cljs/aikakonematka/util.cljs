@@ -52,3 +52,27 @@
       assoc
       :puzzle-completion-text
       (show-completion-text))))
+
+(defn- synchronize-puzzle-board [sprite-state]
+  (println "synchronizing.... :)")
+  (let [derefed-state @game-state
+        sprites (:sprites derefed-state)
+        piece-x-scale (:piece-x-scale derefed-state)
+        piece-y-scale (:piece-y-scale derefed-state)]
+    (doseq [[[col row] sprite-flipped-state] sprite-state]
+      (let [piece-scale (.-scale (sprites [col row]))]
+        (if (= non-flipped-state sprite-flipped-state)
+          (do
+            (swap!
+              game-state
+              assoc-in
+              [:sprites-state [col row]]
+              non-flipped-state)
+            (.setTo piece-scale piece-x-scale piece-y-scale))
+          (do
+            (swap!
+              game-state
+              assoc-in
+              [:sprites-state [col row]]
+              flipped-state)
+            (.setTo piece-scale 0 0)))))))
