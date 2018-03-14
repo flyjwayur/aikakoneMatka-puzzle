@@ -1,6 +1,8 @@
 (ns aikakonematka.web-socket
   (:require [taoensso.sente :as sente :refer (cb-success?)]
-            [aikakonematka.util :as util]))
+            [aikakonematka.util :as util]
+            [aikakonematka.game :as game]
+            ))
 
 ;Establish the websocket connection
 (defn get-chsk-url
@@ -15,6 +17,10 @@
                       (sente/make-channel-socket! "/chsk" {:type :auto}))) ; To automatically decide whether to use WebSockets or Ajax
 (defonce ch-chsk (:ch-recv channel-socket))                 ;To receive the msg
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
+
+(defn send-sprites-state! []
+  (println "sending " (:sprites-state @util/game-state))
+  (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
 (defn- synchronize-puzzle-board [sprite-state]
   (println "synchronizing.... :)")
@@ -60,15 +66,12 @@
                                 (synchronize-puzzle-board event-data)
                                 (util/show-congrats-msg-when-puzzle-is-completed))
       :aikakone/game-start (do
-                             (println "Start game with initial state " event-data))
+                             (println "Start game with initial state " event-data)
+                             (game/start-game! send-sprites-state!))
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
   (chsk-send! [:aikakone/uid (:uid @util/game-state)]))
-
-(defn send-sprites-state! []
-  (println "sending " (:sprites-state @util/game-state))
-  (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
 (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
   (let [[?uid ?csrf-token ?handshake-data] ?data]
@@ -77,5 +80,5 @@
     (chsk-send! [:aikakone/game-start])
     (send-uid)))
 
-(sente/start-chsk-router! ch-chsk event-msg-handler) ; To create msg router to handle incoming msg.
-
+(defn start-web-socket! [] ; To create msg router to handle incoming msg.
+  (sente/start-chsk-router! ch-chsk event-msg-handler))

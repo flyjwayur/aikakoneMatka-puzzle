@@ -21,11 +21,11 @@
   (println :id id)                                          ; To identify type of msg and handle them accordingly
   (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
   (println :data? ?data)                                    ; To contain the request payload.
-  (reset! sprites-state ?data)
 
   (case id
     :aikakone/sprites-state
     (do
+      (reset! sprites-state ?data)
       (doseq [uid (:any @connected-uids)]  ; To broadcast the response to all the connected clients
         ; -listed by the connected uuids variable.
         (println :uid uid)

@@ -8,7 +8,7 @@
   (when-not (nil? server)
     ;; graceful shutdown; wait 100ms for existing requests to be finished
     ;; :timeout is optional, when no timeout, stop immediately.
-    (@server :timout 100)
+    (@server :timeout 100)
     (reset! server nil)))
 
 (defn start-server []

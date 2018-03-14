@@ -1,9 +1,9 @@
 (ns aikakonematka.core
   (:require [goog.events :as events]
-            [aikakonematka.game :as game]
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]
-            [nightlight.repl-server]))
+            [nightlight.repl-server]
+            ))
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
@@ -33,6 +33,6 @@
         (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
                                                        @util/puzzle-image-height))
         (println "Puzzle image loaded")
-        (game/start-game!))))                                    ; start game after loading image
+        (web-sck/start-web-socket!))))                                    ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png")
   (println "loading images"))
