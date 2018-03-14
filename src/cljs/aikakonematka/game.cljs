@@ -121,8 +121,7 @@
                 (flip-diagonal-pieces!)
                 (send-sprites-state-fn!)
                 (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "bottom-left-button : " :game-state @util/game-state)))
-            (randomly-execute-a-fn flip-diagonal-pieces!)))
+                (println "bottom-left-button : " :game-state @util/game-state)))))
         (when (zero? col)
           (let [left-button (.sprite
                               game-object-factory
@@ -138,8 +137,7 @@
                 (flip-row! row)
                 (send-sprites-state-fn!)
                 (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "left-button : " :game-state @util/game-state)))
-            (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row)) 200)))))
+                (println "left-button : " :game-state @util/game-state)))))
         (when (= row (dec row-col-num))
           (let [bottom-button (.sprite
                                 game-object-factory
@@ -155,8 +153,11 @@
                 (flip-col! col)
                 (send-sprites-state-fn!)
                 (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "bottom-button : " :game-state @util/game-state)))
-            (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! col)) 200)))))))
+                (println "bottom-button : " :game-state @util/game-state))))))
+      (randomly-execute-a-fn flip-diagonal-pieces!)
+      (doseq [row-col-num (range row-col-num)]
+        (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
+        (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
     (js/setTimeout send-sprites-state-fn! 300)))
 
 (defn- update [])
