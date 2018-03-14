@@ -72,6 +72,12 @@
   (doseq [row (range row-col-num)]
     (toggle-visibility-and-flipped-state! col row)))
 
+(defn- randomize-puzzle-pieces []
+  (randomly-execute-a-fn flip-diagonal-pieces!)
+  (doseq [row-col-num (range row-col-num)]
+    (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
+    (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
+
 (defn- create-game [send-sprites-state-fn!]
   "Create randomized puzzle board with one black piece"
   (fn []
@@ -154,10 +160,7 @@
                 (send-sprites-state-fn!)
                 (util/show-congrats-msg-when-puzzle-is-completed)
                 (println "bottom-button : " :game-state @util/game-state))))))
-      (randomly-execute-a-fn flip-diagonal-pieces!)
-      (doseq [row-col-num (range row-col-num)]
-        (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
-        (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
+    (randomize-puzzle-pieces))
     (js/setTimeout send-sprites-state-fn! 300)))
 
 (defn- update [])
