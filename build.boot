@@ -39,6 +39,15 @@
                                      :verbose         true
                                      :max-line-length 120})))
 
+(deftask run-fe []
+  (comp
+    (serve :dir "target/public")
+    (watch)
+    (reload)
+    (cljs :source-map true :optimizations :none)
+    (target)
+    (nightlight :port 4000 :url "http://localhost:3000")))
+
 (deftask run []
   (comp
     (serve :dir "target/public")
