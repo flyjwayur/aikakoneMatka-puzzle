@@ -170,4 +170,3 @@
             ""
             (clj->js {:preload preload :create create :update update}))))
 
-(web-sck/start-router)

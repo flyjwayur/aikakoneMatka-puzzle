@@ -77,5 +77,5 @@
     (chsk-send! [:aikakone/game-start])
     (send-uid)))
 
-(defn start-router []                                       ; To create msg router to handle incoming msg.
-  (sente/start-chsk-router! ch-chsk event-msg-handler))     ; To pass the fn for handling the incoming msg.
+(sente/start-chsk-router! ch-chsk event-msg-handler) ; To create msg router to handle incoming msg.
+
