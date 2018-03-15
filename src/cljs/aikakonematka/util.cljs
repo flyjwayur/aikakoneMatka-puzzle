@@ -29,20 +29,6 @@
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
-(defn show-completion-text []
-  (.setTo
-    (.-anchor
-      (.text
-        (.-add @game)
-        (/ (.-innerWidth js/window) 5)
-        (/ (.-innerHeight js/window) 20)
-        "Congrats! \n You made it :D Yeahhhh!"
-        (clj->js {:font            "40px Arial"
-                  :fill            "#06184c"
-                  :backgroundColor "#f7eb7e"
-                  :align           "center"}))) 0.1))
-
-
 (defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
   (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
@@ -53,7 +39,15 @@
       game-state
       assoc
       :puzzle-completion-text
-      (show-completion-text))))
+      (.text
+        (.-add @game)
+        (/ (.-innerWidth js/window) 5)
+        (/ (.-innerHeight js/window) 20)
+        "Congrats! \n You made it :D Yeahhhh!"
+        (clj->js {:font            "40px Arial"
+                  :fill            "#06184c"
+                  :backgroundColor "#f7eb7e"
+                  :align           "center"})))))
 
 (defn- synchronize-puzzle-board [sprite-state]
   (println "synchronizing.... :)")
