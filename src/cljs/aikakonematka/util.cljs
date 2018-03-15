@@ -6,6 +6,7 @@
 
 (defonce game-state (atom {:sprites                {}
                            :sprites-state          {}
+                           :play-button            nil
                            :puzzle-width-height    0
                            :piece-x-scale          0
                            :piece-y-scale          0
