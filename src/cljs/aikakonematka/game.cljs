@@ -94,11 +94,14 @@
                                    (.add
                                      (.-onInputDown (.-events sprite))
                                      callback-fn))
-          play-button (.sprite
-                        game-object-factory
-                        10
-                        10
-                        "play-button")]
+          play-button (this-as this
+                        (.button
+                          game-object-factory
+                          10
+                          10
+                          "play-button"
+                          (fn [] (println "play button is clicked"))
+                          this))]
       (println "puzzle-image-width : " @util/puzzle-image-width)
       (println "puzzle-image-height : " @util/puzzle-image-height)
       (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
