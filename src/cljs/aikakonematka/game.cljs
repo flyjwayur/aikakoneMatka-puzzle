@@ -82,102 +82,104 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-game [send-sprites-state-fn! initial-sprites-state]
+(defn- create-puzzle-board [send-sprites-state-fn! initial-sprites-state]
   "Create randomized puzzle board with one black piece"
-  (fn []
-    (let [game-object-factory (.-add @util/game)
-          piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
-          left-margin (util/get-left-margin)
-          top-margin (util/get-top-margin)
-          set-on-click-callback! (fn [sprite callback-fn]
-                                   (set! (.-inputEnabled sprite) true)
-                                   (.add
-                                     (.-onInputDown (.-events sprite))
-                                     callback-fn))
-          play-button (this-as this
-                        (.button
-                          game-object-factory
-                          10
-                          10
-                          "play-button"
-                          (fn [] (println "play button is clicked"))
-                          this))]
-      (println "puzzle-image-width : " @util/puzzle-image-width)
-      (println "puzzle-image-height : " @util/puzzle-image-height)
-      (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
-      (println :game-state @util/game-state)
-      (doseq [row (range row-col-num)
-              col (range row-col-num)
-              :let [frame-id (+ (* row-col-num row) col)
-                    x-pos (+ (* piece-width-height col) left-margin col)
-                    y-pos (+ (* piece-width-height row) top-margin row)]]
-        (let [piece (.sprite
-                      game-object-factory
-                      x-pos
-                      y-pos
-                      "puzzle"
-                      frame-id)]
-          (swap! util/game-state assoc-in [:sprites [col row]] piece)
-          (swap! util/game-state assoc-in [:sprites-state [col row]] util/non-flipped-state)
-          (.setTo (.-scale piece) (:piece-x-scale @util/game-state) (:piece-y-scale @util/game-state)))
-        (println "x-pos : " x-pos ", y-pos : " y-pos)
-        (when
-          (and (zero? col) (= row (dec row-col-num)))
-          (let [bottom-left-button (.sprite
-                                     game-object-factory
-                                     (- x-pos piece-width-height)
-                                     (+ y-pos piece-width-height)
-                                     "flip-buttons"
-                                     5)]
-            (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
-            (set-on-click-callback!
-              bottom-left-button
-              (fn []
-                (println "bottom-left-button is clicked!")
-                ;Without getting new row & col range with doseq for flipping,
-                ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-                (flip-diagonal-pieces!)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "bottom-left-button : " :game-state @util/game-state)))))
-        (when (zero? col)
-          (let [left-button (.sprite
+  (let [game-object-factory (.-add @util/game)
+        piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
+        left-margin (util/get-left-margin)
+        top-margin (util/get-top-margin)
+        set-on-click-callback! (fn [sprite callback-fn]
+                                 (set! (.-inputEnabled sprite) true)
+                                 (.add
+                                   (.-onInputDown (.-events sprite))
+                                   callback-fn))]
+    (println "puzzle-image-width : " @util/puzzle-image-width)
+    (println "puzzle-image-height : " @util/puzzle-image-height)
+    (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
+    (println :game-state @util/game-state)
+    (doseq [row (range row-col-num)
+            col (range row-col-num)
+            :let [frame-id (+ (* row-col-num row) col)
+                  x-pos (+ (* piece-width-height col) left-margin col)
+                  y-pos (+ (* piece-width-height row) top-margin row)]]
+      (let [piece (.sprite
+                    game-object-factory
+                    x-pos
+                    y-pos
+                    "puzzle"
+                    frame-id)]
+        (swap! util/game-state assoc-in [:sprites [col row]] piece)
+        (swap! util/game-state assoc-in [:sprites-state [col row]] util/non-flipped-state)
+        (.setTo (.-scale piece) (:piece-x-scale @util/game-state) (:piece-y-scale @util/game-state)))
+      (println "x-pos : " x-pos ", y-pos : " y-pos)
+      (when
+        (and (zero? col) (= row (dec row-col-num)))
+        (let [bottom-left-button (.sprite
+                                   game-object-factory
+                                   (- x-pos piece-width-height)
+                                   (+ y-pos piece-width-height)
+                                   "flip-buttons"
+                                   5)]
+          (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
+          (set-on-click-callback!
+            bottom-left-button
+            (fn []
+              (println "bottom-left-button is clicked!")
+              ;Without getting new row & col range with doseq for flipping,
+              ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+              (flip-diagonal-pieces!)
+              (send-sprites-state-fn!)
+              (util/show-congrats-msg-when-puzzle-is-completed)
+              (println "bottom-left-button : " :game-state @util/game-state)))))
+      (when (zero? col)
+        (let [left-button (.sprite
+                            game-object-factory
+                            (- x-pos piece-width-height)
+                            y-pos
+                            "flip-buttons"
+                            row)]
+          (make-buttons-same-size-as-puzzle-piece! left-button)
+          (set-on-click-callback!
+            left-button
+            (fn []
+              (println "left-button row #" row " clicked, " "which col : " col)
+              (flip-row! row)
+              (send-sprites-state-fn!)
+              (util/show-congrats-msg-when-puzzle-is-completed)
+              (println "left-button : " :game-state @util/game-state)))))
+      (when (= row (dec row-col-num))
+        (let [bottom-button (.sprite
                               game-object-factory
-                              (- x-pos piece-width-height)
-                              y-pos
+                              x-pos
+                              (+ y-pos piece-width-height)
                               "flip-buttons"
-                              row)]
-            (make-buttons-same-size-as-puzzle-piece! left-button)
-            (set-on-click-callback!
-              left-button
-              (fn []
-                (println "left-button row #" row " clicked, " "which col : " col)
-                (flip-row! row)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "left-button : " :game-state @util/game-state)))))
-        (when (= row (dec row-col-num))
-          (let [bottom-button (.sprite
-                                game-object-factory
-                                x-pos
-                                (+ y-pos piece-width-height)
-                                "flip-buttons"
-                                col)]
-            (make-buttons-same-size-as-puzzle-piece! bottom-button)
-            (set-on-click-callback!
-              bottom-button
-              (fn []
-                (println "bottom button col #" col " clicked, " "which row : " row)
-                (flip-col! col)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "bottom-button : " :game-state @util/game-state))))))
+                              col)]
+          (make-buttons-same-size-as-puzzle-piece! bottom-button)
+          (set-on-click-callback!
+            bottom-button
+            (fn []
+              (println "bottom button col #" col " clicked, " "which row : " row)
+              (flip-col! col)
+              (send-sprites-state-fn!)
+              (util/show-congrats-msg-when-puzzle-is-completed)
+              (println "bottom-button : " :game-state @util/game-state))))))
     (if (nil? initial-sprites-state)
       (do
         (randomize-puzzle-pieces)
         (js/setTimeout send-sprites-state-fn! 300))
-      (util/synchronize-puzzle-board initial-sprites-state)))))
+      (util/synchronize-puzzle-board initial-sprites-state))))
 
+  (defn- create-game [send-sprites-state-fn! initial-sprites-state]
+    (fn []
+      (let [game-object-factory (.-add @util/game)
+            play-button (this-as this
+                          (.button
+                            game-object-factory
+                            10
+                            10
+                            "play-button"
+                            (fn [] (create-puzzle-board send-sprites-state-fn! initial-sprites-state))
+                            this))])))
 (defn- update [])
 
 (defn- start-game! [send-sprites-state-fn! initial-sprites-state]
