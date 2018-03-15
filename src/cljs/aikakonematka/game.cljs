@@ -180,7 +180,11 @@
                             10
                             10
                             "play-button"
-                            (fn [] (create-puzzle-board send-sprites-state-fn! initial-sprites-state))
+                            (fn []
+                              (when-let [puzzle-completion-text (:puzzle-completion-text @util/game-state)]
+                                (.destroy puzzle-completion-text))
+                              (swap! util/game-state assoc :puzzle-completion-text nil)
+                              (create-puzzle-board send-sprites-state-fn! initial-sprites-state))
                             this))]
         (swap! util/game-state assoc :play-button play-button))))
 (defn- update [])
