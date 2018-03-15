@@ -43,11 +43,12 @@
                   :align           "center"}))) 0.1))
 
 
-(defn show-congrats-msg-when-puzzle-is-completed []
+(defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
   (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
+    (set! (.-visible (:play-button @game-state)) true)
     (swap!
       game-state
       assoc
