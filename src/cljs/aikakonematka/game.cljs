@@ -23,7 +23,11 @@
     "images/control-buttons.png"
     (util/get-button-width util/button-sprite-col-num)
     (util/get-button-height util/button-sprite-row-num)
-    (* util/button-sprite-row-num util/button-sprite-col-num)))
+    (* util/button-sprite-row-num util/button-sprite-col-num))
+  (.image
+    (.-load @util/game)
+    "play-button"
+    "images/play-button.png"))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
@@ -89,7 +93,12 @@
                                    (set! (.-inputEnabled sprite) true)
                                    (.add
                                      (.-onInputDown (.-events sprite))
-                                     callback-fn))]
+                                     callback-fn))
+          play-button (.sprite
+                        game-object-factory
+                        10
+                        10
+                        "play-button")]
       (println "puzzle-image-width : " @util/puzzle-image-width)
       (println "puzzle-image-height : " @util/puzzle-image-height)
       (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
