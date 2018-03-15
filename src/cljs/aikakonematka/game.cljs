@@ -84,6 +84,7 @@
 
 (defn- create-puzzle-board [send-sprites-state-fn! initial-sprites-state]
   "Create randomized puzzle board with one black piece"
+  (set! (.-visible (:play-button @util/game-state)) false)
   (let [game-object-factory (.-add @util/game)
         piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
         left-margin (util/get-left-margin)
@@ -179,7 +180,8 @@
                             10
                             "play-button"
                             (fn [] (create-puzzle-board send-sprites-state-fn! initial-sprites-state))
-                            this))])))
+                            this))]
+        (swap! util/game-state assoc :play-button play-button))))
 (defn- update [])
 
 (defn- start-game! [send-sprites-state-fn! initial-sprites-state]
