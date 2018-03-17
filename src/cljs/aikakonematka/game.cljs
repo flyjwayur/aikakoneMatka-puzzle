@@ -85,6 +85,7 @@
 (defn- create-puzzle-board [send-sprites-state-fn! initial-sprites-state]
   "Create randomized puzzle board with one black piece"
   (set! (.-visible (:play-button @util/game-state)) false)
+  ;It only creates the puzzle piece/button sprites only once for each client.
   (when (empty? (:sprites @util/game-state))
     (let [game-object-factory (.-add @util/game)
           piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
@@ -165,6 +166,8 @@
                 (send-sprites-state-fn!)
                 (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
                 (println "bottom-button : " :game-state @util/game-state))))))
+      ;It synchronizes the puzzle board with the existing state initially.
+      ;The later synchronization will happen from the web_socket.
       (when (not (empty? initial-sprites-state))
         (util/synchronize-puzzle-board initial-sprites-state)))))
 
@@ -181,12 +184,16 @@
                               (when-let [puzzle-completion-text (:puzzle-completion-text @util/game-state)]
                                 (.destroy puzzle-completion-text))
                               (swap! util/game-state assoc :puzzle-completion-text nil)
+                              ;It also checks whether it already created piece/button sprites.
                               (create-puzzle-board send-sprites-state-fn! initial-sprites-state)
+                              ;It randomizes puzzle pieces.
+                              ;From the next play it also works as a resetting the previous puzzle.
                               (randomize-puzzle-pieces)
                               (js/setTimeout send-sprites-state-fn! 300))
                             this))]
         (swap! util/game-state assoc :play-button play-button))
       (println "initial-sprites-state : " initial-sprites-state)
+      ;when player joined in the middle of the game
       (when (not (empty? initial-sprites-state))
         (create-puzzle-board send-sprites-state-fn! initial-sprites-state))))
 
