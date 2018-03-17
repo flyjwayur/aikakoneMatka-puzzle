@@ -72,3 +72,8 @@
               [:sprites-state [col row]]
               flipped-state)
             (.setTo piece-scale 0 0)))))))
+
+(defn destroy-stage-clear-text! []
+  (when-let [puzzle-completion-text (:puzzle-completion-text game-state)]
+    (.destroy puzzle-completion-text))
+  (swap! game-state assoc :puzzle-completion-text nil))

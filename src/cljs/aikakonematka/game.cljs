@@ -181,9 +181,7 @@
                             10
                             "play-button"
                             (fn []
-                              (when-let [puzzle-completion-text (:puzzle-completion-text @util/game-state)]
-                                (.destroy puzzle-completion-text))
-                              (swap! util/game-state assoc :puzzle-completion-text nil)
+                              (util/destroy-stage-clear-text!)
                               ;It also checks whether it already created piece/button sprites.
                               (create-puzzle-board send-sprites-state-fn! initial-sprites-state)
                               ;It randomizes puzzle pieces.
