@@ -171,7 +171,7 @@
       (when (not (empty? initial-sprites-state))
         (util/synchronize-puzzle-board initial-sprites-state)))))
 
-  (defn- create-game [send-sprites-state-fn! initial-sprites-state]
+  (defn- create-game [{:keys [send-sprites-state-fn!]} initial-sprites-state]
     (fn []
       (let [game-object-factory (.-add @util/game)
             play-button (this-as this
@@ -199,7 +199,7 @@
 
 (defn- update [])
 
-(defn- start-game! [send-sprites-state-fn! initial-sprites-state]
+(defn- start-game! [websocket-msg-send-fns initial-sprites-state]
   (println "starting game")
   (reset! util/game
           (js/Phaser.Game.
@@ -208,5 +208,5 @@
             js/Phaser.Auto
             ""
             (clj->js {:preload preload
-                      :create (create-game send-sprites-state-fn! initial-sprites-state)
+                      :create (create-game websocket-msg-send-fns initial-sprites-state)
                       :update update}))))
