@@ -29,6 +29,11 @@
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
+(defn- currently-playing-game? []
+ (let [dereffed-game-state @game-state]
+   (and (not (empty? (:sprites dereffed-game-state)))
+        (nil? (:puzzle-completion-text dereffed-game-state)))))
+
 (defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
   (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
@@ -50,28 +55,29 @@
                   :align           "center"})))))
 
 (defn- synchronize-puzzle-board [sprite-state]
-  (println "synchronizing.... :)")
-  (let [derefed-state @game-state
-        sprites (:sprites derefed-state)
-        piece-x-scale (:piece-x-scale derefed-state)
-        piece-y-scale (:piece-y-scale derefed-state)]
-    (doseq [[[col row] sprite-flipped-state] sprite-state]
-      (let [piece-scale (.-scale (sprites [col row]))]
-        (if (= non-flipped-state sprite-flipped-state)
-          (do
-            (swap!
-              game-state
-              assoc-in
-              [:sprites-state [col row]]
-              non-flipped-state)
-            (.setTo piece-scale piece-x-scale piece-y-scale))
-          (do
-            (swap!
-              game-state
-              assoc-in
-              [:sprites-state [col row]]
-              flipped-state)
-            (.setTo piece-scale 0 0)))))))
+  (when (currently-playing-game?)
+    (println "synchronizing.... :)")
+    (let [derefed-state @game-state
+          sprites (:sprites derefed-state)
+          piece-x-scale (:piece-x-scale derefed-state)
+          piece-y-scale (:piece-y-scale derefed-state)]
+      (doseq [[[col row] sprite-flipped-state] sprite-state]
+        (let [piece-scale (.-scale (sprites [col row]))]
+          (if (= non-flipped-state sprite-flipped-state)
+            (do
+              (swap!
+                game-state
+                assoc-in
+                [:sprites-state [col row]]
+                non-flipped-state)
+              (.setTo piece-scale piece-x-scale piece-y-scale))
+            (do
+              (swap!
+                game-state
+                assoc-in
+                [:sprites-state [col row]]
+                flipped-state)
+              (.setTo piece-scale 0 0))))))))
 
 (defn destroy-stage-clear-text! []
   (when-let [puzzle-completion-text (:puzzle-completion-text game-state)]
