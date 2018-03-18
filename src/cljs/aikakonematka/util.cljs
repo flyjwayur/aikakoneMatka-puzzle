@@ -35,7 +35,8 @@
         (nil? (:puzzle-completion-text dereffed-game-state)))))
 
 (defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
-  (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
+  (when (and (currently-playing-game?)
+             (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
