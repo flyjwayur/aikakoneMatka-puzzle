@@ -127,13 +127,14 @@
             (set-on-click-callback!
               bottom-left-button
               (fn []
-                (println "bottom-left-button is clicked!")
-                ;Without getting new row & col range with doseq for flipping,
-                ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-                (flip-diagonal-pieces!)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
-                (println "bottom-left-button : " :game-state @util/game-state)))))
+                (when (util/currently-playing-game?)
+                  (println "bottom-left-button is clicked!")
+                  ;Without getting new row & col range with doseq for flipping,
+                  ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+                  (flip-diagonal-pieces!)
+                  (send-sprites-state-fn!)
+                  (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
+                  (println "bottom-left-button : " :game-state @util/game-state))))))
         (when (zero? col)
           (let [left-button (.sprite
                               game-object-factory
@@ -145,11 +146,12 @@
             (set-on-click-callback!
               left-button
               (fn []
-                (println "left-button row #" row " clicked, " "which col : " col)
-                (flip-row! row)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
-                (println "left-button : " :game-state @util/game-state)))))
+                (when (util/currently-playing-game?)
+                  (println "left-button row #" row " clicked, " "which col : " col)
+                  (flip-row! row)
+                  (send-sprites-state-fn!)
+                  (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
+                  (println "left-button : " :game-state @util/game-state))))))
         (when (= row (dec row-col-num))
           (let [bottom-button (.sprite
                                 game-object-factory
@@ -161,11 +163,12 @@
             (set-on-click-callback!
               bottom-button
               (fn []
-                (println "bottom button col #" col " clicked, " "which row : " row)
-                (flip-col! col)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
-                (println "bottom-button : " :game-state @util/game-state))))))
+                (when (util/currently-playing-game?)
+                  (println "bottom button col #" col " clicked, " "which row : " row)
+                  (flip-col! col)
+                  (send-sprites-state-fn!)
+                  (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
+                  (println "bottom-button : " :game-state @util/game-state)))))))
       ;It synchronizes the puzzle board with the existing state initially.
       ;The later synchronization will happen from the web_socket.
       (when (not (empty? initial-sprites-state))
