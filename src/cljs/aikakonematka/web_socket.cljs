@@ -43,7 +43,8 @@
                                 (util/show-congrats-msg-and-play-button-when-puzzle-is-completed))
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
-                             (game/start-game! {:send-sprites-state-fn! send-sprites-state!} event-data))
+                             (swap! util/game-state assoc :sprites-state event-data)
+                             (game/start-game! {:send-sprites-state-fn! send-sprites-state!}))
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
