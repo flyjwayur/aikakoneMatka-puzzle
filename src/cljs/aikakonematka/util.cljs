@@ -55,14 +55,17 @@
                 :backgroundColor "#f7eb7e"
                 :align           "center"}))))
 
-(defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
+(defn show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed
+  [send-puzzle-complete-fn!]
   (when (and (currently-playing-game?)
              (puzzle-completed?)
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
     (display-play-button!)
-    (display-congrats-message!)))
+    (display-congrats-message!)
+    (send-puzzle-complete-fn!)
+    (swap! game-state assoc :sprites-state {})))
 
 (defn- synchronize-puzzle-board [sprite-state]
   (swap! game-state assoc :sprites-state sprite-state)

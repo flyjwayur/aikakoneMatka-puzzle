@@ -78,7 +78,7 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-puzzle-board [send-sprites-state-fn!]
+(defn- create-puzzle-board [{:keys [send-sprites-state-fn! send-puzzle-complete-fn!]}]
   "Create randomized puzzle board with one black piece"
   (set! (.-visible (:play-button @util/game-state)) false)
   ;It only creates the puzzle piece/button sprites only once for each client.
@@ -128,7 +128,7 @@
                   ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
                   (flip-diagonal-pieces!)
                   (send-sprites-state-fn!)
-                  (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
+                  (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete-fn!)
                   (println "bottom-left-button : " :game-state @util/game-state))))))
         (when (zero? col)
           (let [left-button (.sprite
@@ -145,7 +145,7 @@
                   (println "left-button row #" row " clicked, " "which col : " col)
                   (flip-row! row)
                   (send-sprites-state-fn!)
-                  (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
+                  (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete-fn!)
                   (println "left-button : " :game-state @util/game-state))))))
         (when (= row (dec row-col-num))
           (let [bottom-button (.sprite
@@ -162,7 +162,7 @@
                   (println "bottom button col #" col " clicked, " "which row : " row)
                   (flip-col! col)
                   (send-sprites-state-fn!)
-                  (util/show-congrats-msg-and-play-button-when-puzzle-is-completed)
+                  (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete-fn!)
                   (println "bottom-button : " :game-state @util/game-state)))))))))
   ;It synchronizes the puzzle board with the existing state for each player.
   ;The later synchronization will happen from the web_socket.
@@ -173,7 +173,7 @@
       ;if it is the initial puzzle creation.
       (randomize-puzzle-pieces))))
 
-  (defn- create-game [{:keys [send-sprites-state-fn!]}]
+  (defn- create-game [websocket-msg-send-fns]
     (fn []
       (when-not (:play-button @util/game-state)
         (let [game-object-factory (.-add @util/game)
@@ -186,9 +186,9 @@
                               (fn []
                                 (util/destroy-stage-clear-text!)
                                 ;It also checks whether it already created piece/button sprites.
-                                (create-puzzle-board send-sprites-state-fn!)
+                                (create-puzzle-board websocket-msg-send-fns)
                                 ;From the next play it also works as a resetting the previous puzzle.
-                                (js/setTimeout send-sprites-state-fn! 300))
+                                (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
                               this))]
           (swap! util/game-state assoc :play-button play-button)))))
 

@@ -22,6 +22,9 @@
   (println "sending " (:sprites-state @util/game-state))
   (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
+(defn send-puzzle-complete! []
+  (chsk-send! [:aikakone/puzzle-complete! nil]))
+
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.
 ; for handshake, state change, and incoming msg.          ; To initialize it with a map containing fns
@@ -40,11 +43,13 @@
     (case event-id
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board event-data)
-                                (util/show-congrats-msg-and-play-button-when-puzzle-is-completed))
+                                (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete!))
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
-                             (game/start-game! {:send-sprites-state-fn! send-sprites-state!}))
+                             (game/start-game! {:send-sprites-state-fn! send-sprites-state!
+                                                :send-puzzle-complete-fn! send-puzzle-complete!}))
+
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
