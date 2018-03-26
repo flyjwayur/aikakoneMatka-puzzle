@@ -30,12 +30,13 @@
 (defmethod event-msg-handler :default [{:as ev-msg :keys [event]}]
   (println "Unhandled event: " event))
 
-(defn broadcast [client-id]
+(defn broadcast-data-to-all-excpet-msg-sender [client-id msg-type data]
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
     (println :uid uid)
     (when (not= client-id uid)
-      (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))
+      (println "broadcast data except msg sender, msg type :" msg-type)
+      (chsk-send! uid [msg-type data]))))
 
 (defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
   (println :id id)                                          ; To identify type of msg and handle them accordingly
@@ -45,14 +46,18 @@
   ; To broadcast the response to all the connected clients
   (reset! sprites-state ?data)
   (println "This is sprites-state from the server : " @sprites-state)
-  (when (every? #(= non-flipped-state (val %)) @sprites-state)
-    (doseq [uid (:any @connected-uids)]
-      ; -listed by the connected uuids variable.
-      (println :uid uid)
-      (chsk-send! uid [:aikakone/initial-game-state initial-game-state])))
-  (broadcast client-id))
+  (broadcast-data-to-all-excpet-msg-sender client-id :aikakone/sprites-state @sprites-state))
 
-(sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
+(defmethod event-msg-handler :aikakone/game-start [{:as ev-msg :keys [id client-id ?data]}]
+  (do (println "@sprites-state from game-start : " @sprites-state)
+      (chsk-send! client-id [:aikakone/game-start @sprites-state])))
+
+(defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
+  (do
+    (reset! sprites-state nil)
+    (broadcast-data-to-all-excpet-msg-sender client-id :aikakone/puzzle-complete! @sprites-state)))
+
+(sente/start-chsk-router! ch-chsk event-msg-handler) ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
 ; and pass it handle-message! as the event handler.
 
@@ -69,3 +74,4 @@
 
 (defn -main []
   (server/run-server handler {:port 2222}))
+
