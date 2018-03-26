@@ -128,7 +128,7 @@
                   ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
                   (flip-diagonal-pieces!)
                   (send-sprites-state-fn!)
-                  (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete-fn!)
+                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
                   (println "bottom-left-button : " :game-state @util/game-state))))))
         (when (zero? col)
           (let [left-button (.sprite
@@ -145,7 +145,7 @@
                   (println "left-button row #" row " clicked, " "which col : " col)
                   (flip-row! row)
                   (send-sprites-state-fn!)
-                  (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete-fn!)
+                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
                   (println "left-button : " :game-state @util/game-state))))))
         (when (= row (dec row-col-num))
           (let [bottom-button (.sprite
@@ -162,7 +162,7 @@
                   (println "bottom button col #" col " clicked, " "which row : " row)
                   (flip-col! col)
                   (send-sprites-state-fn!)
-                  (util/show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed send-puzzle-complete-fn!)
+                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
                   (println "bottom-button : " :game-state @util/game-state)))))))))
   ;It synchronizes the puzzle board with the existing state for each player.
   ;The later synchronization will happen from the web_socket.
