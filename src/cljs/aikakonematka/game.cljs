@@ -44,10 +44,8 @@
       (do
         (swap!
           util/game-state
-          update
-          :sprites-state
-          assoc
-          [col row]
+          assoc-in
+          [:sprites-state [col row]]
           util/non-flipped-state)
         (.setTo
           piece-scale
@@ -56,10 +54,8 @@
       (do
         (swap!
           util/game-state
-          update
-          :sprites-state
-          assoc
-          [col row]
+          assoc-in
+          [:sprites-state [col row]]
           util/flipped-state)
         (.setTo piece-scale 0 0)))))
 
