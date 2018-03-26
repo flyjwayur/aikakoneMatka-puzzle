@@ -38,8 +38,6 @@
   (when (and (currently-playing-game?)
              (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
              (not (:puzzle-completion-text @game-state)))
-    (println "From puzzle-is-completed : " (:sprites-state @game-state))
-    (println "Congrats" "You've got a great start to solving!")
     (set! (.-visible (:play-button @game-state)) true)
     (swap!
       game-state
@@ -58,7 +56,6 @@
 (defn- synchronize-puzzle-board [sprite-state]
   (swap! game-state assoc :sprites-state sprite-state)
   (when (currently-playing-game?)
-    (println "synchronizing.... :)")
     (let [derefed-state @game-state
           sprites (:sprites derefed-state)
           piece-x-scale (:piece-x-scale derefed-state)

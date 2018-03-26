@@ -18,7 +18,6 @@
       (fn []
         (reset! util/button-sprite-sheet-width (.-width buttons-img))
         (reset! util/button-sprite-sheet-height (.-height buttons-img))
-        (println "buttons image loaded")
         (set! (.-src puzzle-img) "images/puzzleImage.jpg"))))
   (set!
     (.-onload puzzle-img)
@@ -32,7 +31,5 @@
                                                        @util/puzzle-image-width))
         (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
                                                        @util/puzzle-image-height))
-        (println "Puzzle image loaded")
         (web-sck/start-web-socket!))))                                    ; start game after loading image
-  (set! (.-src buttons-img) "images/control-buttons.png")
-  (println "loading images"))
+  (set! (.-src buttons-img) "images/control-buttons.png"))

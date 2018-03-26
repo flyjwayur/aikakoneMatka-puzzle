@@ -19,13 +19,9 @@
 
 (defmulti event-msg-handler :id)
 
-(defmethod event-msg-handler :default [{:as ev-msg :keys [event]}]
-  (println "Unhandled event: " event))
-
 (defn broadcast [client-id]
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
-    (println :uid uid)
     (when (not= client-id uid)
       (println "@sprites-state from sprites-state : " @sprites-state)
       (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))

@@ -28,10 +28,6 @@
 (defmethod event-msg-handler :default [{:keys [event]}]     ; To define a default event-handling fns.
   (println "Unhandled event: " event))
 
-(defmethod event-msg-handler :chsk/state [{:keys [?data]}]
-  (if (= ?data {:first-open? true})
-    (println "Channel socket successfully established!")
-    (println "Channel socket state change:" ?data)))
 
 (defmethod event-msg-handler :chsk/recv [{:keys [?data]}]
   ;when client received a pushed msg from the server via web socket
