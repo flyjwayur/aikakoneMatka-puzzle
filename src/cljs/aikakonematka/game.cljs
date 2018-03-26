@@ -193,10 +193,7 @@
                               ;From the next play it also works as a resetting the previous puzzle.
                               (js/setTimeout send-sprites-state-fn! 300))
                             this))]
-        (swap! util/game-state assoc :play-button play-button)
-        ;when player joined in the middle of the game
-        (when (not (empty? (:sprites-state @util/game-state)))
-          (create-puzzle-board send-sprites-state-fn!)))))
+        (swap! util/game-state assoc :play-button play-button))))
 
 (defn- update [])
 
