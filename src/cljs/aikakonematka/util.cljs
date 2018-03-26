@@ -6,6 +6,7 @@
 
 (defonce game-state (atom {:sprites                {}
                            :sprites-state          {}
+                           :play-button            nil
                            :puzzle-width-height    0
                            :piece-x-scale          0
                            :piece-y-scale          0
@@ -28,9 +29,20 @@
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
-(defn show-completion-text []
-  (.setTo
-    (.-anchor
+(defn- currently-playing-game? []
+ (let [dereffed-game-state @game-state]
+   (and (not (empty? (:sprites dereffed-game-state)))
+        (nil? (:puzzle-completion-text dereffed-game-state)))))
+
+(defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
+  (when (and (currently-playing-game?)
+             (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
+             (not (:puzzle-completion-text @game-state)))
+    (set! (.-visible (:play-button @game-state)) true)
+    (swap!
+      game-state
+      assoc
+      :puzzle-completion-text
       (.text
         (.-add @game)
         (/ (.-innerWidth js/window) 5)
@@ -39,40 +51,22 @@
         (clj->js {:font            "40px Arial"
                   :fill            "#06184c"
                   :backgroundColor "#f7eb7e"
-                  :align           "center"}))) 0.1))
-
-
-(defn show-congrats-msg-when-puzzle-is-completed []
-  (when (and (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
-             (not (:puzzle-completion-text @game-state)))
-    (println "From puzzle-is-completed : " (:sprites-state @game-state))
-    (println "Congrats" "You've got a great start to solving!")
-    (swap!
-      game-state
-      assoc
-      :puzzle-completion-text
-      (show-completion-text))))
+                  :align           "center"})))))
 
 (defn- synchronize-puzzle-board [sprite-state]
-  (println "synchronizing.... :)")
-  (let [derefed-state @game-state
-        sprites (:sprites derefed-state)
-        piece-x-scale (:piece-x-scale derefed-state)
-        piece-y-scale (:piece-y-scale derefed-state)]
-    (doseq [[[col row] sprite-flipped-state] sprite-state]
-      (let [piece-scale (.-scale (sprites [col row]))]
-        (if (= non-flipped-state sprite-flipped-state)
-          (do
-            (swap!
-              game-state
-              assoc-in
-              [:sprites-state [col row]]
-              non-flipped-state)
-            (.setTo piece-scale piece-x-scale piece-y-scale))
-          (do
-            (swap!
-              game-state
-              assoc-in
-              [:sprites-state [col row]]
-              flipped-state)
+  (swap! game-state assoc :sprites-state sprite-state)
+  (when (currently-playing-game?)
+    (let [derefed-state @game-state
+          sprites (:sprites derefed-state)
+          piece-x-scale (:piece-x-scale derefed-state)
+          piece-y-scale (:piece-y-scale derefed-state)]
+      (doseq [[[col row] sprite-flipped-state] sprite-state]
+        (let [piece-scale (.-scale (sprites [col row]))]
+          (if (= non-flipped-state sprite-flipped-state)
+            (.setTo piece-scale piece-x-scale piece-y-scale)
             (.setTo piece-scale 0 0)))))))
+
+(defn destroy-stage-clear-text! []
+  (when-let [puzzle-completion-text (:puzzle-completion-text game-state)]
+    (.destroy puzzle-completion-text))
+  (swap! game-state assoc :puzzle-completion-text nil))

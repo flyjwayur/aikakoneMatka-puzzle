@@ -28,10 +28,6 @@
 (defmethod event-msg-handler :default [{:keys [event]}]     ; To define a default event-handling fns.
   (println "Unhandled event: " event))
 
-(defmethod event-msg-handler :chsk/state [{:keys [?data]}]
-  (if (= ?data {:first-open? true})
-    (println "Channel socket successfully established!")
-    (println "Channel socket state change:" ?data)))
 
 (defmethod event-msg-handler :chsk/recv [{:keys [?data]}]
   ;when client received a pushed msg from the server via web socket
@@ -40,10 +36,11 @@
     (case event-id
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board event-data)
-                                (util/show-congrats-msg-when-puzzle-is-completed))
+                                (util/show-congrats-msg-and-play-button-when-puzzle-is-completed))
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
-                             (game/start-game! send-sprites-state! event-data))
+                             (swap! util/game-state assoc :sprites-state event-data)
+                             (game/start-game! {:send-sprites-state-fn! send-sprites-state!}))
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
