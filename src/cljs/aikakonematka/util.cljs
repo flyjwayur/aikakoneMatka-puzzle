@@ -55,8 +55,7 @@
                 :backgroundColor "#f7eb7e"
                 :align           "center"}))))
 
-(defn show-congrats-msg-and-play-button-and-send-puzzle-complete-msg-when-puzzle-is-completed
-  [send-puzzle-complete-fn!]
+(defn congrats-completion-finish-game [send-puzzle-complete-fn!]
   (when (and (currently-playing-game?)
              (puzzle-completed?)
              (not (:puzzle-completion-text @game-state)))
