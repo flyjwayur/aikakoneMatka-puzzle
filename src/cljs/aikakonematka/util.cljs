@@ -34,26 +34,35 @@
    (and (not (empty? (:sprites dereffed-game-state)))
         (nil? (:puzzle-completion-text dereffed-game-state)))))
 
+(defn- puzzle-completed? []
+  (every? #(= non-flipped-state (val %)) (:sprites-state @game-state)))
+
+(defn- display-play-button! []
+  (set! (.-visible (:play-button @game-state)) true))
+
+(defn- display-congrats-message! []
+  (swap!
+    game-state
+    assoc
+    :puzzle-completion-text
+    (.text
+      (.-add @game)
+      (/ (.-innerWidth js/window) 5)
+      (/ (.-innerHeight js/window) 20)
+      "Congrats! \n You made it :D Yeahhhh!"
+      (clj->js {:font            "40px Arial"
+                :fill            "#06184c"
+                :backgroundColor "#f7eb7e"
+                :align           "center"}))))
+
 (defn show-congrats-msg-and-play-button-when-puzzle-is-completed []
   (when (and (currently-playing-game?)
-             (every? #(= non-flipped-state (val %)) (:sprites-state @game-state))
+             (puzzle-completed?)
              (not (:puzzle-completion-text @game-state)))
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
-    (set! (.-visible (:play-button @game-state)) true)
-    (swap!
-      game-state
-      assoc
-      :puzzle-completion-text
-      (.text
-        (.-add @game)
-        (/ (.-innerWidth js/window) 5)
-        (/ (.-innerHeight js/window) 20)
-        "Congrats! \n You made it :D Yeahhhh!"
-        (clj->js {:font            "40px Arial"
-                  :fill            "#06184c"
-                  :backgroundColor "#f7eb7e"
-                  :align           "center"})))))
+    (display-play-button!)
+    (display-congrats-message!)))
 
 (defn- synchronize-puzzle-board [sprite-state]
   (swap! game-state assoc :sprites-state sprite-state)
