@@ -83,6 +83,7 @@
 
 (defn- create-puzzle-board [send-sprites-state-fn!]
   "Create randomized puzzle board with one black piece"
+  (println :creating-puzzle-with (:sprites-state @util/game-state))
   (set! (.-visible (:play-button @util/game-state)) false)
   ;It only creates the puzzle piece/button sprites only once for each client.
   (when (empty? (:sprites @util/game-state))
@@ -161,6 +162,7 @@
   ;It synchronizes the puzzle board with the existing state initially.
   ;The later synchronization will happen from the web_socket.
   (let [initial-sprites-state (:sprites-state @util/game-state)]
+    (println :initial-state-is- initial-sprites-state)
     (if (not (empty? initial-sprites-state))
       (util/synchronize-puzzle-board initial-sprites-state)
       (randomize-puzzle-pieces))))
