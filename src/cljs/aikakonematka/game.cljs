@@ -23,7 +23,11 @@
     "images/control-buttons.png"
     (util/get-button-width util/button-sprite-col-num)
     (util/get-button-height util/button-sprite-row-num)
-    (* util/button-sprite-row-num util/button-sprite-col-num)))
+    (* util/button-sprite-row-num util/button-sprite-col-num))
+  (.image
+    (.-load @util/game)
+    "play-button"
+    "images/play-button.png"))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
@@ -40,10 +44,8 @@
       (do
         (swap!
           util/game-state
-          update
-          :sprites-state
-          assoc
-          [col row]
+          assoc-in
+          [:sprites-state [col row]]
           util/non-flipped-state)
         (.setTo
           piece-scale
@@ -52,10 +54,8 @@
       (do
         (swap!
           util/game-state
-          update
-          :sprites-state
-          assoc
-          [col row]
+          assoc-in
+          [:sprites-state [col row]]
           util/flipped-state)
         (.setTo piece-scale 0 0)))))
 
@@ -78,9 +78,11 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-game [send-sprites-state-fn! initial-sprites-state]
+(defn- create-puzzle-board [{:keys [send-sprites-state-fn! send-puzzle-complete-fn!]}]
   "Create randomized puzzle board with one black piece"
-  (fn []
+  (set! (.-visible (:play-button @util/game-state)) false)
+  ;It only creates the puzzle piece/button sprites only once for each client.
+  (when (empty? (:sprites @util/game-state))
     (let [game-object-factory (.-add @util/game)
           piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
           left-margin (util/get-left-margin)
@@ -106,8 +108,7 @@
                       "puzzle"
                       frame-id)]
           (swap! util/game-state assoc-in [:sprites [col row]] piece)
-          (swap! util/game-state assoc-in [:sprites-state [col row]] util/non-flipped-state)
-          (.setTo (.-scale piece) (:piece-x-scale @util/game-state) (:piece-y-scale @util/game-state)))
+          (.setTo (.-scale piece) 0 0))
         (println "x-pos : " x-pos ", y-pos : " y-pos)
         (when
           (and (zero? col) (= row (dec row-col-num)))
@@ -121,13 +122,14 @@
             (set-on-click-callback!
               bottom-left-button
               (fn []
-                (println "bottom-left-button is clicked!")
-                ;Without getting new row & col range with doseq for flipping,
-                ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-                (flip-diagonal-pieces!)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "bottom-left-button : " :game-state @util/game-state)))))
+                (when (util/currently-playing-game?)
+                  (println "bottom-left-button is clicked!")
+                  ;Without getting new row & col range with doseq for flipping,
+                  ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+                  (flip-diagonal-pieces!)
+                  (send-sprites-state-fn!)
+                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
+                  (println "bottom-left-button : " :game-state @util/game-state))))))
         (when (zero? col)
           (let [left-button (.sprite
                               game-object-factory
@@ -139,11 +141,12 @@
             (set-on-click-callback!
               left-button
               (fn []
-                (println "left-button row #" row " clicked, " "which col : " col)
-                (flip-row! row)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "left-button : " :game-state @util/game-state)))))
+                (when (util/currently-playing-game?)
+                  (println "left-button row #" row " clicked, " "which col : " col)
+                  (flip-row! row)
+                  (send-sprites-state-fn!)
+                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
+                  (println "left-button : " :game-state @util/game-state))))))
         (when (= row (dec row-col-num))
           (let [bottom-button (.sprite
                                 game-object-factory
@@ -155,20 +158,43 @@
             (set-on-click-callback!
               bottom-button
               (fn []
-                (println "bottom button col #" col " clicked, " "which row : " row)
-                (flip-col! col)
-                (send-sprites-state-fn!)
-                (util/show-congrats-msg-when-puzzle-is-completed)
-                (println "bottom-button : " :game-state @util/game-state))))))
-    (if (nil? initial-sprites-state)
-      (do
-        (randomize-puzzle-pieces)
-        (js/setTimeout send-sprites-state-fn! 300))
-      (util/synchronize-puzzle-board initial-sprites-state)))))
+                (when (util/currently-playing-game?)
+                  (println "bottom button col #" col " clicked, " "which row : " row)
+                  (flip-col! col)
+                  (send-sprites-state-fn!)
+                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
+                  (println "bottom-button : " :game-state @util/game-state)))))))))
+  ;It synchronizes the puzzle board with the existing state for each player.
+  ;The later synchronization will happen from the web_socket.
+  (let [initial-sprites-state (:sprites-state @util/game-state)]
+    (if (not (empty? initial-sprites-state))
+      (util/synchronize-puzzle-board initial-sprites-state)
+      ;It make puzzle pieces randomly flipped,
+      ;if it is the initial puzzle creation.
+      (randomize-puzzle-pieces))))
+
+  (defn- create-game [websocket-msg-send-fns]
+    (fn []
+      (when-not (:play-button @util/game-state)
+        (let [game-object-factory (.-add @util/game)
+              play-button (this-as this
+                            (.button
+                              game-object-factory
+                              10
+                              10
+                              "play-button"
+                              (fn []
+                                (util/destroy-stage-clear-text!)
+                                ;It also checks whether it already created piece/button sprites.
+                                (create-puzzle-board websocket-msg-send-fns)
+                                ;From the next play it also works as a resetting the previous puzzle.
+                                (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
+                              this))]
+          (swap! util/game-state assoc :play-button play-button)))))
 
 (defn- update [])
 
-(defn- start-game! [send-sprites-state-fn! initial-sprites-state]
+(defn- start-game! [websocket-msg-send-fns]
   (println "starting game")
   (reset! util/game
           (js/Phaser.Game.
@@ -177,5 +203,5 @@
             js/Phaser.Auto
             ""
             (clj->js {:preload preload
-                      :create (create-game send-sprites-state-fn! initial-sprites-state)
+                      :create (create-game websocket-msg-send-fns)
                       :update update}))))
