@@ -6,10 +6,12 @@
 
 (defonce game-state (atom {:sprites                {}
                            :sprites-state          {}
-                           :play-button            nil
                            :puzzle-width-height    0
                            :piece-x-scale          0
                            :piece-y-scale          0
+                           :play-button            nil
+                           :play-time-text         nil
+                           :game-start-time        nil
                            :puzzle-completion-text nil}))
 
 (def flipped-state "FLIPPED")
@@ -84,3 +86,19 @@
   (when-let [puzzle-completion-text (:puzzle-completion-text @game-state)]
     (.destroy puzzle-completion-text))
   (swap! game-state assoc :puzzle-completion-text nil))
+
+(defn mark-start-time! []
+  (swap! game-state assoc :game-start-time (js/Date.)))
+
+(defn display-play-time! []
+  (swap! game-state
+         assoc
+         :play-time-text
+         (.text (.-add @game)
+                (* (.-innerWidth js/window) 0.8)
+                (/ (.-innerHeight js/window) 20)
+                "0.000"
+                (clj->js {:font            "40px Arial"
+                          :fill            "#fff"
+                          :backgroundColor "#000"
+                          :align           "center"}))))

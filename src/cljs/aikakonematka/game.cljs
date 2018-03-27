@@ -171,7 +171,9 @@
       (util/synchronize-puzzle-board initial-sprites-state)
       ;It make puzzle pieces randomly flipped,
       ;if it is the initial puzzle creation.
-      (randomize-puzzle-pieces))))
+      (randomize-puzzle-pieces)))
+  (util/mark-start-time!)
+  (util/display-play-time!))
 
   (defn- create-game [websocket-msg-send-fns]
     (fn []
