@@ -21,6 +21,20 @@
 
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
+(def puzzle-image-width (atom nil))
+(def puzzle-image-height (atom nil))
+(def button-sprite-sheet-width (atom nil))
+(def button-sprite-sheet-height (atom nil))
+(def button-sprite-col-num 3)
+(def button-sprite-row-num 2)
+(defn- get-button-width [btn-sprite-col-num]
+  (/ @button-sprite-sheet-width btn-sprite-col-num))
+(defn- get-button-height [btn-sprite-row-num]
+  (/ @button-sprite-sheet-height btn-sprite-row-num))
+(defn- get-left-margin []
+  (/ (- (.-innerWidth js/window)(:puzzle-width-height @game-state)) 2))
+(defn- get-top-margin []
+  (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
 (defn check-time-to-get-start-time []
   (reset! start-time (.getTime (js/Date.)))
@@ -51,3 +65,27 @@
       assoc
       :puzzle-completion-text
       (show-completion-text))))
+
+(defn- synchronize-puzzle-board [sprite-state]
+  (println "synchronizing.... :)")
+  (let [derefed-state @game-state
+        sprites (:sprites derefed-state)
+        piece-x-scale (:piece-x-scale derefed-state)
+        piece-y-scale (:piece-y-scale derefed-state)]
+    (doseq [[[col row] sprite-flipped-state] sprite-state]
+      (let [piece-scale (.-scale (sprites [col row]))]
+        (if (= non-flipped-state sprite-flipped-state)
+          (do
+            (swap!
+              game-state
+              assoc-in
+              [:sprites-state [col row]]
+              non-flipped-state)
+            (.setTo piece-scale piece-x-scale piece-y-scale))
+          (do
+            (swap!
+              game-state
+              assoc-in
+              [:sprites-state [col row]]
+              flipped-state)
+            (.setTo piece-scale 0 0)))))))

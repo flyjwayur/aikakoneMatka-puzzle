@@ -1,6 +1,8 @@
 (ns aikakonematka.web-socket
   (:require [taoensso.sente :as sente :refer (cb-success?)]
-            [aikakonematka.util :as util]))
+            [aikakonematka.util :as util]
+            [aikakonematka.game :as game]
+            ))
 
 ;Establish the websocket connection
 (defn get-chsk-url
@@ -16,28 +18,9 @@
 (defonce ch-chsk (:ch-recv channel-socket))                 ;To receive the msg
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
 
-(defn- synchronize-puzzle-board [sprite-state]
-  (let [derefed-state @util/game-state
-        sprites (:sprites derefed-state)
-        piece-x-scale (:piece-x-scale derefed-state)
-        piece-y-scale (:piece-y-scale derefed-state)]
-    (doseq [[[col row] sprite-flipped-state] sprite-state]
-      (let [piece-scale (.-scale (sprites [col row]))]
-        (if (= util/non-flipped-state sprite-flipped-state)
-          (do
-            (swap!
-              util/game-state
-              assoc-in
-              [:sprites-state [col row]]
-              util/non-flipped-state)
-            (.setTo piece-scale piece-x-scale piece-y-scale))
-          (do
-            (swap!
-              util/game-state
-              assoc-in
-              [:sprites-state [col row]]
-              util/flipped-state)
-            (.setTo piece-scale 0 0)))))))
+(defn send-sprites-state! []
+  (println "sending " (:sprites-state @util/game-state))
+  (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
 (defn- sync-reset-puzzle-board [event-data]
   (let [derefed-state @util/game-state]
@@ -62,7 +45,7 @@
     (println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
-                                (synchronize-puzzle-board event-data)
+                                (util/synchronize-puzzle-board event-data)
                                 (util/show-congrats-msg-when-puzzle-is-completed))
       :aikakone/initial-game-state (do
                                      (println "received from initial-game-state " [event-id event-data])
@@ -91,7 +74,8 @@
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
+    (chsk-send! [:aikakone/game-start])
     (send-uid)))
 
-(defn start-router []                                       ; To create msg router to handle incoming msg.
-  (sente/start-chsk-router! ch-chsk event-msg-handler))     ; To pass the fn for handling the incoming msg.
+(defn start-web-socket! [] ; To create msg router to handle incoming msg.
+  (sente/start-chsk-router! ch-chsk event-msg-handler))

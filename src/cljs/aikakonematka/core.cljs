@@ -1,6 +1,5 @@
 (ns aikakonematka.core
   (:require [goog.events :as events]
-            [nightlight.repl-server]
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]))
 
@@ -222,6 +221,7 @@
 
 (web-sck/start-router)
 
+
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
       puzzle-img2 (js/Image.)
@@ -248,8 +248,8 @@
     (.-onload buttons-img)
     (clj->js
       (fn []
-        (reset! button-sprite-sheet-width (.-width buttons-img))
-        (reset! button-sprite-sheet-height (.-height buttons-img))
+        (reset! util/button-sprite-sheet-width (.-width buttons-img))
+        (reset! util/button-sprite-sheet-height (.-height buttons-img))
         (println "buttons image loaded")
         (set! (.-src puzzle-img) "images/puzzleImage.jpg")
         )))
@@ -257,14 +257,14 @@
     (.-onload puzzle-img)
     (clj->js
       (fn []
-        (reset! puzzle-image-width (.-width puzzle-img))
-        (reset! puzzle-image-height (.-height puzzle-img))
+        (reset! util/puzzle-image-width (.-width puzzle-img))
+        (reset! util/puzzle-image-height (.-height puzzle-img))
         (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
                                                                            (.-innerHeight js/window)))))
         (swap! util/game-state assoc :piece-x-scale (/ (:puzzle-width-height @util/game-state)
-                                                       @puzzle-image-width))
+                                                       @util/puzzle-image-width))
         (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
-                                                       @puzzle-image-height))
+                                                       @util/puzzle-image-height))
         (println "Puzzle image loaded")
         (set! (.-src puzzle-img2) "images/puzzle-image2.jpg")))) ; start game after loading image
   (set!
