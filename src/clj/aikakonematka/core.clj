@@ -16,6 +16,14 @@
   (def connected-uids (:connected-uids connection)))
 
 (def sprites-state (atom nil))
+(def flipped-state "FLIPPED")
+(def non-flipped-state "NON-FLIPPED")
+(def initial-game-state (atom {:sprites                {}
+                               :sprites-state          {}
+                               :puzzle-width-height    0
+                               :piece-x-scale          0
+                               :piece-y-scale          0
+                               :puzzle-completion-text nil}))
 
 (defmulti event-msg-handler :id)
 
@@ -30,11 +38,12 @@
       (println "broadcast data except msg sender, msg type :" msg-type)
       (chsk-send! uid [msg-type data]))))
 
+
 (defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
   (println :id id)                                          ; To identify type of msg and handle them accordingly
   (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
   (println :data? ?data)
-
+  
   ; To broadcast the response to all the connected clients
   (reset! sprites-state ?data)
   (println "This is sprites-state from the server : " @sprites-state)
