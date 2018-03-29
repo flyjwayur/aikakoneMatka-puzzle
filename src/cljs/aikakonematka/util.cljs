@@ -91,17 +91,18 @@
   (swap! game-state assoc :game-start-time (js/Date.)))
 
 (defn display-play-time! []
-  (swap! game-state
-         assoc
-         :play-time-text
-         (.text (.-add @game)
-                (* (.-innerWidth js/window) 0.8)
-                (/ (.-innerHeight js/window) 20)
-                "0.000"
-                (clj->js {:font            "40px Arial"
-                          :fill            "#fff"
-                          :backgroundColor "#000"
-                          :align           "center"}))))
+  (when-not (:play-time-text @game-state)
+    (swap! game-state
+           assoc
+           :play-time-text
+           (.text (.-add @game)
+                  (* (.-innerWidth js/window) 0.8)
+                  (/ (.-innerHeight js/window) 20)
+                  "0.000"
+                  (clj->js {:font            "40px Arial"
+                            :fill            "#fff"
+                            :backgroundColor "#000"
+                            :align           "center"})))))
 
 (defn update-play-time-to-current-time []
   (let [derefed-state @game-state]
