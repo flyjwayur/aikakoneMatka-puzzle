@@ -175,24 +175,24 @@
   (util/mark-start-time!)
   (util/display-play-time!))
 
-  (defn- create-game [websocket-msg-send-fns]
-    (fn []
-      (when-not (:play-button @util/game-state)
-        (let [game-object-factory (.-add @util/game)
-              play-button (this-as this
-                            (.button
-                              game-object-factory
-                              10
-                              10
-                              "play-button"
-                              (fn []
-                                (util/destroy-stage-clear-text!)
-                                ;It also checks whether it already created piece/button sprites.
-                                (create-puzzle-board websocket-msg-send-fns)
-                                ;From the next play it also works as a resetting the previous puzzle.
-                                (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
-                              this))]
-          (swap! util/game-state assoc :play-button play-button)))))
+(defn- create-game [websocket-msg-send-fns]
+  (fn []
+    (when-not (:play-button @util/game-state)
+      (let [game-object-factory (.-add @util/game)
+            play-button (this-as this
+                          (.button
+                            game-object-factory
+                            10
+                            10
+                            "play-button"
+                            (fn []
+                              (util/destroy-stage-clear-text!)
+                              ;It also checks whether it already created piece/button sprites.
+                              (create-puzzle-board websocket-msg-send-fns)
+                              ;From the next play it also works as a resetting the previous puzzle.
+                              (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
+                            this))]
+        (swap! util/game-state assoc :play-button play-button)))))
 
 (defn- update []
   (when (and (:play-time-text @util/game-state)
@@ -208,5 +208,5 @@
             js/Phaser.Auto
             ""
             (clj->js {:preload preload
-                      :create (create-game websocket-msg-send-fns)
-                      :update update}))))
+                      :create  (create-game websocket-msg-send-fns)
+                      :update  update}))))
