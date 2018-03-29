@@ -266,20 +266,6 @@
         (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
                                                        @util/puzzle-image-height))
         (println "Puzzle image loaded")
-        (set! (.-src puzzle-img2) "images/puzzle-image2.jpg")))) ; start game after loading image
-  (set!
-    (.-onload puzzle-img2)
-    (clj->js
-      (fn []
-        (reset! puzzle-image-width (.-width puzzle-img))
-        (reset! puzzle-image-height (.-height puzzle-img))
-        (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
-                                                                           (.-innerHeight js/window)))))
-        (swap! util/game-state assoc :piece-x-scale (/ (:puzzle-width-height @util/game-state)
-                                                       @puzzle-image-width))
-        (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
-                                                       @puzzle-image-height))
-        (println "2nd Puzzle image loaded")
-        (start-game!))))
-  (set! (.-src play-button) "images/play-button.png")
+        (web-sck/start-web-socket!))))                      ; start game after loading image
+  (set! (.-src buttons-img) "images/control-buttons.png")
   (println "loading images"))
