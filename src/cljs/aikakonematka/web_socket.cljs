@@ -47,7 +47,7 @@
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
-                             (game/start-game! {:send-sprites-state-fn! send-sprites-state!
+                             (game/start-game! {:send-sprites-state-fn!   send-sprites-state!
                                                 :send-puzzle-complete-fn! send-puzzle-complete!}))
 
       (println event-id " is unknown event type"))))
@@ -62,5 +62,5 @@
     (chsk-send! [:aikakone/game-start])
     (send-uid)))
 
-(defn start-web-socket! [] ; To create msg router to handle incoming msg.
+(defn start-web-socket! []                                  ; To create msg router to handle incoming msg.
   (sente/start-chsk-router! ch-chsk event-msg-handler))

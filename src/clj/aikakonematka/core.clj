@@ -22,7 +22,7 @@
 (defmethod event-msg-handler :default [{:as ev-msg :keys [event]}]
   (println "Unhandled event: " event))
 
-(defn broadcast-data-to-all-excpet-msg-sender [client-id msg-type data]
+(defn broadcast-data-to-all-except-msg-sender [client-id msg-type data]
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
     (println :uid uid)
@@ -38,7 +38,7 @@
   ; To broadcast the response to all the connected clients
   (reset! sprites-state ?data)
   (println "This is sprites-state from the server : " @sprites-state)
-  (broadcast-data-to-all-excpet-msg-sender client-id :aikakone/sprites-state @sprites-state))
+  (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state @sprites-state))
 
 (defmethod event-msg-handler :aikakone/game-start [{:as ev-msg :keys [id client-id ?data]}]
   (do (println "@sprites-state from game-start : " @sprites-state)
@@ -47,9 +47,9 @@
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
   (do
     (reset! sprites-state nil)
-    (broadcast-data-to-all-excpet-msg-sender client-id :aikakone/puzzle-complete! @sprites-state)))
+    (broadcast-data-to-all-except-msg-sender client-id :aikakone/puzzle-complete! @sprites-state)))
 
-(sente/start-chsk-router! ch-chsk event-msg-handler) ; To initialize the router which uses core.async go-loop
+(sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
 ; and pass it handle-message! as the event handler.
 

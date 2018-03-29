@@ -27,14 +27,14 @@
 (defn- get-button-height [btn-sprite-row-num]
   (/ @button-sprite-sheet-height btn-sprite-row-num))
 (defn- get-left-margin []
-  (/ (- (.-innerWidth js/window)(:puzzle-width-height @game-state)) 2))
+  (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2))
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
 (defn- currently-playing-game? []
- (let [dereffed-game-state @game-state]
-   (and (not (empty? (:sprites dereffed-game-state)))
-        (nil? (:puzzle-completion-text dereffed-game-state)))))
+  (let [dereffed-game-state @game-state]
+    (and (not (empty? (:sprites dereffed-game-state)))
+         (nil? (:puzzle-completion-text dereffed-game-state)))))
 
 (defn- puzzle-completed? []
   (every? #(= non-flipped-state (val %)) (:sprites-state @game-state)))

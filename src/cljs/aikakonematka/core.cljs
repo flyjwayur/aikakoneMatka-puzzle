@@ -33,6 +33,6 @@
         (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
                                                        @util/puzzle-image-height))
         (println "Puzzle image loaded")
-        (web-sck/start-web-socket!))))                                    ; start game after loading image
+        (web-sck/start-web-socket!))))                      ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png")
   (println "loading images"))
