@@ -22,6 +22,9 @@
   (println "sending " (:sprites-state @util/game-state))
   (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
+(defn send-start-timer! []
+  (chsk-send! [:aikakone/start-timer nil]))
+
 (defn send-puzzle-complete! []
   (chsk-send! [:aikakone/puzzle-complete! nil]))
 
@@ -48,7 +51,11 @@
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
                              (game/start-game! {:send-sprites-state-fn!   send-sprites-state!
-                                                :send-puzzle-complete-fn! send-puzzle-complete!}))
+                                                :send-puzzle-complete-fn! send-puzzle-complete!
+                                                :send-start-timer-fn! send-start-timer!}))
+      :aikakone/current-time (when (and (:play-time-text @util/game-state)
+                                        (util/currently-playing-game?))
+                               (util/update-play-time-to-current-time event-data))
 
       (println event-id " is unknown event type"))))
 

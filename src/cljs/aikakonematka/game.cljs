@@ -78,7 +78,9 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-puzzle-board [{:keys [send-sprites-state-fn! send-puzzle-complete-fn!]}]
+(defn- create-puzzle-board [{:keys [send-sprites-state-fn!
+                                    send-puzzle-complete-fn!
+                                    send-start-timer-fn!]}]
   "Create randomized puzzle board with one black piece"
   (set! (.-visible (:play-button @util/game-state)) false)
   ;It only creates the puzzle piece/button sprites only once for each client.
@@ -171,8 +173,8 @@
       (util/synchronize-puzzle-board initial-sprites-state)
       ;It make puzzle pieces randomly flipped,
       ;if it is the initial puzzle creation.
-      (randomize-puzzle-pieces)))
-  (util/mark-start-time!)
+      (do (randomize-puzzle-pieces)
+          (send-start-timer-fn!))))
   (util/display-play-time!))
 
 (defn- create-game [websocket-msg-send-fns]
@@ -194,10 +196,7 @@
                             this))]
         (swap! util/game-state assoc :play-button play-button)))))
 
-(defn- update []
-  (when (and (:play-time-text @util/game-state)
-             (util/currently-playing-game?))
-    (util/update-play-time-to-current-time)))
+(defn- update [])
 
 (defn- start-game! [websocket-msg-send-fns]
   (println "starting game")

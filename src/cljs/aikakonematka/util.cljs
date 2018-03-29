@@ -11,7 +11,6 @@
                            :piece-y-scale          0
                            :play-button            nil
                            :play-time-text         nil
-                           :game-start-time        nil
                            :puzzle-completion-text nil}))
 
 (def flipped-state "FLIPPED")
@@ -87,9 +86,6 @@
     (.destroy puzzle-completion-text))
   (swap! game-state assoc :puzzle-completion-text nil))
 
-(defn mark-start-time! []
-  (swap! game-state assoc :game-start-time (js/Date.)))
-
 (defn display-play-time! []
   (when-not (:play-time-text @game-state)
     (swap! game-state
@@ -104,8 +100,8 @@
                             :backgroundColor "#000"
                             :align           "center"})))))
 
-(defn update-play-time-to-current-time []
+(defn update-play-time-to-current-time [play-time]
   (let [derefed-state @game-state]
     (.setText
       (:play-time-text derefed-state)
-      (str (/ (- (js/Date.) (:game-start-time derefed-state)) 1000)))))
+      (str (/ play-time 1000)))))
