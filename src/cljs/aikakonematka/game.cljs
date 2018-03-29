@@ -194,7 +194,9 @@
                               this))]
           (swap! util/game-state assoc :play-button play-button)))))
 
-(defn- update [])
+(defn- update []
+  (when (:play-time-text @util/game-state)
+    (util/update-play-time-to-current-time)))
 
 (defn- start-game! [websocket-msg-send-fns]
   (println "starting game")
