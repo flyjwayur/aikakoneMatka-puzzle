@@ -52,7 +52,7 @@
                              (swap! util/game-state assoc :sprites-state event-data)
                              (game/start-game! {:send-sprites-state-fn!   send-sprites-state!
                                                 :send-puzzle-complete-fn! send-puzzle-complete!
-                                                :send-start-timer-fn! send-start-timer!}))
+                                                :send-start-timer-fn!     send-start-timer!}))
       :aikakone/current-time (when (and (:play-time-text @util/game-state)
                                         (util/currently-playing-game?))
                                (util/update-play-time-to-current-time event-data))
@@ -62,7 +62,7 @@
 (defn send-uid []
   (chsk-send! [:aikakone/uid (:uid @util/game-state)]))
 
-  (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
+(defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
