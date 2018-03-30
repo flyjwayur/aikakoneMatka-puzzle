@@ -7,6 +7,7 @@
                   [pandeiro/boot-http "0.8.3" :scope "test"]
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
+                  [clj-time "0.14.2"]
                   [compojure "1.6.0"]
                   [com.taoensso/sente "1.12.0"]
                   [http-kit "2.2.0"]

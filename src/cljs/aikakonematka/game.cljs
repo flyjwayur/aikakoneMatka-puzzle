@@ -78,7 +78,9 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-puzzle-board [{:keys [send-sprites-state-fn! send-puzzle-complete-fn!]}]
+(defn- create-puzzle-board [{:keys [send-sprites-state-fn!
+                                    send-puzzle-complete-fn!
+                                    send-start-timer-fn!]}]
   "Create randomized puzzle board with one black piece"
   (set! (.-visible (:play-button @util/game-state)) false)
   ;It only creates the puzzle piece/button sprites only once for each client.
@@ -171,26 +173,28 @@
       (util/synchronize-puzzle-board initial-sprites-state)
       ;It make puzzle pieces randomly flipped,
       ;if it is the initial puzzle creation.
-      (randomize-puzzle-pieces))))
+      (do (randomize-puzzle-pieces)
+          (send-start-timer-fn!))))
+  (util/display-play-time!))
 
-  (defn- create-game [websocket-msg-send-fns]
-    (fn []
-      (when-not (:play-button @util/game-state)
-        (let [game-object-factory (.-add @util/game)
-              play-button (this-as this
-                            (.button
-                              game-object-factory
-                              10
-                              10
-                              "play-button"
-                              (fn []
-                                (util/destroy-stage-clear-text!)
-                                ;It also checks whether it already created piece/button sprites.
-                                (create-puzzle-board websocket-msg-send-fns)
-                                ;From the next play it also works as a resetting the previous puzzle.
-                                (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
-                              this))]
-          (swap! util/game-state assoc :play-button play-button)))))
+(defn- create-game [websocket-msg-send-fns]
+  (fn []
+    (when-not (:play-button @util/game-state)
+      (let [game-object-factory (.-add @util/game)
+            play-button (this-as this
+                          (.button
+                            game-object-factory
+                            10
+                            10
+                            "play-button"
+                            (fn []
+                              (util/destroy-stage-clear-text!)
+                              ;It also checks whether it already created piece/button sprites.
+                              (create-puzzle-board websocket-msg-send-fns)
+                              ;From the next play it also works as a resetting the previous puzzle.
+                              (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
+                            this))]
+        (swap! util/game-state assoc :play-button play-button)))))
 
 (defn- update [])
 
@@ -203,5 +207,5 @@
             js/Phaser.Auto
             ""
             (clj->js {:preload preload
-                      :create (create-game websocket-msg-send-fns)
-                      :update update}))))
+                      :create  (create-game websocket-msg-send-fns)
+                      :update  update}))))

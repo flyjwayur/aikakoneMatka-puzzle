@@ -6,10 +6,11 @@
 
 (defonce game-state (atom {:sprites                {}
                            :sprites-state          {}
-                           :play-button            nil
                            :puzzle-width-height    0
                            :piece-x-scale          0
                            :piece-y-scale          0
+                           :play-button            nil
+                           :play-time-text         nil
                            :puzzle-completion-text nil}))
 
 (def flipped-state "FLIPPED")
@@ -25,14 +26,14 @@
 (defn- get-button-height [btn-sprite-row-num]
   (/ @button-sprite-sheet-height btn-sprite-row-num))
 (defn- get-left-margin []
-  (/ (- (.-innerWidth js/window)(:puzzle-width-height @game-state)) 2))
+  (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2))
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
 (defn- currently-playing-game? []
- (let [dereffed-game-state @game-state]
-   (and (not (empty? (:sprites dereffed-game-state)))
-        (nil? (:puzzle-completion-text dereffed-game-state)))))
+  (let [dereffed-game-state @game-state]
+    (and (not (empty? (:sprites dereffed-game-state)))
+         (nil? (:puzzle-completion-text dereffed-game-state)))))
 
 (defn- puzzle-completed? []
   (every? #(= non-flipped-state (val %)) (:sprites-state @game-state)))
@@ -84,3 +85,23 @@
   (when-let [puzzle-completion-text (:puzzle-completion-text @game-state)]
     (.destroy puzzle-completion-text))
   (swap! game-state assoc :puzzle-completion-text nil))
+
+(defn display-play-time! []
+  (when-not (:play-time-text @game-state)
+    (swap! game-state
+           assoc
+           :play-time-text
+           (.text (.-add @game)
+                  (* (.-innerWidth js/window) 0.8)
+                  (/ (.-innerHeight js/window) 20)
+                  "0.000"
+                  (clj->js {:font            "40px Arial"
+                            :fill            "#fff"
+                            :backgroundColor "#000"
+                            :align           "center"})))))
+
+(defn update-play-time-to-current-time [play-time]
+  (let [derefed-state @game-state]
+    (.setText
+      (:play-time-text derefed-state)
+      (str (/ play-time 1000)))))
