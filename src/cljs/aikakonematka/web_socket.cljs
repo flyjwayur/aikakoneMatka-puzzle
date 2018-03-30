@@ -62,21 +62,6 @@
 (defn send-uid []
   (chsk-send! [:aikakone/uid (:uid @util/game-state)]))
 
-(defn send-sprites-state! []
-  (if (every? #(= util/non-flipped-state (val %)) (:sprites-state @util/game-state))
-    (do
-      (println "sending inital-game-state " @util/initial-game-state)
-      (swap! util/game-state empty)
-      (swap! util/game-state assoc @util/initial-game-state)
-      (chsk-send! [:aikakone/initial-game-state @util/initial-game-state])
-      (println "from reset-puzzle : " @util/initial-game-state))
-    (do
-      (println "sending " (:sprites-state @util/game-state))
-      ;(println "sending game-state" (@util/game-state))
-      (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)])
-      ;(chsk-send! [:aikakone/game-state (@util/game-state)])))
-      )))
-
   (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
