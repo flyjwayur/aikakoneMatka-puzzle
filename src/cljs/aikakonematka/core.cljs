@@ -97,28 +97,7 @@
                                                        util/flipped-state)
                                                      (.setTo piece-scale 0 0)))))
         randomly-execute-a-fn (fn [f]
-                                (when (< (rand) 0.5) (f)))
-        play-button (this-as this
-                      (.button
-                        game-object-factory
-                        10
-                        10
-                        "play-button"
-                        util/check-time-to-get-start-time
-                        this))
-        play-game-button2 (this-as this
-                            (.button
-                              game-object-factory
-                              10
-                              300
-                              "play-game-button2"
-                              util/check-time-to-get-start-time
-                              this))
-        get-puzzle-image (fn [puzzle-image]
-                           (do (println "get puzzle image : " (nth puzzle-image 0))
-                               (nth puzzle-image 0)))]
-    (reset! current-puzzle-image (get-puzzle-image image-box))
-    (println "current-puzzle-image : " @current-puzzle-image)
+                                (when (< (rand) 0.5) (f)))]
     (println "puzzle-image-width : " @puzzle-image-width)
     (println "puzzle-image-height : " @puzzle-image-height)
     (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
