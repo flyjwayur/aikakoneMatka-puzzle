@@ -10,6 +10,14 @@
                            :piece-x-scale          0
                            :piece-y-scale          0
                            :puzzle-completion-text nil}))
+(def initial-game-state (atom {:sprites                {}
+                               :sprites-state          {}
+                               :puzzle-width-height    0
+                               :piece-x-scale          0
+                               :piece-y-scale          0
+                               :puzzle-completion-text nil}))
+
+(def start-time (atom nil))
 
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
@@ -28,18 +36,23 @@
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
 
+(defn check-time-to-get-start-time []
+  (reset! start-time (.getTime (js/Date.)))
+  (println "start time : " start-time))
+
+(defn get-play-time []
+  (/ (- (.getTime (js/Date.)) @start-time) 1000))
+
 (defn show-completion-text []
-  (.setTo
-    (.-anchor
-      (.text
-        (.-add @game)
-        (/ (.-innerWidth js/window) 5)
-        (/ (.-innerHeight js/window) 20)
-        "Congrats! \n You made it :D Yeahhhh!"
-        (clj->js {:font            "40px Arial"
-                  :fill            "#06184c"
-                  :backgroundColor "#f7eb7e"
-                  :align           "center"}))) 0.1))
+  (.text
+    (.-add @game)
+    (/ (.-innerWidth js/window) 5)
+    (/ (.-innerHeight js/window) 20)
+    (str "Congrats! \n You made it :D Yeahhhh! \n Total time is : " (get-play-time) " seconds :)")
+    (clj->js {:font            "40px Arial"
+              :fill            "#06184c"
+              :backgroundColor "#f7eb7e"
+              :align           "center"})))
 
 
 (defn show-congrats-msg-when-puzzle-is-completed []

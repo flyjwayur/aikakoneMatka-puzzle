@@ -16,6 +16,14 @@
   (def connected-uids (:connected-uids connection)))
 
 (def sprites-state (atom nil))
+(def flipped-state "FLIPPED")
+(def non-flipped-state "NON-FLIPPED")
+(def initial-game-state (atom {:sprites                {}
+                               :sprites-state          {}
+                               :puzzle-width-height    0
+                               :piece-x-scale          0
+                               :piece-y-scale          0
+                               :puzzle-completion-text nil}))
 
 (defmulti event-msg-handler :id)
 
@@ -27,7 +35,6 @@
     ; -listed by the connected uuids variable.
     (println :uid uid)
     (when (not= client-id uid)
-      (println "@sprites-state from sprites-state : " @sprites-state)
       (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))
 
 (defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
@@ -38,13 +45,14 @@
   ; To broadcast the response to all the connected clients
   (reset! sprites-state ?data)
   (println "This is sprites-state from the server : " @sprites-state)
+  (when (every? #(= non-flipped-state (val %)) @sprites-state)
+    (doseq [uid (:any @connected-uids)]
+      ; -listed by the connected uuids variable.
+      (println :uid uid)
+      (chsk-send! uid [:aikakone/initial-game-state initial-game-state])))
   (broadcast client-id))
 
-(defmethod event-msg-handler :aikakone/game-start [{:as ev-msg :keys [id client-id ?data]}]
-  (do (println "@sprites-state from game-start : " @sprites-state)
-      (chsk-send! client-id [:aikakone/game-start @sprites-state])))
-
-(sente/start-chsk-router! ch-chsk event-msg-handler) ; To initialize the router which uses core.async go-loop
+(sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
 ; and pass it handle-message! as the event handler.
 
