@@ -22,6 +22,12 @@
   (println "sending " (:sprites-state @util/game-state))
   (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
+(defn send-start-timer! []
+  (chsk-send! [:aikakone/start-timer nil]))
+
+(defn send-puzzle-complete! []
+  (chsk-send! [:aikakone/puzzle-complete! nil]))
+
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.
 ; for handshake, state change, and incoming msg.          ; To initialize it with a map containing fns
@@ -40,21 +46,43 @@
     (case event-id
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board event-data)
-                                (util/show-congrats-msg-when-puzzle-is-completed))
+                                (util/congrats-completion-finish-game send-puzzle-complete!))
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
-                             (game/start-game! send-sprites-state! event-data))
+                             (swap! util/game-state assoc :sprites-state event-data)
+                             (game/start-game! {:send-sprites-state-fn!   send-sprites-state!
+                                                :send-puzzle-complete-fn! send-puzzle-complete!
+                                                :send-start-timer-fn! send-start-timer!}))
+      :aikakone/current-time (when (and (:play-time-text @util/game-state)
+                                        (util/currently-playing-game?))
+                               (util/update-play-time-to-current-time event-data))
+
       (println event-id " is unknown event type"))))
 
 (defn send-uid []
   (chsk-send! [:aikakone/uid (:uid @util/game-state)]))
 
-(defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
+(defn send-sprites-state! []
+  (if (every? #(= util/non-flipped-state (val %)) (:sprites-state @util/game-state))
+    (do
+      (println "sending inital-game-state " @util/initial-game-state)
+      (swap! util/game-state empty)
+      (swap! util/game-state assoc @util/initial-game-state)
+      (chsk-send! [:aikakone/initial-game-state @util/initial-game-state])
+      (println "from reset-puzzle : " @util/initial-game-state))
+    (do
+      (println "sending " (:sprites-state @util/game-state))
+      ;(println "sending game-state" (@util/game-state))
+      (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)])
+      ;(chsk-send! [:aikakone/game-state (@util/game-state)])))
+      )))
+
+  (defmethod event-msg-handler :chsk/handshake [{:keys [?data]}]
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
     (chsk-send! [:aikakone/game-start])
     (send-uid)))
 
-(defn start-web-socket! [] ; To create msg router to handle incoming msg.
+(defn start-web-socket! []                                  ; To create msg router to handle incoming msg.
   (sente/start-chsk-router! ch-chsk event-msg-handler))

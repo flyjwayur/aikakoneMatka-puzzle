@@ -1,5 +1,7 @@
 (ns aikakonematka.core
   (:require [compojure.core :refer (defroutes GET POST)]
+            [clj-time.core :as t]
+            [clj-time.local :as l]
             [org.httpkit.server :as server]
             [ring.middleware.defaults :as defaults]
             [ring.middleware.cors :as cors]
@@ -16,35 +18,67 @@
   (def connected-uids (:connected-uids connection)))
 
 (def sprites-state (atom nil))
+(def flipped-state "FLIPPED")
+(def non-flipped-state "NON-FLIPPED")
+(def initial-game-state (atom {:sprites                {}
+                               :sprites-state          {}
+                               :puzzle-width-height    0
+                               :piece-x-scale          0
+                               :piece-y-scale          0
+                               :puzzle-completion-text nil}))
+
+(def game-start-game (atom nil))
+
+(def sending-time-future (atom nil))
+
+(defn- start-sending-current-playtime! []
+  (future (loop []
+            (Thread/sleep 200)
+            (when-let [uids (seq (:any @connected-uids))]
+              (when-let [start-time @game-start-game]
+                (doseq [uid uids]
+                  (chsk-send! uid [:aikakone/current-time
+                                   (t/in-millis (t/interval start-time (l/local-now)))]))
+                (recur))))))
+
+(defn broadcast-data-to-all-except-msg-sender [client-id msg-type data]
+  (doseq [uid (:any @connected-uids)]
+    ; -listed by the connected uuids variable.
+    (println :uid uid)
+    (when (not= client-id uid)
+      (println "broadcast data except msg sender, msg type :" msg-type)
+      (chsk-send! uid [msg-type data]))))
 
 (defmulti event-msg-handler :id)
 
 (defmethod event-msg-handler :default [{:as ev-msg :keys [event]}]
   (println "Unhandled event: " event))
 
-(defn broadcast [client-id]
-  (doseq [uid (:any @connected-uids)]
-    ; -listed by the connected uuids variable.
-    (println :uid uid)
-    (when (not= client-id uid)
-      (println "@sprites-state from sprites-state : " @sprites-state)
-      (chsk-send! uid [:aikakone/sprites-state @sprites-state]))))
-
 (defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
   (println :id id)                                          ; To identify type of msg and handle them accordingly
   (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
   (println :data? ?data)
-
+  
   ; To broadcast the response to all the connected clients
   (reset! sprites-state ?data)
   (println "This is sprites-state from the server : " @sprites-state)
-  (broadcast client-id))
+  (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state @sprites-state))
 
 (defmethod event-msg-handler :aikakone/game-start [{:as ev-msg :keys [id client-id ?data]}]
   (do (println "@sprites-state from game-start : " @sprites-state)
       (chsk-send! client-id [:aikakone/game-start @sprites-state])))
 
-(sente/start-chsk-router! ch-chsk event-msg-handler) ; To initialize the router which uses core.async go-loop
+(defmethod event-msg-handler :aikakone/start-timer [{:as ev-msg :keys [id client-id ?data]}]
+  (do (reset! game-start-game (l/local-now))
+      (reset! sending-time-future (start-sending-current-playtime!))))
+
+(defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
+  (do
+    (reset! game-start-game nil)
+    (reset! sprites-state nil)
+    (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
+
+(sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
 ; and pass it handle-message! as the event handler.
 
