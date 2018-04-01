@@ -25,8 +25,8 @@
 (defn send-start-timer! []
   (chsk-send! [:aikakone/start-timer nil]))
 
-(defn send-puzzle-complete! []
-  (chsk-send! [:aikakone/puzzle-complete! nil]))
+(defn send-puzzle-complete! [play-time]
+  (chsk-send! [:aikakone/puzzle-complete! play-time]))
 
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.

@@ -10,6 +10,7 @@
                            :piece-x-scale          0
                            :piece-y-scale          0
                            :play-button            nil
+                           :play-time              0.0
                            :play-time-text         nil
                            :puzzle-completion-text nil
                            :ranking-button     nil}))
@@ -82,7 +83,7 @@
     (display-play-button!)
     (display-ranking-button!)
     (display-congrats-message!)
-    (send-puzzle-complete-fn!)
+    (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))
 
 (defn- synchronize-puzzle-board [sprite-state]
@@ -119,7 +120,9 @@
                             :align           "center"})))))
 
 (defn update-play-time-to-current-time [play-time]
-  (let [derefed-state @game-state]
+  (let [derefed-state @game-state
+        play-time-in-sec (/ play-time 1000)]
     (.setText
       (:play-time-text derefed-state)
-      (str (/ play-time 1000)))))
+      (str play-time-in-sec))
+    (swap! game-state assoc :play-time play-time-in-sec)))

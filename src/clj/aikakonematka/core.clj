@@ -23,6 +23,8 @@
 
 (def sending-time-future (atom nil))
 
+(def ranking (atom nil))
+
 (defn- start-sending-current-playtime! []
   (future (loop []
             (Thread/sleep 200)
@@ -68,6 +70,9 @@
   (do
     (reset! game-start-game nil)
     (reset! sprites-state nil)
+    (swap! ranking (fn [ranking]
+                     (sort (conj ranking ?data))))
+    (println "Ranking : " @ranking)
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
