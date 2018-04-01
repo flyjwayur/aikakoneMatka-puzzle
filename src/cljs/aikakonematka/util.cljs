@@ -11,7 +11,8 @@
                            :piece-y-scale          0
                            :play-button            nil
                            :play-time-text         nil
-                           :puzzle-completion-text nil}))
+                           :puzzle-completion-text nil
+                           :ranking-button     nil}))
 
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
@@ -56,6 +57,22 @@
                 :backgroundColor "#f7eb7e"
                 :align           "center"}))))
 
+(defn display-ranking-button! []
+  (swap!
+    game-state
+    assoc
+    :ranking-button
+    (this-as this
+      (.button
+        (.-add @game)
+        (* 0.75 (.-innerWidth js/window))
+        (* 0.2 (.-innerHeight js/window))
+        "ranking-button"
+        (fn []
+          (println "Display ranking"))
+        this)))
+  (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
+
 (defn congrats-completion-finish-game [send-puzzle-complete-fn!]
   (when (and (currently-playing-game?)
              (puzzle-completed?)
@@ -63,6 +80,7 @@
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
     (display-play-button!)
+    (display-ranking-button!)
     (display-congrats-message!)
     (send-puzzle-complete-fn!)
     (swap! game-state assoc :sprites-state {})))

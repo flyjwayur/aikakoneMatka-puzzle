@@ -27,7 +27,11 @@
   (.image
     (.-load @util/game)
     "play-button"
-    "images/play-button.png"))
+    "images/play-button.png")
+  (.image
+    (.-load @util/game)
+    "ranking-button"
+    "images/ranking-button.png"))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
