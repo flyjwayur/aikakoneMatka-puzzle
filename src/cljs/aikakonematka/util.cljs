@@ -70,7 +70,9 @@
         (* 0.2 (.-innerHeight js/window))
         "ranking-button"
         (fn []
-          (println "Display ranking"))
+          (println "Display ranking")
+          (let [canvas (.getElementById js/document "canvas")]
+            (set! (.-display (.-style canvas)) "none")))
         this)))
   (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
 

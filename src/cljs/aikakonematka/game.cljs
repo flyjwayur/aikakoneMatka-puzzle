@@ -209,7 +209,7 @@
             (.-innerWidth js/window)
             (.-innerHeight js/window)
             js/Phaser.Auto
-            ""
+            "canvas"
             (clj->js {:preload preload
                       :create  (create-game websocket-msg-send-fns)
                       :update  update}))))
