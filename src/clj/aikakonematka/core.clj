@@ -18,14 +18,6 @@
   (def connected-uids (:connected-uids connection)))
 
 (def sprites-state (atom nil))
-(def flipped-state "FLIPPED")
-(def non-flipped-state "NON-FLIPPED")
-(def initial-game-state (atom {:sprites                {}
-                               :sprites-state          {}
-                               :puzzle-width-height    0
-                               :piece-x-scale          0
-                               :piece-y-scale          0
-                               :puzzle-completion-text nil}))
 
 (def game-start-game (atom nil))
 
