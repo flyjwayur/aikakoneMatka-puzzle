@@ -12,8 +12,7 @@
      [:input {:type "button" :value "Go back to play game"
               :on-click #(do
                            (reset! util/showing-game? true)
-                           (let [canvas (.getElementById js/document "canvas")]
-                             (set! (.-display (.-style canvas)) "block")))}]]))
+                           (util/show-game!))}]]))
 
 (r/render [go-back-to-game-button]
           (.getElementById js/document "ranking-board"))

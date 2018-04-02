@@ -64,6 +64,15 @@
                 :backgroundColor "#f7eb7e"
                 :align           "center"}))))
 
+(defn show-game! []
+  (let [canvas (.getElementById js/document "canvas")]
+    (set! (.-display (.-style canvas)) "block")))
+
+(defn hide-game! []
+  (let [canvas (.getElementById js/document "canvas")]
+    (set! (.-display (.-style canvas)) "none")
+    (reset! showing-game? false)))
+
 (defn- display-ranking-button! []
   (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
 
@@ -83,9 +92,7 @@
         "ranking-button"
         (fn []
           (println "Display ranking")
-          (let [canvas (.getElementById js/document "canvas")]
-            (set! (.-display (.-style canvas)) "none")
-            (reset! showing-game? false)))
+          (hide-game!))
         this)))
   (display-ranking-button!))
 

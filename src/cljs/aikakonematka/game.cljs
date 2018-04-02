@@ -208,7 +208,8 @@
     (when-not (:play-button @util/game-state)
       (make-play-button websocket-msg-send-fns)
       (util/make-ranking-button!))))
-
+(let [canvas (.getElementById js/document "canvas")]
+  (set! (.-display (.-style canvas)) "block"))
 (defn- update [])
 
 (defn- start-game! [websocket-msg-send-fns]
