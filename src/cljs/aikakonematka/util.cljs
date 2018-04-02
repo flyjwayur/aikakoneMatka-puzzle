@@ -43,6 +43,9 @@
 (defn- display-play-button! []
   (set! (.-visible (:play-button @game-state)) true))
 
+(defn hide-play-button! []
+  (set! (.-visible (:play-button @game-state)) false))
+
 (defn- display-congrats-message! []
   (swap!
     game-state
@@ -58,7 +61,13 @@
                 :backgroundColor "#f7eb7e"
                 :align           "center"}))))
 
-(defn display-ranking-button! []
+(defn- display-ranking-button! []
+  (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
+
+(defn hide-ranking-button! []
+  (.setTo (.-scale (:ranking-button @game-state)) 0 0))
+
+(defn make-ranking-button! []
   (swap!
     game-state
     assoc
@@ -74,7 +83,7 @@
           (let [canvas (.getElementById js/document "canvas")]
             (set! (.-display (.-style canvas)) "none")))
         this)))
-  (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
+  (display-ranking-button!))
 
 (defn congrats-completion-finish-game [send-puzzle-complete-fn!]
   (when (and (currently-playing-game?)
@@ -83,7 +92,7 @@
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
     (display-play-button!)
-    (display-ranking-button!)
+    (make-ranking-button!)
     (display-congrats-message!)
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))

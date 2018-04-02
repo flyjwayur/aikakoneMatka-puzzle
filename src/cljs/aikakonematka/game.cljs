@@ -107,8 +107,8 @@
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!]}]
   "Create randomized puzzle board with one black piece"
-  (set! (.-visible (:play-button @util/game-state)) false)
-  (.setTo (.-scale (:ranking-button @util/game-state)) 0 0)
+  (util/hide-play-button!)
+  (util/hide-ranking-button!)
   ;It only creates the puzzle piece/button sprites only once for each client.
   (when (empty? (:sprites @util/game-state))
     (let [game-object-factory (.-add @util/game)
@@ -207,7 +207,7 @@
   (fn []
     (when-not (:play-button @util/game-state)
       (make-play-button websocket-msg-send-fns)
-      (util/display-ranking-button!))))
+      (util/make-ranking-button!))))
 
 (defn- update [])
 
