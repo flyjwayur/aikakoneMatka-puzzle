@@ -2,8 +2,21 @@
   (:require [goog.events :as events]
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]
+            [reagent.core :as r]
             [nightlight.repl-server]
             ))
+
+(defn go-back-to-game-button []
+  (when-not @util/showing-game?
+    [:div
+     [:input {:type "button" :value "Go back to play game"
+              :on-click #(do
+                           (reset! util/showing-game? true)
+                           (let [canvas (.getElementById js/document "canvas")]
+                             (set! (.-display (.-style canvas)) "block")))}]]))
+
+(r/render [go-back-to-game-button]
+          (.getElementById js/document "ranking-board"))
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
