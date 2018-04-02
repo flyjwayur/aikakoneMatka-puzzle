@@ -82,6 +82,27 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
+(declare create-puzzle-board)
+
+(defn- make-play-button [websocket-msg-send-fns]
+  (swap!
+    util/game-state
+    assoc
+    :play-button
+    (this-as this
+      (.button
+        (.-add @util/game)
+        10
+        10
+        "play-button"
+        (fn []
+          (util/destroy-stage-clear-text!)
+          ;It also checks whether it already created piece/button sprites.
+          (create-puzzle-board websocket-msg-send-fns)
+          ;From the next play it also works as a resetting the previous puzzle.
+          (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
+        this))))
+
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!]}]
@@ -185,23 +206,8 @@
 (defn- create-game [websocket-msg-send-fns]
   (fn []
     (when-not (:play-button @util/game-state)
-      (let [game-object-factory (.-add @util/game)
-            play-button (this-as this
-                          (.button
-                            game-object-factory
-                            10
-                            10
-                            "play-button"
-                            (fn []
-                              (util/destroy-stage-clear-text!)
-                              ;It also checks whether it already created piece/button sprites.
-                              (create-puzzle-board websocket-msg-send-fns)
-                              ;From the next play it also works as a resetting the previous puzzle.
-                              (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
-                            this))]
-        (swap! util/game-state assoc :play-button play-button)
-        (util/display-ranking-button!)
-        ))))
+      (make-play-button websocket-msg-send-fns)
+      (util/display-ranking-button!))))
 
 (defn- update [])
 
