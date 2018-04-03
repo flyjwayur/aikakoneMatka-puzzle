@@ -1,5 +1,6 @@
 (ns aikakonematka.core
   (:require [compojure.core :refer (defroutes GET POST)]
+            [cheshire.core :as json]
             [clj-time.core :as t]
             [clj-time.local :as l]
             [org.httpkit.server :as server]
@@ -80,6 +81,9 @@
 ; and pass it handle-message! as the event handler.
 
 (defroutes app
+           ;Make JSON with ranking data
+           ;and open the link(localhost:2222/rankings for the clients
+           (GET "/rankings" req (json/generate-string @ranking))
            (GET "/chsk" req (ring-ajax-get-or-ws-handshake req)) ; To update the routes with these two fns
            (POST "/chsk" req (ring-ajax-post req)))         ; to handle client requests.
 

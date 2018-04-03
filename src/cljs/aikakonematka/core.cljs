@@ -1,5 +1,8 @@
 (ns aikakonematka.core
-  (:require [goog.events :as events]
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [cljs-http.client :as http]
+            [cljs.core.async :refer [<!]]
+            [goog.events :as events]
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]
             [reagent.core :as r]
@@ -7,14 +10,23 @@
             ))
 
 (defn go-back-to-game-button []
-  (when-not @util/showing-game?
-    [:div
-     [:input {:type "button" :value "Go back to play game"
-              :on-click #(do
-                           (reset! util/showing-game? true)
-                           (util/show-game!))}]]))
+  [:div
+   [:input {:type "button" :value "Go back to play game"
+            :on-click #(do
+                         (reset! util/showing-game? true)
+                         (util/show-game!))}]])
 
-(r/render [go-back-to-game-button]
+(defn ranking-dashboard []
+  (when-not @util/showing-game?
+    ;Fetch the ranking data from server using cljs-http
+    (go (let [response (<! (http/get "http://localhost:2222/rankings"))
+              ranking (:body response)]
+          (reset! util/ranking ranking)))
+    [:div
+     [go-back-to-game-button]
+     [:p (str "Ranking is: " @util/ranking)]]))
+
+(r/render [ranking-dashboard]
           (.getElementById js/document "ranking-board"))
 
 ; this is the game program's entry point

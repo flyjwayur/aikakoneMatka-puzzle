@@ -3,6 +3,8 @@
 
 (enable-console-print!)
 
+(defonce ranking (r/atom []))
+
 (defonce showing-game? (r/atom true))
 
 (def game (atom nil))
