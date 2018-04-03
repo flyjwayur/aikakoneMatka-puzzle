@@ -9,6 +9,9 @@
                   ; project deps
                   [cheshire "5.8.0"]
                   [cljs-http "0.1.44"]
+                  [cljs-react-material-ui "0.2.48"]
+                  [cljsjs/react "15.6.1-1"]
+                  [cljsjs/react-dom "15.6.1-1"]
                   [clj-time "0.14.2"]
                   [compojure "1.6.0"]
                   [com.taoensso/sente "1.12.0"]

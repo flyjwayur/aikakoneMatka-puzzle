@@ -1,6 +1,10 @@
 (ns aikakonematka.core
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs-http.client :as http]
+  (:require [cljsjs.material-ui]
+            [cljs-react-material-ui.core :refer [get-mui-theme color]]
+            [cljs-react-material-ui.reagent :as ui]
+            [cljs-react-material-ui.icons :as icon]
+            [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [goog.events :as events]
             [aikakonematka.web-socket :as web-sck]
@@ -10,11 +14,12 @@
             ))
 
 (defn go-back-to-game-button []
-  [:div
-   [:input {:type "button" :value "Go back to play game"
-            :on-click #(do
-                         (reset! util/showing-game? true)
-                         (util/show-game!))}]])
+  [ui/mui-theme-provider
+   {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
+    [ui/raised-button {:label "Go back to play game"
+                       :on-click #(do
+                                    (reset! util/showing-game? true)
+                                    (util/show-game!))}]])
 
 (defn ranking-dashboard []
   (when-not @util/showing-game?
