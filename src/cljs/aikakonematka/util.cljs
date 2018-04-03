@@ -3,6 +3,9 @@
 
 (enable-console-print!)
 
+(defn parse-json [json-string]
+  (js->clj (.parse js/JSON json-string)))
+
 (defonce ranking (r/atom []))
 
 (defonce showing-game? (r/atom true))

@@ -27,7 +27,7 @@
     ;Fetch the ranking data from server using cljs-http
     (go (let [response (<! (http/get "http://localhost:2222/rankings"))
               ranking (:body response)]
-          (reset! util/ranking ranking)))
+          (reset! util/ranking (util/parse-json ranking))))
     [:div
      [go-back-to-game-button]
      [:p (str "Ranking is: " @util/ranking)]]))
