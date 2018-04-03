@@ -67,13 +67,14 @@
                 :align           "center"}))))
 
 (defn show-game! []
+  (reset! showing-game? true)
   (let [canvas (.getElementById js/document "canvas")]
     (set! (.-display (.-style canvas)) "block")))
 
 (defn hide-game! []
+  (reset! showing-game? false)
   (let [canvas (.getElementById js/document "canvas")]
-    (set! (.-display (.-style canvas)) "none")
-    (reset! showing-game? false)))
+    (set! (.-display (.-style canvas)) "none")))
 
 (defn- display-ranking-button! []
   (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))

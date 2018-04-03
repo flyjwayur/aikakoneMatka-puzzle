@@ -18,7 +18,6 @@
    {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
     [ui/raised-button {:label "Go back to play game"
                        :on-click #(do
-                                    (reset! util/showing-game? true)
                                     (util/show-game!))}]])
 
 (defn ranking-dashboard []
