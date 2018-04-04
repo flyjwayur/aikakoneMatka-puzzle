@@ -1,9 +1,6 @@
 (ns aikakonematka.game
   (:require [aikakonematka.util :as util]))
 
-(defn- get-piece-width-height [puzzle-width-height]
-  (/ puzzle-width-height util/row-col-num))
-
 (defn- randomly-execute-a-fn [f]
   (when (< (rand) 0.5) (f)))
 
@@ -12,8 +9,8 @@
     (.-load @util/game)
     "puzzle"
     "images/puzzleImage.jpg"
-    (get-piece-width-height @util/puzzle-image-width)
-    (get-piece-width-height @util/puzzle-image-height)
+    (util/get-piece-width-height @util/puzzle-image-width)
+    (util/get-piece-width-height @util/puzzle-image-height)
     (* util/row-col-num util/row-col-num))
   (.spritesheet
     (.-load @util/game)
@@ -34,15 +31,6 @@
     (.-load @util/game)
     "reset-button"
     "images/reset-button.jpg"))
-
-(defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
-  (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
-    (do
-      (println "make-button-same-size-as-puzzle-piece! : " button-sprite)
-      (.setTo
-        (.-scale button-sprite)
-        (/ piece-width-height (util/get-button-width util/button-sprite-col-num))
-        (/ piece-width-height (util/get-button-height util/button-sprite-row-num))))))
 
 (defn- toggle-visibility-and-flipped-state! [col row]
   (let [piece-scale (.-scale ((:sprites @util/game-state) [col row]))]
@@ -115,7 +103,7 @@
   ;It only creates the puzzle piece/button sprites only once for each client.
   (when (empty? (:sprites @util/game-state))
     (let [game-object-factory (.-add @util/game)
-          piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))
+          piece-width-height (util/get-piece-width-height (:puzzle-width-height @util/game-state))
           left-margin (util/get-left-margin)
           top-margin (util/get-top-margin)
           set-on-click-callback! (fn [sprite callback-fn]
@@ -149,7 +137,7 @@
                                      (+ y-pos piece-width-height)
                                      "flip-buttons"
                                      5)]
-            (make-buttons-same-size-as-puzzle-piece! bottom-left-button)
+            (util/make-buttons-same-size-as-puzzle-piece! bottom-left-button)
             (set-on-click-callback!
               bottom-left-button
               (fn []
@@ -168,7 +156,7 @@
                               y-pos
                               "flip-buttons"
                               row)]
-            (make-buttons-same-size-as-puzzle-piece! left-button)
+            (util/make-buttons-same-size-as-puzzle-piece! left-button)
             (set-on-click-callback!
               left-button
               (fn []
@@ -185,7 +173,7 @@
                                 (+ y-pos piece-width-height)
                                 "flip-buttons"
                                 col)]
-            (make-buttons-same-size-as-puzzle-piece! bottom-button)
+            (util/make-buttons-same-size-as-puzzle-piece! bottom-button)
             (set-on-click-callback!
               bottom-button
               (fn []
