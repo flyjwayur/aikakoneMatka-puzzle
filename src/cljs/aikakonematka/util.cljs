@@ -108,7 +108,7 @@
 (defn hide-reset-button! []
   (.setTo (.-scale (:reset-button @game-state)) 0 0))
 
-(defn make-reset-button! []
+(defn make-reset-button! [send-reset-fn]
   (swap!
     game-state
     assoc
@@ -119,8 +119,7 @@
         (* 0.85 (.-innerWidth js/window))
         (* 0.3 (.-innerHeight js/window))
         "reset-button"
-        (fn []
-          (println "Reset clicked"))
+        send-reset-fn
         this)))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))

@@ -213,7 +213,7 @@
     (when-not (:play-button @util/game-state)
       (make-play-button websocket-msg-send-fns)
       (util/make-ranking-button!)
-      (util/make-reset-button!))))
+      (util/make-reset-button! (:send-reset-fn! websocket-msg-send-fns)))))
 
 (defn- update [])
 

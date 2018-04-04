@@ -25,6 +25,9 @@
 (defn send-start-timer! []
   (chsk-send! [:aikakone/start-timer nil]))
 
+(defn send-reset! []
+  (chsk-send! [:aikakone/reset nil]))
+
 (defn send-puzzle-complete! [play-time]
   (chsk-send! [:aikakone/puzzle-complete! play-time]))
 
@@ -52,7 +55,8 @@
                              (swap! util/game-state assoc :sprites-state event-data)
                              (game/start-game! {:send-sprites-state-fn!   send-sprites-state!
                                                 :send-puzzle-complete-fn! send-puzzle-complete!
-                                                :send-start-timer-fn! send-start-timer!}))
+                                                :send-start-timer-fn! send-start-timer!
+                                                :send-reset-fn! send-reset!}))
       :aikakone/current-time (when (and (:play-time-text @util/game-state)
                                         (util/currently-playing-game?))
                                (util/update-play-time-to-current-time event-data))
