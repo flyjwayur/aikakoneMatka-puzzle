@@ -111,6 +111,7 @@
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!]}]
   "Create randomized puzzle board with one black piece"
+  (util/show-reset-button!)
   (util/hide-play-button!)
   (util/hide-ranking-button!)
   ;It only creates the puzzle piece/button sprites only once for each client.
