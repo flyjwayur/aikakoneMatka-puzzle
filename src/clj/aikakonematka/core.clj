@@ -39,7 +39,6 @@
 (defn broadcast-data-to-all-except-msg-sender [client-id msg-type data]
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
-    (println :uid uid)
     (when (not= client-id uid)
       (println "broadcast data except msg sender, msg type :" msg-type)
       (chsk-send! uid [msg-type data]))))
