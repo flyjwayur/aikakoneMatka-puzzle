@@ -31,7 +31,11 @@
   (.image
     (.-load @util/game)
     "ranking-button"
-    "images/ranking-button.png"))
+    "images/ranking-button.png")
+  (.image
+    (.-load @util/game)
+    "reset-button"
+    "images/reset-button.jpg"))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
@@ -207,9 +211,9 @@
   (fn []
     (when-not (:play-button @util/game-state)
       (make-play-button websocket-msg-send-fns)
-      (util/make-ranking-button!))))
-(let [canvas (.getElementById js/document "canvas")]
-  (set! (.-display (.-style canvas)) "block"))
+      (util/make-ranking-button!)
+      (util/make-reset-button!))))
+
 (defn- update [])
 
 (defn- start-game! [websocket-msg-send-fns]
