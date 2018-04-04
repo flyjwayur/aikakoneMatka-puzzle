@@ -1,10 +1,8 @@
 (ns aikakonematka.game
   (:require [aikakonematka.util :as util]))
 
-(def row-col-num 6)
-
 (defn- get-piece-width-height [puzzle-width-height]
-  (/ puzzle-width-height row-col-num))
+  (/ puzzle-width-height util/row-col-num))
 
 (defn- randomly-execute-a-fn [f]
   (when (< (rand) 0.5) (f)))
@@ -16,7 +14,7 @@
     "images/puzzleImage.jpg"
     (get-piece-width-height @util/puzzle-image-width)
     (get-piece-width-height @util/puzzle-image-height)
-    (* row-col-num row-col-num))
+    (* util/row-col-num util/row-col-num))
   (.spritesheet
     (.-load @util/game)
     "flip-buttons"
@@ -68,21 +66,21 @@
         (.setTo piece-scale 0 0)))))
 
 (defn flip-diagonal-pieces! []
-  (doseq [row (range row-col-num)
-          :let [col (- (dec row-col-num) row)]]
+  (doseq [row (range util/row-col-num)
+          :let [col (- (dec util/row-col-num) row)]]
     (toggle-visibility-and-flipped-state! col row)))
 
 (defn flip-row! [row]
-  (doseq [col (range row-col-num)]
+  (doseq [col (range util/row-col-num)]
     (toggle-visibility-and-flipped-state! col row)))
 
 (defn flip-col! [col]
-  (doseq [row (range row-col-num)]
+  (doseq [row (range util/row-col-num)]
     (toggle-visibility-and-flipped-state! col row)))
 
 (defn- randomize-puzzle-pieces []
   (randomly-execute-a-fn flip-diagonal-pieces!)
-  (doseq [row-col-num (range row-col-num)]
+  (doseq [row-col-num (range util/row-col-num)]
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
@@ -129,9 +127,9 @@
       (println "puzzle-image-height : " @util/puzzle-image-height)
       (println "puzzle-width-height(* 0.7) : " (:puzzle-width-height @util/game-state))
       (println :game-state @util/game-state)
-      (doseq [row (range row-col-num)
-              col (range row-col-num)
-              :let [frame-id (+ (* row-col-num row) col)
+      (doseq [row (range util/row-col-num)
+              col (range util/row-col-num)
+              :let [frame-id (+ (* util/row-col-num row) col)
                     x-pos (+ (* piece-width-height col) left-margin col)
                     y-pos (+ (* piece-width-height row) top-margin row)]]
         (let [piece (.sprite
@@ -144,7 +142,7 @@
           (.setTo (.-scale piece) 0 0))
         (println "x-pos : " x-pos ", y-pos : " y-pos)
         (when
-          (and (zero? col) (= row (dec row-col-num)))
+          (and (zero? col) (= row (dec util/row-col-num)))
           (let [bottom-left-button (.sprite
                                      game-object-factory
                                      (- x-pos piece-width-height)
@@ -180,7 +178,7 @@
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
                   (println "left-button : " :game-state @util/game-state))))))
-        (when (= row (dec row-col-num))
+        (when (= row (dec util/row-col-num))
           (let [bottom-button (.sprite
                                 game-object-factory
                                 x-pos
