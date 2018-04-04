@@ -93,6 +93,10 @@
           (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
         this))))
 
+(defn- store-control-button-and-return-it [control-button]
+  (swap! util/game-state update :control-buttons conj control-button)
+  control-button)
+
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!]}]
@@ -131,18 +135,20 @@
         (println "x-pos : " x-pos ", y-pos : " y-pos)
         (when
           (and (zero? col) (= row (dec util/row-col-num)))
-          (let [bottom-left-button (.sprite
-                                     game-object-factory
-                                     (- x-pos piece-width-height)
-                                     (+ y-pos piece-width-height)
-                                     "flip-buttons"
-                                     5)]
+          (let [bottom-left-button (store-control-button-and-return-it
+                                     (.sprite
+                                       game-object-factory
+                                       (- x-pos piece-width-height)
+                                       (+ y-pos piece-width-height)
+                                       "flip-buttons"
+                                       5))]
             (util/make-buttons-same-size-as-puzzle-piece! bottom-left-button)
             (set-on-click-callback!
               bottom-left-button
               (fn []
                 (when (util/currently-playing-game?)
                   (println "bottom-left-button is clicked!")
+                  (println "control-buttons : " (:control-buttons @util/game-state))
                   ;Without getting new row & col range with doseq for flipping,
                   ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
                   (flip-diagonal-pieces!)
@@ -150,35 +156,39 @@
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
                   (println "bottom-left-button : " :game-state @util/game-state))))))
         (when (zero? col)
-          (let [left-button (.sprite
-                              game-object-factory
-                              (- x-pos piece-width-height)
-                              y-pos
-                              "flip-buttons"
-                              row)]
+          (let [left-button (store-control-button-and-return-it
+                              (.sprite
+                                game-object-factory
+                                (- x-pos piece-width-height)
+                                y-pos
+                                "flip-buttons"
+                                row))]
             (util/make-buttons-same-size-as-puzzle-piece! left-button)
             (set-on-click-callback!
               left-button
               (fn []
                 (when (util/currently-playing-game?)
                   (println "left-button row #" row " clicked, " "which col : " col)
+                  (println "control-buttons : " (:control-buttons @util/game-state))
                   (flip-row! row)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
                   (println "left-button : " :game-state @util/game-state))))))
         (when (= row (dec util/row-col-num))
-          (let [bottom-button (.sprite
-                                game-object-factory
-                                x-pos
-                                (+ y-pos piece-width-height)
-                                "flip-buttons"
-                                col)]
+          (let [bottom-button (store-control-button-and-return-it
+                                (.sprite
+                                  game-object-factory
+                                  x-pos
+                                  (+ y-pos piece-width-height)
+                                  "flip-buttons"
+                                  col))]
             (util/make-buttons-same-size-as-puzzle-piece! bottom-button)
             (set-on-click-callback!
               bottom-button
               (fn []
                 (when (util/currently-playing-game?)
                   (println "bottom button col #" col " clicked, " "which row : " row)
+                  (println "control-buttons : " (:control-buttons @util/game-state))
                   (flip-col! col)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)

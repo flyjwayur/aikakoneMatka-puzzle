@@ -20,6 +20,7 @@
                            :piece-x-scale          0
                            :piece-y-scale          0
                            :play-button            nil
+                           :control-buttons        []
                            :play-time              0.0
                            :play-time-text         nil
                            :puzzle-completion-text nil
