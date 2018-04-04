@@ -7,6 +7,11 @@
                   [pandeiro/boot-http "0.8.3" :scope "test"]
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
+                  [cheshire "5.8.0"]
+                  [cljs-http "0.1.44"]
+                  [cljs-react-material-ui "0.2.48"]
+                  [cljsjs/react "15.6.1-1"]
+                  [cljsjs/react-dom "15.6.1-1"]
                   [clj-time "0.14.2"]
                   [compojure "1.6.0"]
                   [com.taoensso/sente "1.12.0"]
@@ -14,6 +19,7 @@
                   [nightlight "RELEASE" :scope "test"]
                   [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
+                  [reagent "0.8.0-alpha2"]
                   [play-cljs "1.1.0"]
                   [ring/ring-defaults "0.2.0"]
                   [ring-cors "0.1.7"]

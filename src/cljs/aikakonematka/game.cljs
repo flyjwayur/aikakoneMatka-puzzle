@@ -27,7 +27,11 @@
   (.image
     (.-load @util/game)
     "play-button"
-    "images/play-button.png"))
+    "images/play-button.png")
+  (.image
+    (.-load @util/game)
+    "ranking-button"
+    "images/ranking-button.png"))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @util/game-state))]
@@ -78,11 +82,33 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
+(declare create-puzzle-board)
+
+(defn- make-play-button [websocket-msg-send-fns]
+  (swap!
+    util/game-state
+    assoc
+    :play-button
+    (this-as this
+      (.button
+        (.-add @util/game)
+        10
+        10
+        "play-button"
+        (fn []
+          (util/destroy-stage-clear-text!)
+          ;It also checks whether it already created piece/button sprites.
+          (create-puzzle-board websocket-msg-send-fns)
+          ;From the next play it also works as a resetting the previous puzzle.
+          (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
+        this))))
+
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!]}]
   "Create randomized puzzle board with one black piece"
-  (set! (.-visible (:play-button @util/game-state)) false)
+  (util/hide-play-button!)
+  (util/hide-ranking-button!)
   ;It only creates the puzzle piece/button sprites only once for each client.
   (when (empty? (:sprites @util/game-state))
     (let [game-object-factory (.-add @util/game)
@@ -180,22 +206,10 @@
 (defn- create-game [websocket-msg-send-fns]
   (fn []
     (when-not (:play-button @util/game-state)
-      (let [game-object-factory (.-add @util/game)
-            play-button (this-as this
-                          (.button
-                            game-object-factory
-                            10
-                            10
-                            "play-button"
-                            (fn []
-                              (util/destroy-stage-clear-text!)
-                              ;It also checks whether it already created piece/button sprites.
-                              (create-puzzle-board websocket-msg-send-fns)
-                              ;From the next play it also works as a resetting the previous puzzle.
-                              (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
-                            this))]
-        (swap! util/game-state assoc :play-button play-button)))))
-
+      (make-play-button websocket-msg-send-fns)
+      (util/make-ranking-button!))))
+(let [canvas (.getElementById js/document "canvas")]
+  (set! (.-display (.-style canvas)) "block"))
 (defn- update [])
 
 (defn- start-game! [websocket-msg-send-fns]
@@ -205,7 +219,7 @@
             (.-innerWidth js/window)
             (.-innerHeight js/window)
             js/Phaser.Auto
-            ""
+            "canvas"
             (clj->js {:preload preload
                       :create  (create-game websocket-msg-send-fns)
                       :update  update}))))

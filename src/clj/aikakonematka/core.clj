@@ -1,5 +1,6 @@
 (ns aikakonematka.core
   (:require [compojure.core :refer (defroutes GET POST)]
+            [cheshire.core :as json]
             [clj-time.core :as t]
             [clj-time.local :as l]
             [org.httpkit.server :as server]
@@ -18,18 +19,12 @@
   (def connected-uids (:connected-uids connection)))
 
 (def sprites-state (atom nil))
-(def flipped-state "FLIPPED")
-(def non-flipped-state "NON-FLIPPED")
-(def initial-game-state (atom {:sprites                {}
-                               :sprites-state          {}
-                               :puzzle-width-height    0
-                               :piece-x-scale          0
-                               :piece-y-scale          0
-                               :puzzle-completion-text nil}))
 
 (def game-start-game (atom nil))
 
 (def sending-time-future (atom nil))
+
+(def ranking (atom nil))
 
 (defn- start-sending-current-playtime! []
   (future (loop []
@@ -76,6 +71,9 @@
   (do
     (reset! game-start-game nil)
     (reset! sprites-state nil)
+    (swap! ranking (fn [ranking]
+                     (sort (conj ranking ?data))))
+    (println "Ranking : " @ranking)
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
@@ -83,6 +81,9 @@
 ; and pass it handle-message! as the event handler.
 
 (defroutes app
+           ;Make JSON with ranking data
+           ;and open the link(localhost:2222/rankings for the clients
+           (GET "/rankings" req (json/generate-string @ranking))
            (GET "/chsk" req (ring-ajax-get-or-ws-handshake req)) ; To update the routes with these two fns
            (POST "/chsk" req (ring-ajax-post req)))         ; to handle client requests.
 
