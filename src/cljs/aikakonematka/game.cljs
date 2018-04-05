@@ -210,7 +210,7 @@
       (util/make-ranking-button!)
       (util/make-reset-button! (:send-reset-fn! websocket-msg-send-fns)))))
 
-(defn- update [])
+(defn- game-update [])
 
 (defn- start-game! [websocket-msg-send-fns]
   (println "starting game")
@@ -222,4 +222,4 @@
             "canvas"
             (clj->js {:preload preload
                       :create  (create-game websocket-msg-send-fns)
-                      :update  update}))))
+                      :update  game-update}))))
