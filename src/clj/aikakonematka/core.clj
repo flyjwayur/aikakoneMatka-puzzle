@@ -31,14 +31,13 @@
 (defn- start-sending-current-playtime! []
   (future (loop []
             (Thread/sleep 200)
-            (when-let [uids (seq (:any @connected-uids))]
-              (when-let [start-time @game-start-game]
-                (let [duration (jt/duration start-time (jt/local-date-time))
-                      seconds (jt/value (jt/property duration :seconds))
-                      nanos (jt/value (jt/property duration :nanos))]
-                  (doseq [uid uids]
-                    (chsk-send! uid [:aikakone/current-time (convert-to-millis seconds nanos)]))
-                  (recur)))))))
+            (when-let [start-time @game-start-game]
+              (let [duration (jt/duration start-time (jt/local-date-time))
+                    seconds (jt/value (jt/property duration :seconds))
+                    nanos (jt/value (jt/property duration :nanos))]
+                (doseq [uid (:any @connected-uids)]
+                  (chsk-send! uid [:aikakone/current-time (convert-to-millis seconds nanos)]))
+                (recur))))))
 
 (defn broadcast-data-to-all-except-msg-sender [client-id msg-type data]
   (doseq [uid (:any @connected-uids)]
