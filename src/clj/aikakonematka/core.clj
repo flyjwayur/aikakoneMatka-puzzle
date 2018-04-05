@@ -72,7 +72,6 @@
     (reset! sprites-state nil)
     (swap! ranking (fn [ranking]
                      (sort (conj ranking ?data))))
-    (println "Ranking : " @ranking)
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (defmethod event-msg-handler :aikakone/reset [{:as ev-msg :keys [id client-id ?data]}]
