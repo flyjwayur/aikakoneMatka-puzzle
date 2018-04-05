@@ -1,8 +1,7 @@
 (ns aikakonematka.core
   (:require [compojure.core :refer (defroutes GET POST)]
             [cheshire.core :as json]
-            [clj-time.core :as t]
-            [clj-time.local :as l]
+            [java-time :as jt]
             [org.httpkit.server :as server]
             [ring.middleware.defaults :as defaults]
             [ring.middleware.cors :as cors]
@@ -20,21 +19,26 @@
 
 (def sprites-state (atom nil))
 
+(def ranking (atom nil))
+
 (def game-start-game (atom nil))
 
 (def sending-time-future (atom nil))
 
-(def ranking (atom nil))
+(defn- convert-to-millis [seconds nanos]
+  (+ (* 1000 seconds) (/ nanos 1000000)))
 
 (defn- start-sending-current-playtime! []
   (future (loop []
             (Thread/sleep 200)
             (when-let [uids (seq (:any @connected-uids))]
               (when-let [start-time @game-start-game]
-                (doseq [uid uids]
-                  (chsk-send! uid [:aikakone/current-time
-                                   (t/in-millis (t/interval start-time (l/local-now)))]))
-                (recur))))))
+                (let [duration (jt/duration start-time (jt/local-date-time))
+                      seconds (jt/value (jt/property duration :seconds))
+                      nanos (jt/value (jt/property duration :nanos))]
+                  (doseq [uid uids]
+                    (chsk-send! uid [:aikakone/current-time (convert-to-millis seconds nanos)]))
+                  (recur)))))))
 
 (defn broadcast-data-to-all-except-msg-sender [client-id msg-type data]
   (doseq [uid (:any @connected-uids)]
@@ -63,7 +67,7 @@
       (chsk-send! client-id [:aikakone/game-start @sprites-state])))
 
 (defmethod event-msg-handler :aikakone/start-timer [{:as ev-msg :keys [id client-id ?data]}]
-  (do (reset! game-start-game (l/local-now))
+  (do (reset! game-start-game (jt/local-date-time))
       (reset! sending-time-future (start-sending-current-playtime!))))
 
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
