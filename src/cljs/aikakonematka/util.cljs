@@ -142,6 +142,14 @@
 (defn hide-reset-button! []
   (.setTo (.-scale (:reset-button @game-state)) 0 0))
 
+(defn reset-game! []
+  (hide-all-puzzle-pieces!)
+  (hide-control-buttons!)
+  ;The actual time also needs to be stopped via websocket
+  (hide-play-time!)
+  (display-play-button!)
+  (display-ranking-button!))
+
 (defn make-reset-button! [send-reset-fn]
   (swap!
     game-state
@@ -154,12 +162,7 @@
         (* 0.3 (.-innerHeight js/window))
         "reset-button"
         (fn []
-          (hide-all-puzzle-pieces!)
-          (hide-control-buttons!)
-          ;The actual time also needs to be stopped via websocket
-          (hide-play-time!)
-          (display-play-button!)
-          (display-ranking-button!)
+          (reset-game!)
           (send-reset-fn))
         this)))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
