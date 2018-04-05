@@ -74,7 +74,7 @@
 
 (declare create-puzzle-board)
 
-(defn- make-play-button [websocket-msg-send-fns]
+(defn- make-play-button [{:keys [chsk-send-fn!]}]
   (swap!
     util/game-state
     assoc
@@ -86,11 +86,8 @@
         10
         "play-button"
         (fn []
-          (util/destroy-stage-clear-text!)
-          ;It also checks whether it already created piece/button sprites.
-          (create-puzzle-board websocket-msg-send-fns)
-          ;From the next play it also works as a resetting the previous puzzle.
-          (js/setTimeout (:send-sprites-state-fn! websocket-msg-send-fns) 300))
+          (chsk-send-fn! [:aikakone/game-start])
+          (util/destroy-stage-clear-text!))
         this))))
 
 (defn- store-control-button-and-return-it [control-button]
@@ -100,7 +97,8 @@
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!]}]
-  "Create randomized puzzle board with one black piece"
+  "Create randomized puzzle board with one black piece,
+   It also checks whether it already created piece/button sprites."
   (util/show-reset-button!)
   (util/show-control-buttons!)
   (util/hide-play-button!)

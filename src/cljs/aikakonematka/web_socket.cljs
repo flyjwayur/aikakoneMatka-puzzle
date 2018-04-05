@@ -54,10 +54,11 @@
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
-                             (game/start-game! {:send-sprites-state-fn!   send-sprites-state!
-                                                :send-puzzle-complete-fn! send-puzzle-complete!
-                                                :send-start-timer-fn! send-start-timer!
-                                                :send-reset-fn! send-reset!}))
+                             (game/create-puzzle-board {:send-sprites-state-fn!   send-sprites-state!
+                                                        :send-puzzle-complete-fn! send-puzzle-complete!
+                                                        :send-start-timer-fn! send-start-timer!})
+                             ;From the next play it also works as a resetting the previous puzzle.
+                             (js/setTimeout send-sprites-state! 300))
 
       :aikakone/current-time (when (and (:play-time-text @util/game-state)
                                         (util/currently-playing-game?))
@@ -74,7 +75,8 @@
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
-    (chsk-send! [:aikakone/game-start])
+    (game/start-game! {:chsk-send-fn! chsk-send!
+                       :send-reset-fn! send-reset!})
     (send-uid)))
 
 (defn start-web-socket! []                                  ; To create msg router to handle incoming msg.
