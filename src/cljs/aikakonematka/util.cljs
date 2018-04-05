@@ -139,6 +139,14 @@
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
 
+(defn- hide-control-buttons! []
+  (doseq [control-button (:control-buttons @game-state)]
+    (.setTo (.-scale control-button) 0 0)))
+
+(defn- show-control-buttons! []
+  (doseq [control-button (:control-buttons @game-state)]
+    (make-buttons-same-size-as-puzzle-piece! control-button)))
+
 (defn congrats-completion-finish-game [send-puzzle-complete-fn!]
   (when (and (currently-playing-game?)
              (puzzle-completed?)
@@ -146,6 +154,7 @@
     (println "From puzzle-is-completed : " (:sprites-state @game-state))
     (println "Congrats" "You've got a great start to solving!")
     (hide-reset-button!)
+    (hide-control-buttons!)
     (display-play-button!)
     (make-ranking-button!)
     (display-congrats-message!)
