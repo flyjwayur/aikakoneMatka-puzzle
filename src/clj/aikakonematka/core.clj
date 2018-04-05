@@ -39,7 +39,6 @@
 (defn broadcast-data-to-all-except-msg-sender [client-id msg-type data]
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
-    (println :uid uid)
     (when (not= client-id uid)
       (println "broadcast data except msg sender, msg type :" msg-type)
       (chsk-send! uid [msg-type data]))))
@@ -73,8 +72,13 @@
     (reset! sprites-state nil)
     (swap! ranking (fn [ranking]
                      (sort (conj ranking ?data))))
-    (println "Ranking : " @ranking)
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
+
+(defmethod event-msg-handler :aikakone/reset [{:as ev-msg :keys [id client-id ?data]}]
+  (do (println "reset message recieved.")
+      (reset! game-start-game nil)
+      (reset! sprites-state nil)
+      (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
