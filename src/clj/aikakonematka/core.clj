@@ -76,7 +76,10 @@
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (defmethod event-msg-handler :aikakone/reset [{:as ev-msg :keys [id client-id ?data]}]
-  (println "reset message recieved."))
+  (do (println "reset message recieved.")
+      (reset! game-start-game nil)
+      (reset! sprites-state nil)
+      (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients

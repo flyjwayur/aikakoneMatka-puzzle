@@ -57,7 +57,7 @@
 
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
-    (and (not (empty? (:sprites dereffed-game-state)))
+    (and (not (empty? (:sprites-state dereffed-game-state)))
          (nil? (:puzzle-completion-text dereffed-game-state)))))
 
 (defn- puzzle-completed? []
@@ -70,8 +70,8 @@
   (set! (.-visible (:play-button @game-state)) false))
 
 (defn- synchronize-puzzle-board [sprite-state]
-  (swap! game-state assoc :sprites-state sprite-state)
   (when (currently-playing-game?)
+    (swap! game-state assoc :sprites-state sprite-state)
     (println "synchronizing.... :)")
     (let [derefed-state @game-state
           sprites (:sprites derefed-state)
@@ -145,7 +145,6 @@
 (defn reset-game! []
   (hide-all-puzzle-pieces!)
   (hide-control-buttons!)
-  ;The actual time also needs to be stopped via websocket
   (hide-play-time!)
   (display-play-button!)
   (display-ranking-button!))

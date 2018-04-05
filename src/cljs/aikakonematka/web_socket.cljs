@@ -50,6 +50,7 @@
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board event-data)
                                 (util/congrats-completion-finish-game send-puzzle-complete!))
+
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
@@ -57,9 +58,12 @@
                                                 :send-puzzle-complete-fn! send-puzzle-complete!
                                                 :send-start-timer-fn! send-start-timer!
                                                 :send-reset-fn! send-reset!}))
+
       :aikakone/current-time (when (and (:play-time-text @util/game-state)
                                         (util/currently-playing-game?))
                                (util/update-play-time-to-current-time event-data))
+
+      :aikakone/reset (util/reset-game!)
 
       (println event-id " is unknown event type"))))
 
