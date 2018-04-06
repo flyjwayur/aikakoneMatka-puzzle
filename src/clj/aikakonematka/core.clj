@@ -17,13 +17,13 @@
   (def chsk-send! (:send-fn connection))
   (def connected-uids (:connected-uids connection)))
 
-(def sprites-state (atom nil))
+(def sprites-state (ref nil))
 
-(def ranking (atom nil))
+(def ranking (ref []))
 
-(def game-start-game (atom nil))
+(def game-start-game (ref nil))
 
-(def sending-time-future (atom nil))
+(def sending-time-future (ref nil))
 
 (defn- convert-to-millis [seconds nanos]
   (+ (* 1000 seconds) (/ nanos 1000000)))
@@ -57,30 +57,32 @@
   (println :data? ?data)
 
   ; To broadcast the response to all the connected clients
-  (reset! sprites-state ?data)
-  (println "This is sprites-state from the server : " @sprites-state)
-  (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state @sprites-state))
+  (dosync
+    (ref-set sprites-state ?data)
+    (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state @sprites-state)))
 
 (defmethod event-msg-handler :aikakone/game-start [{:as ev-msg :keys [id client-id ?data]}]
-  (do (println "@sprites-state from game-start : " @sprites-state)
-      (chsk-send! client-id [:aikakone/game-start @sprites-state])))
+  (chsk-send! client-id [:aikakone/game-start @sprites-state]))
 
 (defmethod event-msg-handler :aikakone/start-timer [{:as ev-msg :keys [id client-id ?data]}]
-  (do (reset! game-start-game (jt/local-date-time))
-      (reset! sending-time-future (start-sending-current-playtime!))))
+  (dosync
+      (ref-set game-start-game (jt/local-date-time))
+      (ref-set sending-time-future (start-sending-current-playtime!))))
 
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
-  (do
-    (reset! game-start-game nil)
-    (reset! sprites-state nil)
-    (swap! ranking (fn [ranking]
-                     (sort (conj ranking ?data))))
+  (dosync
+    (ref-set sprites-state nil)
+    ;It will only take the first player's play time in each game
+    (when @game-start-game
+      (ref-set game-start-game nil)
+      (alter ranking (fn [ranking]
+                      (take 10 (sort (conj ranking ?data))))))
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (defmethod event-msg-handler :aikakone/reset [{:as ev-msg :keys [id client-id ?data]}]
-  (do (println "reset message recieved.")
-      (reset! game-start-game nil)
-      (reset! sprites-state nil)
+  (dosync
+      (ref-set game-start-game nil)
+      (ref-set sprites-state nil)
       (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop

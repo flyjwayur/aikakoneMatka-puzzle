@@ -5,7 +5,8 @@
 (defonce server (atom nil))
 
 (defn stop-server []
-  (reset! core/sprites-state nil)
+  (dosync
+    (ref-set core/sprites-state nil))
   (future-cancel @core/sending-time-future)
   (when-not (nil? server)
     ;; graceful shutdown; wait 100ms for existing requests to be finished
