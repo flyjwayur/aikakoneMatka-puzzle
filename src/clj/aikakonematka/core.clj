@@ -71,10 +71,12 @@
 
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
   (dosync
-    (ref-set game-start-game nil)
     (ref-set sprites-state nil)
-    (alter ranking (fn [ranking]
-                     (sort (conj ranking ?data))))
+    ;It will only take the first player's play time in each game
+    (when @game-start-game
+      (ref-set game-start-game nil)
+      (alter ranking (fn [ranking]
+                       (sort (conj ranking ?data)))))
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (defmethod event-msg-handler :aikakone/reset [{:as ev-msg :keys [id client-id ?data]}]
