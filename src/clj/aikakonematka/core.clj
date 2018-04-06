@@ -76,7 +76,7 @@
     (when @game-start-game
       (ref-set game-start-game nil)
       (alter ranking (fn [ranking]
-                       (sort (conj ranking ?data)))))
+                      (take 10 (sort (conj ranking ?data))))))
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (defmethod event-msg-handler :aikakone/reset [{:as ev-msg :keys [id client-id ?data]}]
