@@ -8,6 +8,7 @@
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
                   [cheshire "5.8.0"]
+                  [cljs-bach "0.3.0"]
                   [cljs-http "0.1.44"]
                   [cljs-react-material-ui "0.2.48"]
                   [cljsjs/react "15.6.1-1"]

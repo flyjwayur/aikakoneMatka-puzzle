@@ -1,5 +1,6 @@
 (ns aikakonematka.game
-  (:require [aikakonematka.util :as util]))
+  (:require [aikakonematka.util :as util]
+            [aikakonematka.sound :as sound]))
 
 (defn- randomly-execute-a-fn [f]
   (when (< (rand) 0.5) (f)))
@@ -150,6 +151,7 @@
                   (println "control-buttons : " (:control-buttons @util/game-state))
                   ;Without getting new row & col range with doseq for flipping,
                   ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+                  (sound/play-beep! 280 282)
                   (flip-diagonal-pieces!)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
@@ -169,6 +171,7 @@
                 (when (util/currently-playing-game?)
                   (println "left-button row #" row " clicked, " "which col : " col)
                   (println "control-buttons : " (:control-buttons @util/game-state))
+                  (sound/play-beep! 220 222)
                   (flip-row! row)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
@@ -188,6 +191,7 @@
                 (when (util/currently-playing-game?)
                   (println "bottom button col #" col " clicked, " "which row : " row)
                   (println "control-buttons : " (:control-buttons @util/game-state))
+                  (sound/play-beep! 250 252)
                   (flip-col! col)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
