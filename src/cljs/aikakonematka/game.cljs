@@ -151,7 +151,7 @@
                   (println "control-buttons : " (:control-buttons @util/game-state))
                   ;Without getting new row & col range with doseq for flipping,
                   ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-                  (sound/play-beep! 280 282)
+                  (sound/play-beep! (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num))
                   (flip-diagonal-pieces!)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
@@ -171,7 +171,7 @@
                 (when (util/currently-playing-game?)
                   (println "left-button row #" row " clicked, " "which col : " col)
                   (println "control-buttons : " (:control-buttons @util/game-state))
-                  (sound/play-beep! 220 222)
+                  (sound/play-beep! (sound/frequencies-of-major-scale-in-4th-octave row))
                   (flip-row! row)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
@@ -191,7 +191,9 @@
                 (when (util/currently-playing-game?)
                   (println "bottom button col #" col " clicked, " "which row : " row)
                   (println "control-buttons : " (:control-buttons @util/game-state))
-                  (sound/play-beep! 250 252)
+                  (sound/play-beep! (sound/frequencies-of-major-scale-in-4th-octave
+                                      (mod (+ 1 util/row-col-num col)
+                                           (count sound/frequencies-of-major-scale-in-4th-octave))))
                   (flip-col! col)
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game send-puzzle-complete-fn!)
