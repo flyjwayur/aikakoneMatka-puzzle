@@ -25,6 +25,8 @@
 
 (def sending-time-future (ref nil))
 
+(def bgm-pitches (ref []))
+
 (defn- convert-to-millis [seconds nanos]
   (+ (* 1000 seconds) (/ nanos 1000000)))
 
@@ -84,6 +86,14 @@
       (ref-set game-start-game nil)
       (ref-set sprites-state nil)
       (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))
+
+(defmethod event-msg-handler :aikakone/music [{:as ev-msg :keys [id client-id ?data]}]
+  (dosync
+    (alter bgm-pitches (fn [background-music]
+                              (conj background-music ?data)))
+    (println "bgm-pitches : " @bgm-pitches)
+    (doseq [uid (:any @connected-uids)]
+      (chsk-send! uid [:aikakone/music @bgm-pitches]))))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients

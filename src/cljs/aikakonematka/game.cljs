@@ -97,7 +97,8 @@
 
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
-                                    send-start-timer-fn!]}]
+                                    send-start-timer-fn!
+                                    send-music-note-fn!]}]
   "Create randomized puzzle board with one black piece,
    It also checks whether it already created piece/button sprites."
   (util/show-reset-button!)
@@ -141,7 +142,8 @@
                                        (- x-pos piece-width-height)
                                        (+ y-pos piece-width-height)
                                        "flip-buttons"
-                                       5))]
+                                       5))
+                frequency (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num)]
             (util/make-buttons-same-size-as-puzzle-piece! bottom-left-button)
             (set-on-click-callback!
               bottom-left-button
@@ -151,10 +153,11 @@
                   (println "control-buttons : " (:control-buttons @util/game-state))
                   ;Without getting new row & col range with doseq for flipping,
                   ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-                  (sound/play-beep! (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num))
+                  (sound/play-beep! frequency)
+                  (send-music-note-fn! frequency)
                   (flip-diagonal-pieces!)
                   (send-sprites-state-fn!)
-                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
+                  (util/congrats-completion-finish-game! send-puzzle-complete-fn!)
                   (println "bottom-left-button : " :game-state @util/game-state))))))
         (when (zero? col)
           (let [left-button (store-control-button-and-return-it
@@ -163,7 +166,8 @@
                                 (- x-pos piece-width-height)
                                 y-pos
                                 "flip-buttons"
-                                row))]
+                                row))
+                frequency (sound/frequencies-of-major-scale-in-4th-octave row)]
             (util/make-buttons-same-size-as-puzzle-piece! left-button)
             (set-on-click-callback!
               left-button
@@ -171,10 +175,11 @@
                 (when (util/currently-playing-game?)
                   (println "left-button row #" row " clicked, " "which col : " col)
                   (println "control-buttons : " (:control-buttons @util/game-state))
-                  (sound/play-beep! (sound/frequencies-of-major-scale-in-4th-octave row))
+                  (sound/play-beep! frequency)
+                  (send-music-note-fn! frequency)
                   (flip-row! row)
                   (send-sprites-state-fn!)
-                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
+                  (util/congrats-completion-finish-game! send-puzzle-complete-fn!)
                   (println "left-button : " :game-state @util/game-state))))))
         (when (= row (dec util/row-col-num))
           (let [bottom-button (store-control-button-and-return-it
@@ -183,7 +188,10 @@
                                   x-pos
                                   (+ y-pos piece-width-height)
                                   "flip-buttons"
-                                  col))]
+                                  col))
+                frequency (sound/frequencies-of-major-scale-in-4th-octave
+                            (mod (+ 1 util/row-col-num col)
+                                 (count sound/frequencies-of-major-scale-in-4th-octave)))]
             (util/make-buttons-same-size-as-puzzle-piece! bottom-button)
             (set-on-click-callback!
               bottom-button
@@ -191,18 +199,17 @@
                 (when (util/currently-playing-game?)
                   (println "bottom button col #" col " clicked, " "which row : " row)
                   (println "control-buttons : " (:control-buttons @util/game-state))
-                  (sound/play-beep! (sound/frequencies-of-major-scale-in-4th-octave
-                                      (mod (+ 1 util/row-col-num col)
-                                           (count sound/frequencies-of-major-scale-in-4th-octave))))
+                  (sound/play-beep! frequency)
+                  (send-music-note-fn! frequency)
                   (flip-col! col)
                   (send-sprites-state-fn!)
-                  (util/congrats-completion-finish-game send-puzzle-complete-fn!)
+                  (util/congrats-completion-finish-game! send-puzzle-complete-fn!)
                   (println "bottom-button : " :game-state @util/game-state)))))))))
   ;It synchronizes the puzzle board with the existing state for each player.
   ;The later synchronization will happen from the web_socket.
   (let [initial-sprites-state (:sprites-state @util/game-state)]
     (if (not (empty? initial-sprites-state))
-      (util/synchronize-puzzle-board initial-sprites-state)
+      (util/synchronize-puzzle-board! initial-sprites-state)
       ;It make puzzle pieces randomly flipped,
       ;if it is the initial puzzle creation.
       (do (randomize-puzzle-pieces)

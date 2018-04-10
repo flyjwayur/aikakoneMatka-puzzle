@@ -3,6 +3,7 @@
              :refer [add adshr audio-context connect connect-> current-time destination
                      gain low-pass percussive low-pass run-with sine square sawtooth]]
             [leipzig.melody :as melody]
+            [aikakonematka.util :as util]
             ))
 
 (defonce context (audio-context))
@@ -32,7 +33,7 @@
 (defn play-beep! [sq-freq]
   (run-with
     (connect->
-      (square sq-freq)                             ;Define the periodic waves
+      (square sq-freq)                                      ;Define the periodic waves
       (low-pass 600)
       (percussive 0.01 0.4)                                 ;Define how log it takes the note and a decay
       (gain 0.1)                                            ;Alter amplitude of the wave                                       ;                                         ;
@@ -41,10 +42,13 @@
     (current-time context)
     1.0))
 
+(defn make-melody! []
+  (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
+
 (def composition
   (->>
-    (melody/phrase [1 1 0.67 0.33 1]                      ;The duration of each note
-                   [C5 C5 C5 D5 E5])                          ;The pitch of each note
+    (melody/phrase [1 1 0.67 0.33 1]                        ;The duration of each note
+                   [C5 C5 C5 D5 E5])                        ;The pitch of each note
     (melody/then
       (melody/phrase [0.67 0.33 0.67 0.33 1]
                      [E5 D5 E5 F5 G5]))))
@@ -81,17 +85,24 @@
   [audiocontext notes]
   (play-from! audiocontext (current-time audiocontext) notes))
 
-(defn play-row-row-row-your-boat [melody-box]
-  (loop [i 0]
-    (when (<  i (count melody-box))
-      (->> (nth melody-box i)
-           (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
-           (play! context))
-      (recur (inc i))))
-  (js/setTimeout play-row-row-row-your-boat 8000))
 
-(play-row-row-row-your-boat melody-box)
+;(defn play-row-row-row-your-boat [melody-box]
+;  (loop [i 0]
+;    (when (< i (count melody-box))
+;      (->> (nth melody-box i)
+;           (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
+;           (play! context))
+;      (recur (inc i))))
+;  (js/setTimeout play-row-row-row-your-boat 8000))
+;
+;(play-row-row-row-your-boat melody-box)
 
+(defn song-from-players []
+  (when (util/currently-playing-game?)
+    (->> (make-melody!)
+         (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
+         (play! context)))
+  (js/setTimeout song-from-players 8000))
 
-
+(song-from-players)
 
