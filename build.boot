@@ -17,6 +17,7 @@
                   [compojure "1.6.0"]
                   [com.taoensso/sente "1.12.0"]
                   [http-kit "2.2.0"]
+                  [leipzig "0.10.0"]
                   [nightlight "RELEASE" :scope "test"]
                   [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
