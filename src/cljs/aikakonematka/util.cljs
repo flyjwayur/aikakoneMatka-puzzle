@@ -224,4 +224,4 @@
 (defn update-music-notes [music-pitches]
   (println "music notes : " music-pitches)
   (swap! game-state assoc :music-pitches music-pitches)
-  (swap! game-state assoc :music-durations (map (fn [_] (rand 1) music-pitches))))
+  (swap! game-state assoc :music-durations (map (fn [_] (rand 1)) music-pitches)))

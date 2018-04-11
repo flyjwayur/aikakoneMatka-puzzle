@@ -43,6 +43,9 @@
     1.0))
 
 (defn make-melody! []
+  (println "music duration : " (:music-durations @util/game-state))
+  (println "music pitch : " (:music-pitches @util/game-state))
+  (println "music melody : " (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
   (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
 
 (def composition
