@@ -43,9 +43,6 @@
     1.0))
 
 (defn make-melody! []
-  (println "music duration : " (:music-durations @util/game-state))
-  (println "music pitch : " (:music-pitches @util/game-state))
-  (println "music melody : " (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
   (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
 
 (def composition
@@ -105,7 +102,7 @@
     (->> (make-melody!)
          (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
          (play! context)))
-  (js/setTimeout song-from-players 8000))
+  (js/setTimeout song-from-players (+ 1000 (* 1000 (apply + (:music-durations @util/game-state))))))
 
 (song-from-players)
 
