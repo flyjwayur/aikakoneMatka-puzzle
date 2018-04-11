@@ -51,7 +51,6 @@
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
     (do
-      (println "make-button-same-size-as-puzzle-piece! : " button-sprite)
       (.setTo
         (.-scale button-sprite)
         (/ piece-width-height (get-button-width button-sprite-col-num))
@@ -113,7 +112,6 @@
         (* 0.2 (.-innerHeight js/window))
         "ranking-button"
         (fn []
-          (println "Display ranking")
           (hide-game!))
         this)))
   (display-ranking-button!))
@@ -193,8 +191,6 @@
   (when (and (currently-playing-game?)
              (puzzle-completed?)
              (not (:puzzle-completion-text @game-state)))
-    (println "From puzzle-is-completed : " (:sprites-state @game-state))
-    (println "Congrats" "You've got a great start to solving!")
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)

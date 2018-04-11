@@ -45,7 +45,6 @@
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
     (when (not= client-id uid)
-      (println "broadcast data except msg sender, msg type :" msg-type)
       (chsk-send! uid [msg-type data]))))
 
 (defmulti event-msg-handler :id)
@@ -54,11 +53,9 @@
   (println "Unhandled event: " event))
 
 (defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
-  (println :id id)                                          ; To identify type of msg and handle them accordingly
-  (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
-  (println :data? ?data)
-
-  ; To broadcast the response to all the connected clients
+ ; To identify type of msg and handle them accordingly
+ ; To have unique UUID for each client that matches the ID used by the :user-id-fn
+ ; To broadcast the response to all the connected clients
   (dosync
     (ref-set sprites-state ?data)
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state @sprites-state)))

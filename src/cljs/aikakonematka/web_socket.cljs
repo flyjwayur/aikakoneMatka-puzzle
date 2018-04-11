@@ -50,7 +50,7 @@
 (defmethod event-msg-handler :chsk/recv [{:keys [?data]}]
   ;when client received a pushed msg from the server via web socket
   (let [[event-id event-data] ?data]
-    (println "received " [event-id event-data])
+    ;(println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board! event-data)
