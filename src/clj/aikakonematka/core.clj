@@ -71,6 +71,7 @@
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
   (dosync
     (ref-set sprites-state nil)
+    (ref-set bgm-pitches nil)
     ;It will only take the first player's play time in each game
     (when @game-start-game
       (ref-set game-start-game nil)
@@ -82,6 +83,7 @@
   (dosync
       (ref-set game-start-game nil)
       (ref-set sprites-state nil)
+      (ref-set bgm-pitches nil)
       (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))
 
 (defmethod event-msg-handler :aikakone/music [{:as ev-msg :keys [id client-id ?data]}]
