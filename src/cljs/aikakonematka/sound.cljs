@@ -117,16 +117,17 @@
   (play-from! audiocontext (current-time audiocontext) notes))
 
 
-;(defn play-row-row-row-your-boat [melody-box]
-;  (loop [i 0]
-;    (when (< i (count melody-box))
-;      (->> (nth melody-box i)
-;           (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
-;           (play! context))
-;      (recur (inc i))))
-;  (js/setTimeout play-row-row-row-your-boat 8000))
-;
-;(play-row-row-row-your-boat melody-box)
+(defn play-row-row-row-your-boat [melody-box]
+  (when-not (util/currently-playing-game?)
+    (loop [i 0]
+      (when (< i (count melody-box))
+        (->> (nth melody-box i)
+             (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
+             (play! context))
+        (recur (inc i))))
+    (js/setTimeout play-row-row-row-your-boat 8000)))
+
+(play-row-row-row-your-boat melody-box)
 
 (defn play-song-with-instrument []
   (defn play-song-with-instrument []
