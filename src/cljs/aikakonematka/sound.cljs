@@ -45,7 +45,7 @@
 (defn make-melody! []
   (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
 
-(def composition
+(def composition1
   (->>
     (melody/phrase [1 1 0.67 0.33 1]                        ;The duration of each note
                    [C5 C5 C5 D5 E5])                        ;The pitch of each note
@@ -61,7 +61,7 @@
       (melody/phrase [0.67 0.33 0.67 0.33 1]
                      [E5 D5 E5 F5 G5]))))
 
-(def melody-box [composition composition2])
+(def music-box [composition1 composition2])
 
 (defn marimba [{:keys [pitch]}]
   (connect->
@@ -117,17 +117,14 @@
   (play-from! audiocontext (current-time audiocontext) notes))
 
 
-(defn play-row-row-row-your-boat [melody-box]
+(defn play-row-row-row-your-boat []
   (when-not (util/currently-playing-game?)
-    (loop [i 0]
-      (when (< i (count melody-box))
-        (->> (nth melody-box i)
-             (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
-             (play! context))
-        (recur (inc i))))
-    (js/setTimeout play-row-row-row-your-boat 8000)))
+    (->> (music-box 0)
+         (melody/then (music-box 1))
+         (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
+         (play! context))))
 
-(play-row-row-row-your-boat melody-box)
+(play-row-row-row-your-boat)
 
 (defn play-song-with-instrument []
   (defn play-song-with-instrument []
