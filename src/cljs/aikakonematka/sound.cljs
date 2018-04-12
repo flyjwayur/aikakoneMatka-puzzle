@@ -1,7 +1,7 @@
 (ns aikakonematka.sound
   (:require [cljs-bach.synthesis
-             :refer [add adshr audio-context connect connect-> current-time destination
-                     gain low-pass percussive low-pass run-with sine square sawtooth]]
+             :refer [add adshr adsr audio-context connect connect-> constant current-time destination
+                     gain low-pass percussive run-with sine square sawtooth triangle]]
             [leipzig.melody :as melody]
             [aikakonematka.util :as util]
             ))
@@ -36,7 +36,7 @@
       (square sq-freq)                                      ;Define the periodic waves
       (low-pass 600)
       (percussive 0.01 0.4)                                 ;Define how log it takes the note and a decay
-      (gain 0.1)                                            ;Alter amplitude of the wave                                       ;                                         ;
+      (gain 0.3)                                            ;Alter amplitude of the wave                                       ;                                         ;
       destination)
     context
     (current-time context)
@@ -69,6 +69,37 @@
     (adshr 0.01 0.2 0.2 0.2 0.3)
     (gain 0.1)))
 
+(defn bell
+  "An imitation bell, made by adding together harmonics."
+  [{:keys [pitch]}]
+  (let [harmonic (fn [n proportion]
+                   (connect->
+                     (sine (* n pitch))            ; Each harmonic is a sine wave.
+                     (percussive 0.01 proportion)  ; The attack and decay of each note.
+                     (gain 0.05)))]                ; Multiply the volume of each harmonic by 0.5.
+    (->> (map harmonic [1.0 2.0 3.0 4.1 5.2]       ; Each harmonic is a multiple of the base frequency.
+              [1.0 0.6 0.4 0.3 0.2])      ; Higher harmonics are weaker.
+         (apply add))))
+
+(defn organ [note]
+  (connect->
+    (add (sine (* 0.5 (:pitch note))) (triangle (:pitch note)))
+    (low-pass (* 4 (:pitch note)) (connect-> (sine 3) (gain 3)))
+    (adsr 0.1 0 1 0.3)
+    (gain 0.2)))
+
+(defn wah [{:keys [pitch]}]
+  (connect->
+    (sawtooth pitch)
+    (low-pass
+      (connect->
+        (constant (* 4 pitch))
+        (adsr 0.1 0.2 0.4 0.3)) 5)
+    (adsr 0.3 0.5 0.8 0.3)
+    (gain 0.1)))
+
+(def music-instrument [bell marimba organ wah])
+
 (defn play-from!
   "Take a sequence of notes and play them from a set point in an audiocontext."
   [audiocontext from notes]
@@ -97,12 +128,22 @@
 ;
 ;(play-row-row-row-your-boat melody-box)
 
+(defn play-song-with-instrument []
+  (defn play-song-with-instrument []
+    (->> (make-melody!)
+         (map
+           (fn [note]
+             (let [pitch (:pitch note)]
+               (cond
+                 (< pitch 300) (assoc note :instrument (music-instrument 0))
+                 (< pitch 350) (assoc note :instrument (music-instrument 1))
+                 (<= pitch 440) (assoc note :instrument (music-instrument 2))
+                 :else (assoc note :instrument (music-instrument 3))))))
+         (play! context))))
+
 (defn song-from-players []
   (when (util/currently-playing-game?)
-    (->> (make-melody!)
-         (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
-         (play! context)))
+    (play-song-with-instrument))
   (js/setTimeout song-from-players (+ 1000 (* 1000 (apply + (:music-durations @util/game-state))))))
 
 (song-from-players)
-
