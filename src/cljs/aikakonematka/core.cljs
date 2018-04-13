@@ -18,7 +18,7 @@
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
    {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
-    [ui/raised-button {:label "Go back to play game"
+    [ui/raised-button {:label "Play game"
                        :on-click #(do
                                     (util/show-game!))}]])
 
