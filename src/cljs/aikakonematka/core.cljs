@@ -48,7 +48,7 @@
                    [ui/table-row-column (ranking rank)]]))]]])))
 
 (r/render [ranking-dashboard]
-          (.getElementById js/document "ranking-board"))
+          (.getElementById js/document "app"))
 
 ; this is the game program's entry point
 (let [puzzle-img (js/Image.)
