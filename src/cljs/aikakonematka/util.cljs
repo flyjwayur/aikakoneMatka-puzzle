@@ -10,7 +10,7 @@
 
 (defonce ranking (r/atom []))
 
-(defonce showing-game? (r/atom true))
+(defonce showing-ranking? (r/atom false))
 
 (def game (atom nil))
 
@@ -85,12 +85,12 @@
             (.setTo piece-scale 0 0)))))))
 
 (defn show-game! []
-  (reset! showing-game? true)
+  (reset! showing-ranking? false)
   (let [canvas (.getElementById js/document "canvas")]
     (set! (.-display (.-style canvas)) "block")))
 
 (defn hide-game! []
-  (reset! showing-game? false)
+  (reset! showing-ranking? true)
   (let [canvas (.getElementById js/document "canvas")]
     (set! (.-display (.-style canvas)) "none")))
 

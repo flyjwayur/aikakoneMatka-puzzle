@@ -23,7 +23,7 @@
                                     (util/show-game!))}]])
 
 (defn ranking-dashboard []
-  (when-not @util/showing-game?
+  (when @util/showing-ranking?
     ;Fetch the ranking data from server using cljs-http
     (go (let [response (<! (http/get "http://localhost:2222/rankings"))
               ranking (:body response)]
