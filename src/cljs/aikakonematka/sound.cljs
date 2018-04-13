@@ -30,6 +30,8 @@
 
 (def G5 (* 2 (frequencies-of-major-scale-in-4th-octave 4)))
 
+(def C6 (* 4 (frequencies-of-major-scale-in-4th-octave 0)))
+
 (defn play-beep! [sq-freq]
   (run-with
     (connect->
@@ -46,12 +48,22 @@
   (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
 
 (def composition1
+              ; Row, row, row  your boat,
   (->>
     (melody/phrase [1 1 0.67 0.33 1]                        ;The duration of each note
                    [C5 C5 C5 D5 E5])                        ;The pitch of each note
+              ; Gent-ly  down the  stream,
     (melody/then
       (melody/phrase [0.67 0.33 0.67 0.33 1]
-                     [E5 D5 E5 F5 G5]))))
+                     [E5 D5 E5 F5 G5])),
+              ; Merrily, merrily, merrily, merrily,
+    (melody/then
+      (melody/phrase (repeat 12 0.33)
+                     (mapcat (partial repeat 3) [C6 G5 E5 C5])))
+              ; Life  is   but  a    dream!
+    (melody/then
+      (melody/phrase [0.67 0.33 0.67 0.33 2]
+                     [G5 F5 E5 D5 C5]))))
 
 (def composition2
   (->>
@@ -59,7 +71,13 @@
                    [C5 C5 C5 D5 E5])
     (melody/with
       (melody/phrase [0.67 0.33 0.67 0.33 1]
-                     [E5 D5 E5 F5 G5]))))
+                     [E5 D5 E5 F5 G5]))
+    (melody/then
+      (melody/phrase (repeat 12 0.33)
+                     (mapcat (partial repeat 3) [C6 G5 E5 C5])))
+    (melody/then
+      (melody/phrase [0.67 0.33 0.67 0.33 2]
+                     [G5 F5 E5 D5 C5]))))
 
 (def music-box [composition1 composition2])
 
