@@ -24,7 +24,9 @@
                            :play-time              0.0
                            :play-time-text         nil
                            :puzzle-completion-text nil
-                           :ranking-button     nil}))
+                           :ranking-button         nil
+                           :music-pitches          []
+                           :music-durations        []}))
 
 (def flipped-state "FLIPPED")
 (def non-flipped-state "NON-FLIPPED")
@@ -49,7 +51,6 @@
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
     (do
-      (println "make-button-same-size-as-puzzle-piece! : " button-sprite)
       (.setTo
         (.-scale button-sprite)
         (/ piece-width-height (get-button-width button-sprite-col-num))
@@ -69,7 +70,7 @@
 (defn hide-play-button! []
   (set! (.-visible (:play-button @game-state)) false))
 
-(defn- synchronize-puzzle-board [sprite-state]
+(defn- synchronize-puzzle-board! [sprite-state]
   (when (currently-playing-game?)
     (swap! game-state assoc :sprites-state sprite-state)
     (println "synchronizing.... :)")
@@ -111,7 +112,6 @@
         (* 0.2 (.-innerHeight js/window))
         "ranking-button"
         (fn []
-          (println "Display ranking")
           (hide-game!))
         this)))
   (display-ranking-button!))
@@ -125,7 +125,7 @@
     (make-buttons-same-size-as-puzzle-piece! control-button)))
 
 (defn hide-all-puzzle-pieces! []
-  (synchronize-puzzle-board
+  (synchronize-puzzle-board!
     (for [row (range row-col-num)
           col (range row-col-num)]
       [[col row] flipped-state]))
@@ -187,12 +187,10 @@
     (.destroy puzzle-completion-text))
   (swap! game-state assoc :puzzle-completion-text nil))
 
-(defn congrats-completion-finish-game [send-puzzle-complete-fn!]
+(defn congrats-completion-finish-game! [send-puzzle-complete-fn!]
   (when (and (currently-playing-game?)
              (puzzle-completed?)
              (not (:puzzle-completion-text @game-state)))
-    (println "From puzzle-is-completed : " (:sprites-state @game-state))
-    (println "Congrats" "You've got a great start to solving!")
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)
@@ -222,3 +220,8 @@
       (:play-time-text derefed-state)
       (str play-time-in-sec))
     (swap! game-state assoc :play-time play-time-in-sec)))
+
+(defn update-music-notes [music-pitches]
+  (println "music notes : " music-pitches)
+  (swap! game-state assoc :music-pitches music-pitches)
+  (swap! game-state assoc :music-durations (map (fn [_] (rand 1)) music-pitches)))

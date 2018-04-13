@@ -2,6 +2,7 @@
   (:require [taoensso.sente :as sente :refer (cb-success?)]
             [aikakonematka.util :as util]
             [aikakonematka.game :as game]
+            [aikakonematka.sound :as sound]
             ))
 
 ;Establish the websocket connection
@@ -31,6 +32,10 @@
 (defn send-puzzle-complete! [play-time]
   (chsk-send! [:aikakone/puzzle-complete! play-time]))
 
+(defn send-button-music-notes! [note]
+  (println "sending music notes : " note)
+  (chsk-send! [:aikakone/music note]))
+
 ;Initialize event-msg-handlers for handling different socket events.
 (defmulti event-msg-handler :id)                            ; To check the :id key on the msg and route it accordingly.
 ; for handshake, state change, and incoming msg.          ; To initialize it with a map containing fns
@@ -45,18 +50,19 @@
 (defmethod event-msg-handler :chsk/recv [{:keys [?data]}]
   ;when client received a pushed msg from the server via web socket
   (let [[event-id event-data] ?data]
-    (println "received " [event-id event-data])
+    ;(println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
-                                (util/synchronize-puzzle-board event-data)
-                                (util/congrats-completion-finish-game send-puzzle-complete!))
+                                (util/synchronize-puzzle-board! event-data)
+                                (util/congrats-completion-finish-game! send-puzzle-complete!))
 
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
                              (game/create-puzzle-board {:send-sprites-state-fn!   send-sprites-state!
                                                         :send-puzzle-complete-fn! send-puzzle-complete!
-                                                        :send-start-timer-fn! send-start-timer!})
+                                                        :send-start-timer-fn! send-start-timer!
+                                                        :send-music-note-fn! send-button-music-notes!})
                              ;From the next play it also works as a resetting the previous puzzle.
                              (js/setTimeout send-sprites-state! 300))
 
@@ -65,6 +71,9 @@
                                (util/update-play-time-to-current-time event-data))
 
       :aikakone/reset (util/reset-game!)
+
+      :aikakone/music (when (util/currently-playing-game?)
+                        (util/update-music-notes event-data))
 
       (println event-id " is unknown event type"))))
 

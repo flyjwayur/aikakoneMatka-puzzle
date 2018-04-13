@@ -8,6 +8,7 @@
                   [javax.xml.bind/jaxb-api "2.3.0" :scope "test"] ; necessary for Java 9 compatibility
                   ; project deps
                   [cheshire "5.8.0"]
+                  [cljs-bach "0.3.0"]
                   [cljs-http "0.1.44"]
                   [cljs-react-material-ui "0.2.48"]
                   [cljsjs/react "15.6.1-1"]
@@ -16,6 +17,7 @@
                   [compojure "1.6.0"]
                   [com.taoensso/sente "1.12.0"]
                   [http-kit "2.2.0"]
+                  [leipzig "0.10.0"]
                   [nightlight "RELEASE" :scope "test"]
                   [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]

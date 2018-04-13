@@ -25,6 +25,8 @@
 
 (def sending-time-future (ref nil))
 
+(def bgm-pitches (ref []))
+
 (defn- convert-to-millis [seconds nanos]
   (+ (* 1000 seconds) (/ nanos 1000000)))
 
@@ -43,7 +45,6 @@
   (doseq [uid (:any @connected-uids)]
     ; -listed by the connected uuids variable.
     (when (not= client-id uid)
-      (println "broadcast data except msg sender, msg type :" msg-type)
       (chsk-send! uid [msg-type data]))))
 
 (defmulti event-msg-handler :id)
@@ -52,11 +53,9 @@
   (println "Unhandled event: " event))
 
 (defmethod event-msg-handler :aikakone/sprites-state [{:as ev-msg :keys [id client-id ?data]}]
-  (println :id id)                                          ; To identify type of msg and handle them accordingly
-  (println :client-id client-id)                            ; To have unique UUID for each client that matches the ID used by the :user-id-fn
-  (println :data? ?data)
-
-  ; To broadcast the response to all the connected clients
+ ; To identify type of msg and handle them accordingly
+ ; To have unique UUID for each client that matches the ID used by the :user-id-fn
+ ; To broadcast the response to all the connected clients
   (dosync
     (ref-set sprites-state ?data)
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state @sprites-state)))
@@ -72,6 +71,7 @@
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:as ev-msg :keys [id client-id ?data]}]
   (dosync
     (ref-set sprites-state nil)
+    (ref-set bgm-pitches nil)
     ;It will only take the first player's play time in each game
     (when @game-start-game
       (ref-set game-start-game nil)
@@ -83,7 +83,16 @@
   (dosync
       (ref-set game-start-game nil)
       (ref-set sprites-state nil)
+      (ref-set bgm-pitches nil)
       (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))
+
+(defmethod event-msg-handler :aikakone/music [{:as ev-msg :keys [id client-id ?data]}]
+  (dosync
+    (alter bgm-pitches (fn [background-music]
+                              (conj background-music ?data)))
+    (println "bgm-pitches : " @bgm-pitches)
+    (doseq [uid (:any @connected-uids)]
+      (chsk-send! uid [:aikakone/music @bgm-pitches]))))
 
 (sente/start-chsk-router! ch-chsk event-msg-handler)        ; To initialize the router which uses core.async go-loop
 ; to manage msg routing between clients
