@@ -65,21 +65,21 @@
       (melody/phrase [0.67 0.33 0.67 0.33 2]
                      [G5 F5 E5 D5 C5]))))
 
-(def composition2
-  (->>
-    (melody/phrase [1 1 0.67 0.33 1]
-                   [C5 C5 C5 D5 E5])
-    (melody/with
-      (melody/phrase [0.67 0.33 0.67 0.33 1]
-                     [E5 D5 E5 F5 G5]))
-    (melody/then
-      (melody/phrase (repeat 12 0.33)
-                     (mapcat (partial repeat 3) [C6 G5 E5 C5])))
-    (melody/then
-      (melody/phrase [0.67 0.33 0.67 0.33 2]
-                     [G5 F5 E5 D5 C5]))))
+;(def composition2
+;  (->>
+;    (melody/phrase [1 1 0.67 0.33 1]
+;                   [C5 C5 C5 D5 E5])
+;    (melody/with
+;      (melody/phrase [0.67 0.33 0.67 0.33 1]
+;                     [E5 D5 E5 F5 G5]))
+;    (melody/then
+;      (melody/phrase (repeat 12 0.33)
+;                     (mapcat (partial repeat 3) [C6 G5 E5 C5])))
+;    (melody/then
+;      (melody/phrase [0.67 0.33 0.67 0.33 2]
+;                     [G5 F5 E5 D5 C5]))))
 
-(def music-box [composition1 composition2])
+;(def music-box [composition1 composition2])
 
 (defn marimba [{:keys [pitch]}]
   (connect->
@@ -137,10 +137,12 @@
 
 (defn play-row-row-row-your-boat []
   (when-not (util/currently-playing-game?)
-    (->> (music-box 0)
-         (melody/then (music-box 1))
+    (->> composition1
          (melody/wherever (comp not :instrument) :instrument (melody/is marimba))
          (play! context))))
+
+;(music-box 0)
+;(melody/then (music-box 1))
 
 (play-row-row-row-your-boat)
 
