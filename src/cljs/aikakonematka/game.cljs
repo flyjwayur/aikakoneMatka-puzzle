@@ -34,9 +34,10 @@
     "images/reset-button.jpg"))
 
 (defn- toggle-visibility-and-flipped-state! [col row]
-  (let [piece-scale (.-scale ((:sprites @util/game-state) [col row]))
+  (let [piece-flipped-state ((:sprites-state @util/game-state) [col row])
+        piece-scale (.-scale ((:sprites @util/game-state) [col row]))
         game-object-factory (.-add @util/game)]
-    (if (zero? (.-x piece-scale))
+    (if (= util/flipped-state piece-flipped-state)
       (do
         (swap!
           util/game-state
@@ -48,7 +49,7 @@
           (clj->js {:x (:piece-x-scale @util/game-state)
                     :y (:piece-y-scale @util/game-state)})
           200
-          js/Phaser.Easing.Linear.Out
+          js/Phaser.Easing.Linear.None
           true))
       (do
         (swap!
@@ -60,7 +61,7 @@
           (.tween game-object-factory piece-scale)
           (clj->js {:x 0 :y 0})
           200
-          js/Phaser.Easing.Linear.Out
+          js/Phaser.Easing.Linear.None
           true)))))
 
 (defn flip-diagonal-pieces! []
@@ -207,7 +208,8 @@
       (util/synchronize-puzzle-board! initial-sprites-state)
       ;It make puzzle pieces randomly flipped,
       ;if it is the initial puzzle creation.
-      (do (randomize-puzzle-pieces)
+      (do (swap! util/game-state assoc :sprites-state {})   ;Prevent :sprites-state is nil
+          (randomize-puzzle-pieces)                         ;When the puzzle board is created
           (send-start-timer-fn!))))
   (util/display-play-time!))
 
