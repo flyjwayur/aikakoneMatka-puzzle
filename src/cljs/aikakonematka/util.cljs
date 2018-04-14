@@ -79,10 +79,22 @@
           piece-x-scale (:piece-x-scale derefed-state)
           piece-y-scale (:piece-y-scale derefed-state)]
       (doseq [[[col row] sprite-flipped-state] sprite-state]
-        (let [piece-scale (.-scale (sprites [col row]))]
+        (let [piece-scale (.-scale (sprites [col row]))
+              game-object-factory (.-add @game)]
           (if (= non-flipped-state sprite-flipped-state)
-            (.setTo piece-scale piece-x-scale piece-y-scale)
-            (.setTo piece-scale 0 0)))))))
+            (.to
+              (.tween game-object-factory piece-scale)
+              (clj->js {:x (:piece-x-scale @game-state)
+                        :y (:piece-y-scale @game-state)})
+              200
+              js/Phaser.Easing.Linear.Out
+              true)
+            (.to
+              (.tween game-object-factory piece-scale)
+              (clj->js {:x 0 :y 0})
+              200
+              js/Phaser.Easing.Linear.Out
+              true)))))))
 
 (defn show-game! []
   (reset! showing-ranking? false)
