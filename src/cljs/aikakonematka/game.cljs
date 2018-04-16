@@ -49,7 +49,7 @@
           (clj->js {:x (:piece-x-scale @util/game-state)
                     :y (:piece-y-scale @util/game-state)})
           200
-          js/Phaser.Easing.Linear.None
+          js/Phaser.Easing.Linear.In
           true))
       (do
         (swap!
@@ -61,7 +61,7 @@
           (.tween game-object-factory piece-scale)
           (clj->js {:x 0 :y 0})
           200
-          js/Phaser.Easing.Linear.None
+          js/Phaser.Easing.Linear.In
           true)))))
 
 (defn flip-diagonal-pieces! []
@@ -82,6 +82,16 @@
   (doseq [row-col-num (range util/row-col-num)]
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
+
+(defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos col row]}]
+  (let [piece (.sprite
+                (.-add @util/game-state)
+                x-pos
+                y-pos
+                "puzzle"
+                frame-id)]
+    (swap! util/game-state assoc-in [:sprites [col row] piece])
+    (.setTo (.-scale piece) 0 0)))
 
 (declare create-puzzle-board)
 
@@ -131,14 +141,11 @@
               :let [frame-id (+ (* util/row-col-num row) col)
                     x-pos (+ (* piece-width-height col) left-margin col)
                     y-pos (+ (* piece-width-height row) top-margin row)]]
-        (let [piece (.sprite
-                      game-object-factory
-                      x-pos
-                      y-pos
-                      "puzzle"
-                      frame-id)]
-          (swap! util/game-state assoc-in [:sprites [col row]] piece)
-          (.setTo (.-scale piece) 0 0))
+        (create-puzzle-piece-and-store {:frame-id frame-id
+                                        :x-pos x-pos
+                                        :y-pos y-pos
+                                        :col col
+                                        :row row})
         (when
           (and (zero? col) (= row (dec util/row-col-num)))
           (let [bottom-left-button (store-control-button-and-return-it

@@ -87,13 +87,13 @@
               (clj->js {:x (:piece-x-scale @game-state)
                         :y (:piece-y-scale @game-state)})
               200
-              js/Phaser.Easing.Linear.None
+              js/Phaser.Easing.Linear.In
               true)
             (.to
               (.tween game-object-factory piece-scale)
               (clj->js {:x 0 :y 0})
               200
-              js/Phaser.Easing.Linear.None
+              js/Phaser.Easing.Linear.In
               true)))))))
 
 (defn show-game! []
