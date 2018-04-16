@@ -33,16 +33,16 @@
     "reset-button"
     "images/reset-button.jpg"))
 
-(defn- toggle-visibility-and-flipped-state! [col row]
-  (let [piece-flipped-state ((:sprites-state @util/game-state) [col row])
-        piece-scale (.-scale ((:sprites @util/game-state) [col row]))
+(defn- toggle-visibility-and-flipped-state! [row col]
+  (let [piece-flipped-state ((:sprites-state @util/game-state) [row col])
+        piece-scale (.-scale ((:sprites @util/game-state) [row col]))
         game-object-factory (.-add @util/game)]
     (if (= util/flipped-state piece-flipped-state)
       (do
         (swap!
           util/game-state
           assoc-in
-          [:sprites-state [col row]]
+          [:sprites-state [row col]]
           util/non-flipped-state)
         (.to
           (.tween game-object-factory piece-scale)
@@ -55,7 +55,7 @@
         (swap!
           util/game-state
           assoc-in
-          [:sprites-state [col row]]
+          [:sprites-state [row col]]
           util/flipped-state)
         (.to
           (.tween game-object-factory piece-scale)
@@ -67,15 +67,15 @@
 (defn flip-diagonal-pieces! []
   (doseq [row (range util/row-col-num)
           :let [col (- (dec util/row-col-num) row)]]
-    (toggle-visibility-and-flipped-state! col row)))
+    (toggle-visibility-and-flipped-state! row col)))
 
-(defn flip-row! [row]
+(defn flip-col! [row]
   (doseq [col (range util/row-col-num)]
-    (toggle-visibility-and-flipped-state! col row)))
+    (toggle-visibility-and-flipped-state! row col)))
 
-(defn flip-col! [col]
+(defn flip-row! [col]
   (doseq [row (range util/row-col-num)]
-    (toggle-visibility-and-flipped-state! col row)))
+    (toggle-visibility-and-flipped-state! row col)))
 
 (defn- randomize-puzzle-pieces []
   (randomly-execute-a-fn flip-diagonal-pieces!)
@@ -107,16 +107,16 @@
   (set! (.-y (.-anchor control-button)) 0.5)
   control-button)
 
-(defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos col row]}]
+(defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos row col]}]
   (let [piece (.sprite
                 (.-add @util/game)
                 x-pos
                 y-pos
                 "puzzle"
                 frame-id)]
-    (swap! util/game-state assoc-in [:sprites [col row]] piece)
+    (swap! util/game-state assoc-in [:sprites [row col]] piece)
     (.setTo (.-scale piece) 0 0)
-    (set! (.-x (.-anchor piece)) 0.5)
+    (set! (.-x (.-anchor piece))0.5)
     (set! (.-y (.-anchor piece)) 0.5)))
 
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
@@ -148,8 +148,8 @@
         (create-puzzle-piece-and-store {:frame-id frame-id
                                         :x-pos x-pos
                                         :y-pos y-pos
-                                        :col col
-                                        :row row})
+                                        :row row
+                                        :col col})
         (when
           (and (zero? col) (= row (dec util/row-col-num)))
           (let [bottom-left-button (store-control-button-and-return-it

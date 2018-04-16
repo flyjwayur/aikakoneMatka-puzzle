@@ -78,8 +78,8 @@
           sprites (:sprites derefed-state)
           piece-x-scale (:piece-x-scale derefed-state)
           piece-y-scale (:piece-y-scale derefed-state)]
-      (doseq [[[col row] sprite-flipped-state] sprite-state]
-        (let [piece-scale (.-scale (sprites [col row]))
+      (doseq [[[row col] sprite-flipped-state] sprite-state]
+        (let [piece-scale (.-scale (sprites [row col]))
               game-object-factory (.-add @game)]
           (if (= non-flipped-state sprite-flipped-state)
             (.to
@@ -140,7 +140,7 @@
   (synchronize-puzzle-board!
     (for [row (range row-col-num)
           col (range row-col-num)]
-      [[col row] flipped-state]))
+      [[row col] flipped-state]))
   (swap! game-state assoc :sprites-state nil))
 
 (defn hide-play-time! []
