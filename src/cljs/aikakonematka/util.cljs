@@ -43,7 +43,7 @@
 (defn- get-left-margin []
   (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2))
 (defn- get-top-margin []
-  (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 4))
+  (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 2))
 
 (defn- get-piece-width-height [puzzle-width-height]
   (/ puzzle-width-height row-col-num))
