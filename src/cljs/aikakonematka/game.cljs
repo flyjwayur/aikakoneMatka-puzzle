@@ -83,16 +83,6 @@
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
     (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
 
-(defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos col row]}]
-  (let [piece (.sprite
-                (.-add @util/game-state)
-                x-pos
-                y-pos
-                "puzzle"
-                frame-id)]
-    (swap! util/game-state assoc-in [:sprites [col row] piece])
-    (.setTo (.-scale piece) 0 0)))
-
 (declare create-puzzle-board)
 
 (defn- make-play-button [{:keys [chsk-send-fn!]}]
@@ -113,7 +103,21 @@
 
 (defn- store-control-button-and-return-it [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
+  (set! (.-x (.-anchor control-button)) 0.5)
+  (set! (.-y (.-anchor control-button)) 0.5)
   control-button)
+
+(defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos col row]}]
+  (let [piece (.sprite
+                (.-add @util/game)
+                x-pos
+                y-pos
+                "puzzle"
+                frame-id)]
+    (swap! util/game-state assoc-in [:sprites [col row]] piece)
+    (.setTo (.-scale piece) 0 0)
+    (set! (.-x (.-anchor piece)) 0.5)
+    (set! (.-y (.-anchor piece)) 0.5)))
 
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
