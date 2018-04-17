@@ -33,55 +33,57 @@
     "reset-button"
     "images/reset-button.jpg"))
 
-(defn- toggle-visibility-and-flipped-state! [row col]
-  (let [piece-flipped-state ((:sprites-state @util/game-state) [row col])
-        piece-scale (.-scale ((:sprites @util/game-state) [row col]))
-        game-object-factory (.-add @util/game)]
-    (if (= util/flipped-state piece-flipped-state)
-      (do
-        (swap!
-          util/game-state
-          assoc-in
-          [:sprites-state [row col]]
-          util/non-flipped-state)
-        (.to
-          (.tween game-object-factory piece-scale)
-          (clj->js {:x (:piece-x-scale @util/game-state)
-                    :y (:piece-y-scale @util/game-state)})
-          200
-          js/Phaser.Easing.Linear.In
-          true))
-      (do
-        (swap!
-          util/game-state
-          assoc-in
-          [:sprites-state [row col]]
-          util/flipped-state)
-        (.to
-          (.tween game-object-factory piece-scale)
-          (clj->js {:x 0 :y 0})
-          200
-          js/Phaser.Easing.Linear.In
-          true)))))
+;(defn- toggle-visibility-and-flipped-state! [row col]
+;  (let [piece-flipped-state ((:sprites-state @util/game-state) [row col])
+;        piece-scale (.-scale ((:sprites @util/game-state) [row col]))
+;        game-object-factory (.-add @util/game)]
+;    (if (= util/flipped-state piece-flipped-state)
+;      (do
+;        (swap!
+;          util/game-state
+;          assoc-in
+;          [:sprites-state [row col]]
+;          util/non-flipped-state)
+;        (.to
+;          (.tween game-object-factory piece-scale)
+;          (clj->js {:x (:piece-x-scale @util/game-state)
+;                    :y (:piece-y-scale @util/game-state)})
+;          200
+;          js/Phaser.Easing.Linear.In
+;          true))
+;      (do
+;        (swap!
+;          util/game-state
+;          assoc-in
+;          [:sprites-state [row col]]
+;          util/flipped-state)
+;        (.to
+;          (.tween game-object-factory piece-scale)
+;          (clj->js {:x 0 :y 0})
+;          200
+;          js/Phaser.Easing.Linear.In
+;          true)))))
 
 (defn flip-diagonal-pieces! []
-  (doseq [row (range util/row-col-num)
-          :let [col (- (dec util/row-col-num) row)]]
-    (toggle-visibility-and-flipped-state! row col)))
+  (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
 
 (defn flip-row! [row]
-  (doseq [col (range util/row-col-num)]
-    (toggle-visibility-and-flipped-state! row col)))
+  (swap! util/game-state update-in [:sprites-state :row-flipped? row] not))
 
 (defn flip-col! [col]
-  (doseq [row (range util/row-col-num)]
-    (toggle-visibility-and-flipped-state! row col)))
+  (swap! util/game-state update-in [:sprites-state :col-flipped? col] not))
 
 (defn- randomize-puzzle-pieces []
+  (let [non-flipped-row-or-col (reduce #(assoc %1 %2 false)
+                                       {}
+                                       (range util/row-col-num))]
+    (swap! util/game-state assoc :sprites-state {:diagonal-flipped? false?
+                                                :row-flipped? non-flipped-row-or-col
+                                                :col-flipped? non-flipped-row-or-col}))
   (randomly-execute-a-fn flip-diagonal-pieces!)
-  (doseq [row-col-num (range util/row-col-num)]
-    (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
-    (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
+  (doseq [row-or-col (range util/row-col-num)]
+    (randomly-execute-a-fn (fn [] (flip-row! row-or-col)))
+    (randomly-execute-a-fn (fn [] (flip-col! row-or-col)))))
 
 (declare create-puzzle-board)
 
@@ -170,6 +172,7 @@
                   (sound/play-beep! frequency)
                   (send-music-note-fn! frequency)
                   (flip-diagonal-pieces!)
+                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
         (when (zero? col)
@@ -189,6 +192,7 @@
                   (sound/play-beep! frequency)
                   (send-music-note-fn! frequency)
                   (flip-row! row)
+                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
         (when (= row (dec util/row-col-num))
@@ -210,17 +214,20 @@
                   (sound/play-beep! frequency)
                   (send-music-note-fn! frequency)
                   (flip-col! col)
+                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))
   ;It synchronizes the puzzle board with the existing state for each player.
   ;The later synchronization will happen from the web_socket.
   (let [initial-sprites-state (:sprites-state @util/game-state)]
+    (println "initial sprites state : " initial-sprites-state)
     (if (not (empty? initial-sprites-state))
       (util/synchronize-puzzle-board! initial-sprites-state)
       ;It make puzzle pieces randomly flipped,
       ;if it is the initial puzzle creation.
       (do (swap! util/game-state assoc :sprites-state {})   ;Prevent :sprites-state is nil
-          (randomize-puzzle-pieces)                         ;When the puzzle board is created
+          (randomize-puzzle-pieces) ;When the puzzle board is created
+          (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
           (send-start-timer-fn!))))
   (util/display-play-time!))
 
