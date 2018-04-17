@@ -69,11 +69,11 @@
           :let [col (- (dec util/row-col-num) row)]]
     (toggle-visibility-and-flipped-state! row col)))
 
-(defn flip-col! [row]
+(defn flip-row! [row]
   (doseq [col (range util/row-col-num)]
     (toggle-visibility-and-flipped-state! row col)))
 
-(defn flip-row! [col]
+(defn flip-col! [col]
   (doseq [row (range util/row-col-num)]
     (toggle-visibility-and-flipped-state! row col)))
 
