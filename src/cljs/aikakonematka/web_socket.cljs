@@ -63,7 +63,6 @@
                                                         :send-puzzle-complete-fn! send-puzzle-complete!
                                                         :send-start-timer-fn! send-start-timer!
                                                         :send-music-note-fn! send-button-music-notes!})
-                             ;From the next play it also works as a resetting the previous puzzle.
                              (send-sprites-state!))
 
       :aikakone/current-time (when (and (:play-time-text @util/game-state)

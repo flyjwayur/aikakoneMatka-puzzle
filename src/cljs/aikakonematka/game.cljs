@@ -2,9 +2,6 @@
   (:require [aikakonematka.util :as util]
             [aikakonematka.sound :as sound]))
 
-(defn- randomly-execute-a-fn [f]
-  (when (< (rand) 0.5) (f)))
-
 (defn- preload []
   (.spritesheet
     (.-load @util/game)
@@ -72,18 +69,6 @@
 
 (defn flip-col! [col]
   (swap! util/game-state update-in [:sprites-state :col-flipped? col] not))
-
-(defn- randomize-puzzle-pieces []
-  (let [non-flipped-row-or-col (reduce #(assoc %1 %2 false)
-                                       {}
-                                       (range util/row-col-num))]
-    (swap! util/game-state assoc :sprites-state {:diagonal-flipped? false?
-                                                :row-flipped? non-flipped-row-or-col
-                                                :col-flipped? non-flipped-row-or-col}))
-  (randomly-execute-a-fn flip-diagonal-pieces!)
-  (doseq [row-or-col (range util/row-col-num)]
-    (randomly-execute-a-fn (fn [] (flip-row! row-or-col)))
-    (randomly-execute-a-fn (fn [] (flip-col! row-or-col)))))
 
 (declare create-puzzle-board)
 
@@ -217,18 +202,9 @@
                   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))
-  ;It synchronizes the puzzle board with the existing state for each player.
-  ;The later synchronization will happen from the web_socket.
-  (let [initial-sprites-state (:sprites-state @util/game-state)]
-    (println "initial sprites state : " initial-sprites-state)
-    (if (not (empty? initial-sprites-state))
-      (util/synchronize-puzzle-board! initial-sprites-state)
-      ;It make puzzle pieces randomly flipped,
-      ;if it is the initial puzzle creation.
-      (do (swap! util/game-state assoc :sprites-state {})   ;Prevent :sprites-state is nil
-          (randomize-puzzle-pieces) ;When the puzzle board is created
-          (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
-          (send-start-timer-fn!))))
+  ;Change the scale of pieces according to the current sprites-state
+  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (send-start-timer-fn!)
   (util/display-play-time!))
 
 (defn- create-game [websocket-msg-send-fns]
