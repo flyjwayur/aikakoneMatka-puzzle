@@ -89,7 +89,8 @@
   (when (currently-playing-game?)
     (swap! game-state assoc :sprites-state sprites-state)
     (println "synchronizing.... :)")
-    (let [derefed-state @game-state
+    (let [game-object-facotry (.-add game)
+          derefed-state @game-state
           sprites (:sprites derefed-state)
           piece-x-scale (:piece-x-scale derefed-state)
           piece-y-scale (:piece-y-scale derefed-state)
@@ -127,8 +128,19 @@
         (let [piece-scale (.-scale (sprites [row col]))
               game-object-factory (.-add @game)]
           (if (= false sprite-flipped-state)
-            (.setTo piece-scale piece-x-scale piece-y-scale)
-            (.setTo piece-scale 0 0)))))))
+            (.to
+              (.tween game-object-factory piece-scale)
+              (clj->js {:x (:piece-x-scale derefed-state)
+                        :y (:piece-y-scale derefed-state)})
+              500
+              js/Phaser.Easing.Cubic.In
+              true)
+            (.to
+              (.tween game-object-factory piece-scale)
+              (clj->js {:x 0 :y 0})
+              500
+              js/Phaser.Easing.Cubic.In
+              true)))))))
 
 (defn show-game! []
   (reset! showing-ranking? false)
