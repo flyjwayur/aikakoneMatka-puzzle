@@ -16,6 +16,7 @@
                   [clojure.java-time "0.3.2"]
                   [compojure "1.6.0"]
                   [com.taoensso/sente "1.12.0"]
+                  [garden "1.3.5"]
                   [http-kit "2.2.0"]
                   [leipzig "0.10.0"]
                   [nightlight "RELEASE" :scope "test"]

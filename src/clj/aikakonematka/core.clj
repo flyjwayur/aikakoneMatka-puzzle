@@ -88,7 +88,7 @@
       (randomize-puzzle-pieces))
     (chsk-send! client-id [:aikakone/game-start @sprites-state])))
 
-(defmethod event-msg-handler :aikakone/start-timer []
+(defmethod event-msg-handler :aikakone/start-timer [{:keys [?data]}]
   (dosync
       (ref-set game-start-game (jt/local-date-time))
       (ref-set sending-time-future (start-sending-current-playtime!))))
