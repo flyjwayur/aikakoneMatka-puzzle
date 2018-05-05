@@ -41,7 +41,7 @@
   (fn [db _]
     (:ranking db)))
 
-(r/render [view/ranking-dashboard]
+(r/render [view/app]
           (.getElementById js/document "app"))
 
 ; this is the game program's entry point
