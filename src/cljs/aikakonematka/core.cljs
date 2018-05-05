@@ -10,10 +10,44 @@
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]
             [reagent.core :as r]
+            [re-frame.core :as rf]
             [nightlight.repl-server]
             ))
 
 (enable-console-print!)
+
+;- Event Handlers -
+
+(rf/reg-event-db
+  :initialize
+  (fn [db _]
+    (-> db
+        (assoc :screen :game)
+        (assoc :ranking []))))
+
+(rf/reg-event-db
+  :ranking
+  (fn [db [_ ranking]]
+    (assoc db :ranking ranking)))
+
+(rf/reg-event-db
+  :screen-change
+  (fn [db [_ screen]]
+    (assoc db :screen screen)))
+
+;- Query -
+
+(rf/reg-sub
+  :screen
+  (fn [db _]
+    (:screen db)))
+
+(rf/reg-sub
+  :ranking
+  (fn [db _]
+    (:ranking db)))
+
+;- view functions -
 
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
@@ -23,14 +57,14 @@
                                     (util/show-game!))}]])
 
 (defn ranking-dashboard []
-  (when @util/showing-ranking?
+  (when (= :ranking-dashboard @(rf/subscribe [:screen]))
     ;Fetch the ranking data from server using cljs-http
     (go (let [response (<! (http/get "http://localhost:2222/rankings"))
               ranking (:body response)]
           ;JSON.parse turns a string of JSON text into a Javascript object.
           ;Here it creates Clojure data
-          (reset! util/ranking (util/parse-json ranking))))
-    (let [ranking @util/ranking]
+          (rf/dispatch [:ranking (util/parse-json ranking)])))
+    (let [ranking @(rf/subscribe [:ranking])]
       [:div
        [go-back-to-game-button]
        [ui/mui-theme-provider

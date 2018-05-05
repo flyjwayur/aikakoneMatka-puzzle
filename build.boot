@@ -23,6 +23,7 @@
                   [onetom/boot-lein-generate "0.1.3" :scope "test"]
                   [org.clojure/clojurescript "1.9.946"]
                   [reagent "0.8.0-alpha2"]
+                  [re-frame "0.10.5"]
                   [play-cljs "1.1.0"]
                   [ring/ring-defaults "0.2.0"]
                   [ring-cors "0.1.7"]
