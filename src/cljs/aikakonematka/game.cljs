@@ -30,37 +30,6 @@
     "reset-button"
     "images/reset-button.jpg"))
 
-;(defn- toggle-visibility-and-flipped-state! [row col]
-;  (let [piece-flipped-state ((:sprites-state @util/game-state) [row col])
-;        piece-scale (.-scale ((:sprites @util/game-state) [row col]))
-;        game-object-factory (.-add @util/game)]
-;    (if (= util/flipped-state piece-flipped-state)
-;      (do
-;        (swap!
-;          util/game-state
-;          assoc-in
-;          [:sprites-state [row col]]
-;          util/non-flipped-state)
-;        (.to
-;          (.tween game-object-factory piece-scale)
-;          (clj->js {:x (:piece-x-scale @util/game-state)
-;                    :y (:piece-y-scale @util/game-state)})
-;          200
-;          js/Phaser.Easing.Linear.In
-;          true))
-;      (do
-;        (swap!
-;          util/game-state
-;          assoc-in
-;          [:sprites-state [row col]]
-;          util/flipped-state)
-;        (.to
-;          (.tween game-object-factory piece-scale)
-;          (clj->js {:x 0 :y 0})
-;          200
-;          js/Phaser.Easing.Linear.In
-;          true)))))
-
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
 

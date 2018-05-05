@@ -88,8 +88,6 @@
     (let [game-object-facotry (.-add game)
           derefed-state @game-state
           sprites (:sprites derefed-state)
-          piece-x-scale (:piece-x-scale derefed-state)
-          piece-y-scale (:piece-y-scale derefed-state)
           row-flips-applied (reduce
                               (fn [modified-sprites-state-per-piece [row flipped?]]
                                 ;flipped? from control button clicking or randomized flipped states
