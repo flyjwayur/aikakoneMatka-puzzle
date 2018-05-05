@@ -15,8 +15,7 @@
   [ui/mui-theme-provider
    {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
    [ui/raised-button {:label "Play game"
-                      :on-click #(do
-                                   (util/show-game!))}]])
+                      :on-click #(rf/dispatch [:screen-change :game])}]])
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
@@ -43,6 +42,12 @@
                  [ui/table-row-column (ranking rank)]]))]]]))
 
 (defn app []
-  (cond
-    (= :ranking-dashboard @(rf/subscribe [:screen]))
-    [ranking-dashboard]))
+  (let [canvas (.getElementById js/document "canvas")]
+    (if (= :game @(rf/subscribe [:screen]))
+      (do
+        (set! (.-display (.-style canvas)) "block")
+        [:div])
+      (cond
+        (= :ranking-dashboard @(rf/subscribe [:screen]))
+        (do (set! (.-display (.-style canvas)) "none")
+          [ranking-dashboard])))))

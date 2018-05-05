@@ -136,16 +136,6 @@
               js/Phaser.Easing.Cubic.In
               true)))))))
 
-(defn show-game! []
-  (rf/dispatch [:screen-change :game])
-  (let [canvas (.getElementById js/document "canvas")]
-    (set! (.-display (.-style canvas)) "block")))
-
-(defn hide-game! []
-  (rf/dispatch [:screen-change :ranking-dashboard])
-  (let [canvas (.getElementById js/document "canvas")]
-    (set! (.-display (.-style canvas)) "none")))
-
 (defn- display-ranking-button! []
   (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
 
@@ -163,8 +153,7 @@
         (* 0.75 (.-innerWidth js/window))
         (* 0.2 (.-innerHeight js/window))
         "ranking-button"
-        (fn []
-          (hide-game!))
+        #(rf/dispatch [:screen-change :ranking-dashboard])
         this)))
   (display-ranking-button!))
 
