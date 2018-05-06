@@ -265,7 +265,7 @@
                                :backgroundColor "#000"
                                :align           "center"}))))))
 
-(defn update-play-time-to-current-time [play-time]
+(defn update-play-time-to-current-time! [play-time]
   (let [derefed-state @game-state
         play-time-in-sec (/ play-time 1000)]
     (.setText
@@ -273,7 +273,7 @@
       (str play-time-in-sec))
     (swap! game-state assoc :play-time play-time-in-sec)))
 
-(defn update-music-notes [music-pitches]
+(defn update-music-notes! [music-pitches]
   (println "music notes : " music-pitches)
   (swap! game-state assoc :music-pitches music-pitches)
   (swap! game-state assoc :music-durations (map (fn [_] (rand 1)) music-pitches)))

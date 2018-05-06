@@ -58,13 +58,13 @@
               (util/destroy-stage-clear-text!))
             this)))))
 
-(defn- store-control-button-and-return-it [control-button]
+(defn- store-control-button-and-return-it! [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
   (set! (.. control-button -anchor -x) 0.5)
   (set! (.. control-button -anchor -y) 0.5)
   control-button)
 
-(defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos row col]}]
+(defn- create-puzzle-piece-and-store! [{:keys [frame-id x-pos y-pos row col]}]
   (let [piece (.. @util/game
                   -add
                   (sprite x-pos y-pos "puzzle" frame-id))]
@@ -73,7 +73,7 @@
     (set! (.. piece -anchor -x) 0.5)
     (set! (.. piece -anchor -y) 0.5)))
 
-(defn- create-puzzle-board [{:keys [send-sprites-state-fn!
+(defn- create-puzzle-board! [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!
                                     send-music-note-fn!]}]
@@ -99,14 +99,14 @@
               :let [frame-id (+ (* util/row-col-num row) col)
                     x-pos (+ (* piece-width-height col) left-margin col)
                     y-pos (+ (* piece-width-height row) top-margin row)]]
-        (create-puzzle-piece-and-store {:frame-id frame-id
-                                        :x-pos x-pos
-                                        :y-pos y-pos
-                                        :row row
-                                        :col col})
+        (create-puzzle-piece-and-store! {:frame-id frame-id
+                                        :x-pos     x-pos
+                                        :y-pos     y-pos
+                                        :row       row
+                                        :col       col})
         (when
           (and (zero? col) (= row (dec util/row-col-num)))
-          (let [bottom-left-button (store-control-button-and-return-it
+          (let [bottom-left-button (store-control-button-and-return-it!
                                      (.sprite
                                        game-object-factory
                                        (- x-pos piece-width-height)
@@ -128,7 +128,7 @@
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
         (when (zero? col)
-          (let [left-button (store-control-button-and-return-it
+          (let [left-button (store-control-button-and-return-it!
                               (.sprite
                                 game-object-factory
                                 (- x-pos piece-width-height)
@@ -148,7 +148,7 @@
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
         (when (= row (dec util/row-col-num))
-          (let [bottom-button (store-control-button-and-return-it
+          (let [bottom-button (store-control-button-and-return-it!
                                 (.sprite
                                   game-object-factory
                                   x-pos
