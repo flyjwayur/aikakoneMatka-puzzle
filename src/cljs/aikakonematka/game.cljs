@@ -41,7 +41,7 @@
 
 (declare create-puzzle-board)
 
-(defn- make-play-button [{:keys [chsk-send-fn!]}]
+(defn- make-play-button! [{:keys [chsk-send-fn!]}]
   (swap!
     util/game-state
     assoc
@@ -179,7 +179,7 @@
 (defn- create-game [websocket-msg-send-fns]
   (fn []
     (when-not (:play-button @util/game-state)
-      (make-play-button websocket-msg-send-fns)
+      (make-play-button! websocket-msg-send-fns)
       (util/make-ranking-button!)
       (util/make-reset-button! (:send-reset-fn! websocket-msg-send-fns)))))
 
