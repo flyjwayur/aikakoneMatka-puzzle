@@ -1,11 +1,13 @@
 (ns aikakonematka.components
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljsjs.material-ui]
+  (:require [aikakonematka.util :as util]
+            [aikakonematka.game :as game]
+            [aikakonematka.web-socket :as web-socket]
+            [cljsjs.material-ui]
             [cljs-react-material-ui.core :refer [get-mui-theme color]]
             [cljs-react-material-ui.reagent :as ui]
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
-            [aikakonematka.util :as util]
             [re-frame.core :as rf]
             ))
 
@@ -68,7 +70,15 @@
         [:div
          [:img {:src @(rf/subscribe [:finna-img])}]
          (into [:ul
-                [:li [:a {:href "#!" :on-click util/show-game!} "default"]]]
+                [:li [:a
+                      {:href "#!"
+                       :on-click (fn []
+                                   (game/start-game!
+                                     "images/puzzleImage.jpg"
+                                     {:chsk-send-fn! web-socket/chsk-send!
+                                      :send-reset-fn! web-socket/send-reset!})
+                                   (util/show-game!))}
+                      "default"]]]
                (map (fn [search-word]
                       [:li [:a {:href     "#"
                                 :on-click #(image-src-of search-word)} search-word]])

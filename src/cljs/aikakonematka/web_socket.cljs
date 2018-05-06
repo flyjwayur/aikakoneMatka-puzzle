@@ -83,8 +83,6 @@
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
-    (game/start-game! {:chsk-send-fn! chsk-send!
-                       :send-reset-fn! send-reset!})
     (send-uid)))
 
 (defn start-web-socket! []                                  ; To create msg router to handle incoming msg.

@@ -2,34 +2,35 @@
   (:require [aikakonematka.util :as util]
             [aikakonematka.sound :as sound]))
 
-(defn- preload []
-  (let [phaser-loader (.-load @util/game)]
-    (.spritesheet
-      phaser-loader
-      "puzzle"
-      "images/puzzleImage.jpg"
-      (util/get-piece-width-height @util/puzzle-image-width)
-      (util/get-piece-width-height @util/puzzle-image-height)
-      (* util/row-col-num util/row-col-num))
-    (.spritesheet
-      phaser-loader
-      "flip-buttons"
-      "images/control-buttons.png"
-      (util/get-button-width util/button-sprite-col-num)
-      (util/get-button-height util/button-sprite-row-num)
-      (* util/button-sprite-row-num util/button-sprite-col-num))
-    (.image
-      phaser-loader
-      "play-button"
-      "images/play-button.png")
-    (.image
-      phaser-loader
-      "ranking-button"
-      "images/ranking-button.png")
-    (.image
-      phaser-loader
-      "reset-button"
-      "images/reset-button.jpg")))
+(defn- create-preload [image-src]
+  (fn []
+    (let [phaser-loader (.-load @util/game)]
+      (.spritesheet
+        phaser-loader
+        "puzzle"
+        image-src
+        (util/get-piece-width-height @util/puzzle-image-width)
+        (util/get-piece-width-height @util/puzzle-image-height)
+        (* util/row-col-num util/row-col-num))
+      (.spritesheet
+        phaser-loader
+        "flip-buttons"
+        "images/control-buttons.png"
+        (util/get-button-width util/button-sprite-col-num)
+        (util/get-button-height util/button-sprite-row-num)
+        (* util/button-sprite-row-num util/button-sprite-col-num))
+      (.image
+        phaser-loader
+        "play-button"
+        "images/play-button.png")
+      (.image
+        phaser-loader
+        "ranking-button"
+        "images/ranking-button.png")
+      (.image
+        phaser-loader
+        "reset-button"
+        "images/reset-button.jpg"))))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
@@ -184,7 +185,7 @@
 
 (defn- game-update [])
 
-(defn- start-game! [websocket-msg-send-fns]
+(defn- start-game! [image-src websocket-msg-send-fns]
   (println "starting game")
   (reset! util/game
           (js/Phaser.Game.
@@ -192,6 +193,6 @@
             (.-innerHeight js/window)
             js/Phaser.Auto
             "canvas"
-            (clj->js {:preload preload
+            (clj->js {:preload (create-preload image-src)
                       :create  (create-game websocket-msg-send-fns)
                       :update  game-update}))))
