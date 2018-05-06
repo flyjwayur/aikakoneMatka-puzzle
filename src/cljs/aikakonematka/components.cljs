@@ -52,6 +52,14 @@
                  [ui/table-row-column (inc rank)]
                  [ui/table-row-column (ranking rank)]]))]]]))
 
+(defn choose-game-image-src [image-src]
+  (fn []
+    (game/start-game!
+      image-src
+      {:chsk-send-fn! web-socket/chsk-send!
+       :send-reset-fn! web-socket/send-reset!})
+    (util/show-game!)))
+
 (defn app []
   (if (= :game @(rf/subscribe [:screen]))
     (do (let [canvas (.getElementById js/document "canvas")]
@@ -71,13 +79,8 @@
          [:img {:src @(rf/subscribe [:finna-img])}]
          (into [:ul
                 [:li [:a
-                      {:href "#!"
-                       :on-click (fn []
-                                   (game/start-game!
-                                     "images/puzzleImage.jpg"
-                                     {:chsk-send-fn! web-socket/chsk-send!
-                                      :send-reset-fn! web-socket/send-reset!})
-                                   (util/show-game!))}
+                      {:href     "#!"
+                       :on-click (choose-game-image-src "images/puzzleImage.jpg")}
                       "default"]]]
                (map (fn [search-word]
                       [:li [:a {:href     "#"
