@@ -13,8 +13,6 @@
 (defonce game-state (atom {:sprites                {}
                            :sprites-state          {}
                            :puzzle-width-height    0
-                           :piece-x-scale          0
-                           :piece-y-scale          0
                            :play-button            nil
                            :control-buttons        []
                            :play-time              0.0
@@ -47,6 +45,20 @@
     (do
       (.. button-sprite -scale (setTo (/ piece-width-height (get-button-width button-sprite-col-num))
                                       (/ piece-width-height (get-button-height button-sprite-row-num)))))))
+
+(defn- get-puzzle-image-width []
+  (.. @game -cache (getImage "puzzle") -width))
+
+(defn- get-puzzle-image-height []
+  (.. @game -cache (getImage "puzzle") -height))
+
+(defn- get-piece-x-scale []
+  (/ (:puzzle-width-height @game-state)
+     (get-puzzle-image-width)))
+
+(defn- get-piece-y-scale []
+  (/ (:puzzle-width-height @game-state)
+     (get-puzzle-image-height)))
 
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
@@ -86,6 +98,8 @@
     (let [game-object-facotry (.-add game)
           derefed-state @game-state
           sprites (:sprites derefed-state)
+          piece-x-scale (get-piece-x-scale)
+          piece-y-scale (get-piece-y-scale)
           row-flips-applied (reduce
                               (fn [modified-sprites-state-per-piece [row flipped?]]
                                 ;flipped? from control button clicking or randomized flipped states
@@ -122,8 +136,8 @@
           (if (= false sprite-flipped-state)
             (.. game-object-factory
                 (tween piece-scale)
-                (to (clj->js {:x (:piece-x-scale derefed-state)
-                              :y (:piece-y-scale derefed-state)})
+                (to (clj->js {:x piece-x-scale
+                              :y piece-y-scale})
                   500
                   js/Phaser.Easing.Cubic.In
                   true))

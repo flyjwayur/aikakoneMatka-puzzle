@@ -74,12 +74,7 @@
       (fn []
         (reset! util/puzzle-image-width (.-width puzzle-img))
         (reset! util/puzzle-image-height (.-height puzzle-img))
-        (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
-                                                                           (.-innerHeight js/window)))))
-        (swap! util/game-state assoc :piece-x-scale (/ (:puzzle-width-height @util/game-state)
-                                                       @util/puzzle-image-width))
-        (swap! util/game-state assoc :piece-y-scale (/ (:puzzle-width-height @util/game-state)
-                                                       @util/puzzle-image-height))
+        (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
         (web-sck/start-web-socket!))))                      ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png")
   (println "loading images"))
