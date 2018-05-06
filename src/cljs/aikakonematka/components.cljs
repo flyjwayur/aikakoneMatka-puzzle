@@ -16,10 +16,10 @@
   (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
                                    {:with-credentials? false
                                     :query-params      {"lookfor" search-keyword}}))]
-        (rf/dispatch [:set-finna-img (str "http://api.finna.fi" (-> (filter :images (get-in response [:body :records]))
-                                                                    first
-                                                                    :images
-                                                                    first))]))))
+        (rf/dispatch [:set-game-img (str "http://api.finna.fi" (-> (filter :images (get-in response [:body :records]))
+                                                                   first
+                                                                   :images
+                                                                   first))]))))
 ;- view functions -
 
 (defn go-back-to-game-button []
@@ -76,7 +76,7 @@
                :on-click util/show-puzzle-selection!}]
         (= :puzzle-selection @(rf/subscribe [:screen]))
         [:div
-         [:img {:src @(rf/subscribe [:finna-img])}]
+         [:img {:src @(rf/subscribe [:game-img])}]
          (into [:ul
                 [:li [:a
                       {:href     "#!"

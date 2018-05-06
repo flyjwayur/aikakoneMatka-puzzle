@@ -29,9 +29,9 @@
     (assoc db :screen screen)))
 
 (rf/reg-event-db
-  :set-finna-img
+  :set-game-img
   (fn [db [_ screen]]
-    (assoc db :finna-img screen)))
+    (assoc db :game-img screen)))
 
 ;- Query -
 
@@ -46,9 +46,9 @@
     (:ranking db)))
 
 (rf/reg-sub
-  :finna-img
+  :game-img
   (fn [db _]
-    (:finna-img db)))
+    (:game-img db)))
 
 (rf/dispatch-sync [:initialize])
 (r/render [view/app]
