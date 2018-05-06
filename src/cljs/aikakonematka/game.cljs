@@ -3,32 +3,33 @@
             [aikakonematka.sound :as sound]))
 
 (defn- preload []
-  (.spritesheet
-    (.-load @util/game)
-    "puzzle"
-    "images/puzzleImage.jpg"
-    (util/get-piece-width-height @util/puzzle-image-width)
-    (util/get-piece-width-height @util/puzzle-image-height)
-    (* util/row-col-num util/row-col-num))
-  (.spritesheet
-    (.-load @util/game)
-    "flip-buttons"
-    "images/control-buttons.png"
-    (util/get-button-width util/button-sprite-col-num)
-    (util/get-button-height util/button-sprite-row-num)
-    (* util/button-sprite-row-num util/button-sprite-col-num))
-  (.image
-    (.-load @util/game)
-    "play-button"
-    "images/play-button.png")
-  (.image
-    (.-load @util/game)
-    "ranking-button"
-    "images/ranking-button.png")
-  (.image
-    (.-load @util/game)
-    "reset-button"
-    "images/reset-button.jpg"))
+  (let [phaser-loader (.-load @util/game)]
+    (.spritesheet
+      phaser-loader
+      "puzzle"
+      "images/puzzleImage.jpg"
+      (util/get-piece-width-height @util/puzzle-image-width)
+      (util/get-piece-width-height @util/puzzle-image-height)
+      (* util/row-col-num util/row-col-num))
+    (.spritesheet
+      phaser-loader
+      "flip-buttons"
+      "images/control-buttons.png"
+      (util/get-button-width util/button-sprite-col-num)
+      (util/get-button-height util/button-sprite-row-num)
+      (* util/button-sprite-row-num util/button-sprite-col-num))
+    (.image
+      phaser-loader
+      "play-button"
+      "images/play-button.png")
+    (.image
+      phaser-loader
+      "ranking-button"
+      "images/ranking-button.png")
+    (.image
+      phaser-loader
+      "reset-button"
+      "images/reset-button.jpg")))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
