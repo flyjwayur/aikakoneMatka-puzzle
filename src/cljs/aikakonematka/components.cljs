@@ -14,8 +14,8 @@
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
    {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
-   [ui/raised-button {:label "Play game"
-                      :on-click util/show-game}]])
+   [ui/raised-button {:label    "Play game"
+                      :on-click util/show-game!}]])
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
@@ -51,9 +51,13 @@
         (set! (.-display (.-style canvas)) "none"))
       (cond
         (= :intro @(rf/subscribe [:screen]))
-        [:img {:src "images/aikakone-intro.png"
-               :width "100%"
-               :height "100%"
-               :on-click util/show-game}]
+        [:img {:src      "images/aikakone-intro.png"
+               :width    "100%"
+               :height   "100%"
+               :on-click util/show-puzzle-selection!}]
+        (= :puzzle-selection @(rf/subscribe [:screen]))
+        [:ui
+         (for [i (range 6)]
+           ^{:key i} [:li [:a {:href "#!" :on-click util/show-game!} (str i)]])]
         (= :ranking-dashboard @(rf/subscribe [:screen]))
         [ranking-dashboard]))))

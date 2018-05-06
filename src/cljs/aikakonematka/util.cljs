@@ -157,8 +157,11 @@
         this)))
   (display-ranking-button!))
 
-(defn show-game []
+(defn show-game! []
   (rf/dispatch [:screen-change :game]))
+
+(defn show-puzzle-selection! []
+  (rf/dispatch [:screen-change :puzzle-selection]))
 
 (defn- hide-control-buttons! []
   (doseq [control-button (:control-buttons @game-state)]
