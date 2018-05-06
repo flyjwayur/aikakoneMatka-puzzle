@@ -52,17 +52,13 @@
                  [ui/table-row-column (inc rank)]
                  [ui/table-row-column (ranking rank)]]))]]]))
 
-(defn choose-game-image-src [image-src]
-  (fn []
-    (game/start-game!
-      image-src
-      {:chsk-send-fn! web-socket/chsk-send!
-       :send-reset-fn! web-socket/send-reset!})
-    (util/show-game!)))
-
 (defn app []
-  (if (= :game @(rf/subscribe [:screen]))
+  (if (string? @(rf/subscribe [:game-img]))
     (do (let [canvas (.getElementById js/document "canvas")]
+          (game/start-game!
+            @(rf/subscribe [:game-img])
+            {:chsk-send-fn! web-socket/chsk-send!
+             :send-reset-fn! web-socket/send-reset!})
           (set! (.-display (.-style canvas)) "block"))
         [:div])
     (do
@@ -80,11 +76,16 @@
          (into [:ul
                 [:li [:a
                       {:href     "#!"
-                       :on-click (choose-game-image-src "images/puzzleImage.jpg")}
+                       :on-click #(do
+                                    (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
+                                    (util/show-game!))}
                       "default"]]]
                (map (fn [search-word]
                       [:li [:a {:href     "#"
-                                :on-click #(image-src-of search-word)} search-word]])
+                                :on-click #(do
+                                             (image-src-of search-word)
+                                             (util/show-game!))}
+                            search-word]])
                     ["kirkko"
                      "miehet"
                      "naiset"
