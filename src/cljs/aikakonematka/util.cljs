@@ -45,10 +45,8 @@
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
     (do
-      (.setTo
-        (.-scale button-sprite)
-        (/ piece-width-height (get-button-width button-sprite-col-num))
-        (/ piece-width-height (get-button-height button-sprite-row-num))))))
+      (.. button-sprite -scale (setTo (/ piece-width-height (get-button-width button-sprite-col-num))
+                                      (/ piece-width-height (get-button-height button-sprite-row-num)))))))
 
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
@@ -68,10 +66,10 @@
              (false? diagonal-flipped?)))))
 
 (defn- display-play-button! []
-  (set! (.-visible (:play-button @game-state)) true))
+  (.. (:play-button @game-state) -scale (setTo 1 1)))
 
 (defn hide-play-button! []
-  (set! (.-visible (:play-button @game-state)) false))
+  (.. (:play-button @game-state) -scale (setTo 0 0)))
 
 (def initial-sprites-state-per-piece
   (reduce
@@ -122,25 +120,25 @@
         (let [piece-scale (.-scale (sprites [row col]))
               game-object-factory (.-add @game)]
           (if (= false sprite-flipped-state)
-            (.to
-              (.tween game-object-factory piece-scale)
-              (clj->js {:x (:piece-x-scale derefed-state)
-                        :y (:piece-y-scale derefed-state)})
-              500
-              js/Phaser.Easing.Cubic.In
-              true)
-            (.to
-              (.tween game-object-factory piece-scale)
-              (clj->js {:x 0 :y 0})
-              500
-              js/Phaser.Easing.Cubic.In
-              true)))))))
+            (.. game-object-factory
+                (tween piece-scale)
+                (to (clj->js {:x (:piece-x-scale derefed-state)
+                              :y (:piece-y-scale derefed-state)})
+                  500
+                  js/Phaser.Easing.Cubic.In
+                  true))
+            (.. game-object-factory
+                (tween piece-scale)
+                (to (clj->js {:x 0 :y 0})
+                    500
+                    js/Phaser.Easing.Cubic.In
+                    true))))))))
 
 (defn- display-ranking-button! []
-  (.setTo (.-scale (:ranking-button @game-state)) 0.5 0.5))
+  (.. (:ranking-button @game-state) -scale (setTo 0.5 0.5)))
 
 (defn hide-ranking-button! []
-  (.setTo (.-scale (:ranking-button @game-state)) 0 0))
+  (.. (:ranking-button @game-state) -scale (setTo 0 0)))
 
 (defn make-ranking-button! []
   (swap!
@@ -148,13 +146,13 @@
     assoc
     :ranking-button
     (this-as this
-      (.button
-        (.-add @game)
-        (* 0.75 (.-innerWidth js/window))
-        (* 0.2 (.-innerHeight js/window))
-        "ranking-button"
-        #(rf/dispatch [:screen-change :ranking-dashboard])
-        this)))
+      (.. @game
+          -add
+          (button (* 0.75 (.-innerWidth js/window))
+                  (* 0.2 (.-innerHeight js/window))
+                  "ranking-button"
+                  #(rf/dispatch [:screen-change :ranking-dashboard])
+                  this))))
   (display-ranking-button!))
 
 (defn show-game! []
@@ -190,10 +188,10 @@
   (swap! game-state assoc :play-time-text nil))
 
 (defn show-reset-button! []
-  (.setTo (.-scale (:reset-button @game-state)) 0.1 0.1))
+  (.. (:reset-button @game-state) -scale (setTo 0.1 0.1)))
 
 (defn hide-reset-button! []
-  (.setTo (.-scale (:reset-button @game-state)) 0 0))
+  (.. (:reset-button @game-state) -scale (setTo 0 0)))
 
 (defn reset-game! []
   (hide-all-puzzle-pieces!)
@@ -208,15 +206,15 @@
     assoc
     :reset-button
     (this-as this
-      (.button
-        (.-add @game)
-        (* 0.85 (.-innerWidth js/window))
-        (* 0.3 (.-innerHeight js/window))
-        "reset-button"
-        (fn []
-          (reset-game!)
-          (send-reset-fn))
-        this)))
+      (.. @game
+          -add
+          (button (* 0.85 (.-innerWidth js/window))
+                  (* 0.3 (.-innerHeight js/window))
+                  "reset-button"
+                  (fn []
+                    (reset-game!)
+                    (send-reset-fn))
+                  this))))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
 
@@ -257,14 +255,15 @@
     (swap! game-state
            assoc
            :play-time-text
-           (.text (.-add @game)
-                  (* (.-innerWidth js/window) 0.8)
-                  (/ (.-innerHeight js/window) 20)
-                  "0.000"
-                  (clj->js {:font            "40px Arial"
-                            :fill            "#fff"
-                            :backgroundColor "#000"
-                            :align           "center"})))))
+           (.. @game
+               -add
+               (text (* (.-innerWidth js/window) 0.8)
+                     (/ (.-innerHeight js/window) 20)
+                     "0.000"
+                     (clj->js {:font            "40px Arial"
+                               :fill            "#fff"
+                               :backgroundColor "#000"
+                               :align           "center"}))))))
 
 (defn update-play-time-to-current-time [play-time]
   (let [derefed-state @game-state

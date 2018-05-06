@@ -47,33 +47,31 @@
     assoc
     :play-button
     (this-as this
-      (.button
-        (.-add @util/game)
-        10
-        10
-        "play-button"
-        (fn []
-          (chsk-send-fn! [:aikakone/game-start])
-          (util/destroy-stage-clear-text!))
-        this))))
+      (.. @util/game
+          -add
+          (button
+            10
+            10
+            "play-button"
+            (fn []
+              (chsk-send-fn! [:aikakone/game-start])
+              (util/destroy-stage-clear-text!))
+            this)))))
 
 (defn- store-control-button-and-return-it [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
-  (set! (.-x (.-anchor control-button)) 0.5)
-  (set! (.-y (.-anchor control-button)) 0.5)
+  (set! (.. control-button -anchor -x) 0.5)
+  (set! (.. control-button -anchor -y) 0.5)
   control-button)
 
 (defn- create-puzzle-piece-and-store [{:keys [frame-id x-pos y-pos row col]}]
-  (let [piece (.sprite
-                (.-add @util/game)
-                x-pos
-                y-pos
-                "puzzle"
-                frame-id)]
+  (let [piece (.. @util/game
+                  -add
+                  (sprite x-pos y-pos "puzzle" frame-id))]
     (swap! util/game-state assoc-in [:sprites [row col]] piece)
-    (.setTo (.-scale piece) 0 0)
-    (set! (.-x (.-anchor piece))0.5)
-    (set! (.-y (.-anchor piece)) 0.5)))
+    (.. piece -scale (setTo 0 0))
+    (set! (.. piece -anchor -x) 0.5)
+    (set! (.. piece -anchor -y) 0.5)))
 
 (defn- create-puzzle-board [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
