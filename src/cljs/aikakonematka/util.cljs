@@ -157,6 +157,9 @@
         this)))
   (display-ranking-button!))
 
+(defn show-game []
+  (rf/dispatch [:screen-change :game]))
+
 (defn- hide-control-buttons! []
   (doseq [control-button (:control-buttons @game-state)]
     (.setTo (.-scale control-button) 0 0)))

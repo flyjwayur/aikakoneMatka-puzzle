@@ -14,10 +14,9 @@
 
 (rf/reg-event-db
   :initialize
-  (fn [db _]
-    (-> db
-        (assoc :screen :game)
-        (assoc :ranking []))))
+  (fn [_ _]
+    {:screen :intro
+     :ranking []}))
 
 (rf/reg-event-db
   :ranking
@@ -41,6 +40,7 @@
   (fn [db _]
     (:ranking db)))
 
+(rf/dispatch-sync [:initialize])
 (r/render [view/app]
           (.getElementById js/document "app"))
 
