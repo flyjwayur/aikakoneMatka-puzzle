@@ -9,6 +9,15 @@
             [re-frame.core :as rf]
             ))
 
+; - Finna API -
+(defn kirkko-image-src []
+  (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
+                                   {:with-credentials? false
+                                    :query-params {"lookfor" "kirkko"}}))]
+        (rf/dispatch [:set-finna-img (str "http://api.finna.fi" (-> (filter :images (get-in response [:body :records]))
+                                                                    first
+                                                                    :images
+                                                                    first))]))))
 ;- view functions -
 
 (defn go-back-to-game-button []
@@ -56,8 +65,12 @@
                :height   "100%"
                :on-click util/show-puzzle-selection!}]
         (= :puzzle-selection @(rf/subscribe [:screen]))
-        [:ui
-         (for [i (range 6)]
-           ^{:key i} [:li [:a {:href "#!" :on-click util/show-game!} (str i)]])]
+        [:div
+         [:img {:src @(rf/subscribe [:finna-img])}]
+         [:ul
+          [:li [:a {:href "#!" :on-click util/show-game!} "default"]]
+          [:li [:a {:href "#!"
+                    :on-click kirkko-image-src}
+                "kirkko"]]]]
         (= :ranking-dashboard @(rf/subscribe [:screen]))
         [ranking-dashboard]))))

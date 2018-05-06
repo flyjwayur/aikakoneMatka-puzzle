@@ -28,6 +28,11 @@
   (fn [db [_ screen]]
     (assoc db :screen screen)))
 
+(rf/reg-event-db
+  :set-finna-img
+  (fn [db [_ screen]]
+    (assoc db :finna-img screen)))
+
 ;- Query -
 
 (rf/reg-sub
@@ -39,6 +44,11 @@
   :ranking
   (fn [db _]
     (:ranking db)))
+
+(rf/reg-sub
+  :finna-img
+  (fn [db _]
+    (:finna-img db)))
 
 (rf/dispatch-sync [:initialize])
 (r/render [view/app]
