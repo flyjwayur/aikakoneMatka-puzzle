@@ -186,13 +186,21 @@
 (defn- game-update [])
 
 (defn- start-game! [image-src websocket-msg-send-fns]
-  (println "starting game")
-  (reset! util/game
-          (js/Phaser.Game.
-            (.-innerWidth js/window)
-            (.-innerHeight js/window)
-            js/Phaser.Auto
-            "canvas"
-            (clj->js {:preload (create-preload image-src)
-                      :create  (create-game websocket-msg-send-fns)
-                      :update  game-update}))))
+  (let [puzzle-img (js/Image.)]
+    (set!
+      (.-onload puzzle-img)
+      (clj->js
+        (fn []
+          (reset! util/puzzle-image-width (.-width puzzle-img))
+          (reset! util/puzzle-image-height (.-height puzzle-img))
+          (println "starting game")
+          (reset! util/game
+                  (js/Phaser.Game.
+                    (.-innerWidth js/window)
+                    (.-innerHeight js/window)
+                    js/Phaser.Auto
+                    "canvas"
+                    (clj->js {:preload (create-preload image-src)
+                              :create  (create-game websocket-msg-send-fns)
+                              :update  game-update}))))))
+    (set! (.-src puzzle-img) image-src)))
