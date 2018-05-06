@@ -10,10 +10,10 @@
             ))
 
 ; - Finna API -
-(defn kirkko-image-src []
+(defn image-src-of [search-keyword]
   (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
                                    {:with-credentials? false
-                                    :query-params {"lookfor" "kirkko"}}))]
+                                    :query-params      {"lookfor" search-keyword}}))]
         (rf/dispatch [:set-finna-img (str "http://api.finna.fi" (-> (filter :images (get-in response [:body :records]))
                                                                     first
                                                                     :images
@@ -67,10 +67,15 @@
         (= :puzzle-selection @(rf/subscribe [:screen]))
         [:div
          [:img {:src @(rf/subscribe [:finna-img])}]
-         [:ul
-          [:li [:a {:href "#!" :on-click util/show-game!} "default"]]
-          [:li [:a {:href "#!"
-                    :on-click kirkko-image-src}
-                "kirkko"]]]]
+         (into [:ul
+                [:li [:a {:href "#!" :on-click util/show-game!} "default"]]]
+               (map (fn [search-word]
+                      [:li [:a {:href     "#"
+                                :on-click #(image-src-of search-word)} search-word]])
+                    ["kirkko"
+                     "miehet"
+                     "naiset"
+                     "sotilas"
+                     "rauta"]))]
         (= :ranking-dashboard @(rf/subscribe [:screen]))
         [ranking-dashboard]))))
