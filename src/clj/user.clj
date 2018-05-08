@@ -6,7 +6,8 @@
 
 (defn stop-server []
   (dosync
-    (ref-set core/sprites-state nil))
+    (ref-set core/sprites-state nil)
+    (ref-set core/ranking nil))
   (future-cancel @core/sending-time-future)
   (when-not (nil? server)
     ;; graceful shutdown; wait 100ms for existing requests to be finished

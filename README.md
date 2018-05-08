@@ -19,5 +19,9 @@ Go to 'localhost:4000' to edit project on the browser with 'Nightlight'.
 Run 'boot check' to find out if the code can be improved.
 
 ## Licensing
+*Image copyright
+For the Intro image used in this game,
+All rights reserved to the image creator, HyeSoo Park.
+
 Copyright @2018 HyeSoo Park 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

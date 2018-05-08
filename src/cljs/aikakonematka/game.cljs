@@ -2,100 +2,80 @@
   (:require [aikakonematka.util :as util]
             [aikakonematka.sound :as sound]))
 
-(defn- randomly-execute-a-fn [f]
-  (when (< (rand) 0.5) (f)))
-
-(defn- preload []
-  (.spritesheet
-    (.-load @util/game)
-    "puzzle"
-    "images/puzzleImage.jpg"
-    (util/get-piece-width-height @util/puzzle-image-width)
-    (util/get-piece-width-height @util/puzzle-image-height)
-    (* util/row-col-num util/row-col-num))
-  (.spritesheet
-    (.-load @util/game)
-    "flip-buttons"
-    "images/control-buttons.png"
-    (util/get-button-width util/button-sprite-col-num)
-    (util/get-button-height util/button-sprite-row-num)
-    (* util/button-sprite-row-num util/button-sprite-col-num))
-  (.image
-    (.-load @util/game)
-    "play-button"
-    "images/play-button.png")
-  (.image
-    (.-load @util/game)
-    "ranking-button"
-    "images/ranking-button.png")
-  (.image
-    (.-load @util/game)
-    "reset-button"
-    "images/reset-button.jpg"))
-
-(defn- toggle-visibility-and-flipped-state! [col row]
-  (let [piece-scale (.-scale ((:sprites @util/game-state) [col row]))]
-    (if (zero? (.-x piece-scale))
-      (do
-        (swap!
-          util/game-state
-          assoc-in
-          [:sprites-state [col row]]
-          util/non-flipped-state)
-        (.setTo
-          piece-scale
-          (:piece-x-scale @util/game-state)
-          (:piece-y-scale @util/game-state)))
-      (do
-        (swap!
-          util/game-state
-          assoc-in
-          [:sprites-state [col row]]
-          util/flipped-state)
-        (.setTo piece-scale 0 0)))))
+(defn- create-preload [image-src]
+  (fn []
+    (let [phaser-loader (.-load @util/game)]
+      (.spritesheet
+        phaser-loader
+        "puzzle"
+        image-src
+        (util/get-piece-width-height @util/puzzle-image-width)
+        (util/get-piece-width-height @util/puzzle-image-height)
+        (* util/row-col-num util/row-col-num))
+      (.spritesheet
+        phaser-loader
+        "flip-buttons"
+        "images/control-buttons.png"
+        (util/get-button-width util/button-sprite-col-num)
+        (util/get-button-height util/button-sprite-row-num)
+        (* util/button-sprite-row-num util/button-sprite-col-num))
+      (.image
+        phaser-loader
+        "play-button"
+        "images/play-button.png")
+      (.image
+        phaser-loader
+        "ranking-button"
+        "images/ranking-button.png")
+      (.image
+        phaser-loader
+        "reset-button"
+        "images/reset-button.jpg"))))
 
 (defn flip-diagonal-pieces! []
-  (doseq [row (range util/row-col-num)
-          :let [col (- (dec util/row-col-num) row)]]
-    (toggle-visibility-and-flipped-state! col row)))
+  (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
 
 (defn flip-row! [row]
-  (doseq [col (range util/row-col-num)]
-    (toggle-visibility-and-flipped-state! col row)))
+  (swap! util/game-state update-in [:sprites-state :row-flipped? row] not))
 
 (defn flip-col! [col]
-  (doseq [row (range util/row-col-num)]
-    (toggle-visibility-and-flipped-state! col row)))
-
-(defn- randomize-puzzle-pieces []
-  (randomly-execute-a-fn flip-diagonal-pieces!)
-  (doseq [row-col-num (range util/row-col-num)]
-    (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-row! row-col-num)) 200)))
-    (randomly-execute-a-fn (fn [] (js/setTimeout (fn [] (flip-col! row-col-num)) 200)))))
+  (swap! util/game-state update-in [:sprites-state :col-flipped? col] not))
 
 (declare create-puzzle-board)
 
-(defn- make-play-button [{:keys [chsk-send-fn!]}]
+(defn- make-play-button! [{:keys [chsk-send-fn!]}]
   (swap!
     util/game-state
     assoc
     :play-button
     (this-as this
-      (.button
-        (.-add @util/game)
-        10
-        10
-        "play-button"
-        (fn []
-          (chsk-send-fn! [:aikakone/game-start])
-          (util/destroy-stage-clear-text!))
-        this))))
+      (.. @util/game
+          -add
+          (button
+            10
+            10
+            "play-button"
+            (fn []
+              (chsk-send-fn! [:aikakone/game-start])
+              (util/destroy-stage-clear-text!))
+            this)))))
 
-(defn- store-control-button-and-return-it [control-button]
+(defn- store-control-button-and-return-it! [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
+  (set! (.. control-button -anchor -x) 0.5)
+  (set! (.. control-button -anchor -y) 0.5)
   control-button)
 
-(defn- create-puzzle-board [{:keys [send-sprites-state-fn!
+(defn- create-puzzle-piece-and-store! [{:keys [frame-id x-pos y-pos row col]}]
+  (let [piece (.. @util/game
+                  -add
+                  (sprite x-pos y-pos "puzzle" frame-id))]
+    (swap! util/game-state assoc-in [:sprites [row col]] piece)
+    (.. piece -scale (setTo 0 0))
+    (set! (.. piece -anchor -x) 0.5)
+    (set! (.. piece -anchor -y) 0.5)))
+
+(defn- create-puzzle-board! [{:keys [send-sprites-state-fn!
                                     send-puzzle-complete-fn!
                                     send-start-timer-fn!
                                     send-music-note-fn!]}]
@@ -121,17 +101,14 @@
               :let [frame-id (+ (* util/row-col-num row) col)
                     x-pos (+ (* piece-width-height col) left-margin col)
                     y-pos (+ (* piece-width-height row) top-margin row)]]
-        (let [piece (.sprite
-                      game-object-factory
-                      x-pos
-                      y-pos
-                      "puzzle"
-                      frame-id)]
-          (swap! util/game-state assoc-in [:sprites [col row]] piece)
-          (.setTo (.-scale piece) 0 0))
+        (create-puzzle-piece-and-store! {:frame-id frame-id
+                                        :x-pos     x-pos
+                                        :y-pos     y-pos
+                                        :row       row
+                                        :col       col})
         (when
           (and (zero? col) (= row (dec util/row-col-num)))
-          (let [bottom-left-button (store-control-button-and-return-it
+          (let [bottom-left-button (store-control-button-and-return-it!
                                      (.sprite
                                        game-object-factory
                                        (- x-pos piece-width-height)
@@ -149,10 +126,11 @@
                   (sound/play-beep! frequency)
                   (send-music-note-fn! frequency)
                   (flip-diagonal-pieces!)
+                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
         (when (zero? col)
-          (let [left-button (store-control-button-and-return-it
+          (let [left-button (store-control-button-and-return-it!
                               (.sprite
                                 game-object-factory
                                 (- x-pos piece-width-height)
@@ -168,10 +146,11 @@
                   (sound/play-beep! frequency)
                   (send-music-note-fn! frequency)
                   (flip-row! row)
+                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
         (when (= row (dec util/row-col-num))
-          (let [bottom-button (store-control-button-and-return-it
+          (let [bottom-button (store-control-button-and-return-it!
                                 (.sprite
                                   game-object-factory
                                   x-pos
@@ -189,36 +168,39 @@
                   (sound/play-beep! frequency)
                   (send-music-note-fn! frequency)
                   (flip-col! col)
+                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                   (send-sprites-state-fn!)
                   (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))
-  ;It synchronizes the puzzle board with the existing state for each player.
-  ;The later synchronization will happen from the web_socket.
-  (let [initial-sprites-state (:sprites-state @util/game-state)]
-    (if (not (empty? initial-sprites-state))
-      (util/synchronize-puzzle-board! initial-sprites-state)
-      ;It make puzzle pieces randomly flipped,
-      ;if it is the initial puzzle creation.
-      (do (randomize-puzzle-pieces)
-          (send-start-timer-fn!))))
+  ;Change the scale of pieces according to the current sprites-state
+  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (send-start-timer-fn!)
   (util/display-play-time!))
 
 (defn- create-game [websocket-msg-send-fns]
   (fn []
     (when-not (:play-button @util/game-state)
-      (make-play-button websocket-msg-send-fns)
+      (make-play-button! websocket-msg-send-fns)
       (util/make-ranking-button!)
       (util/make-reset-button! (:send-reset-fn! websocket-msg-send-fns)))))
 
 (defn- game-update [])
 
-(defn- start-game! [websocket-msg-send-fns]
-  (println "starting game")
-  (reset! util/game
-          (js/Phaser.Game.
-            (.-innerWidth js/window)
-            (.-innerHeight js/window)
-            js/Phaser.Auto
-            "canvas"
-            (clj->js {:preload preload
-                      :create  (create-game websocket-msg-send-fns)
-                      :update  game-update}))))
+(defn- start-game! [image-src websocket-msg-send-fns]
+  (let [puzzle-img (js/Image.)]
+    (set!
+      (.-onload puzzle-img)
+      (clj->js
+        (fn []
+          (reset! util/puzzle-image-width (.-width puzzle-img))
+          (reset! util/puzzle-image-height (.-height puzzle-img))
+          (println (str "starting game with img src : " image-src))
+          (reset! util/game
+                  (js/Phaser.Game.
+                    (.-innerWidth js/window)
+                    (.-innerHeight js/window)
+                    js/Phaser.Canvas
+                    "canvas"
+                    (clj->js {:preload (create-preload image-src)
+                              :create  (create-game websocket-msg-send-fns)
+                              :update  game-update}))))))
+    (set! (.-src puzzle-img) image-src)))

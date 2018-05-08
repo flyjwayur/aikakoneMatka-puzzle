@@ -59,21 +59,20 @@
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
-                             (game/create-puzzle-board {:send-sprites-state-fn!   send-sprites-state!
+                             (game/create-puzzle-board! {:send-sprites-state-fn!  send-sprites-state!
                                                         :send-puzzle-complete-fn! send-puzzle-complete!
-                                                        :send-start-timer-fn! send-start-timer!
-                                                        :send-music-note-fn! send-button-music-notes!})
-                             ;From the next play it also works as a resetting the previous puzzle.
-                             (js/setTimeout send-sprites-state! 300))
+                                                        :send-start-timer-fn!     send-start-timer!
+                                                        :send-music-note-fn!      send-button-music-notes!})
+                             (send-sprites-state!))
 
       :aikakone/current-time (when (and (:play-time-text @util/game-state)
                                         (util/currently-playing-game?))
-                               (util/update-play-time-to-current-time event-data))
+                               (util/update-play-time-to-current-time! event-data))
 
       :aikakone/reset (util/reset-game!)
 
       :aikakone/music (when (util/currently-playing-game?)
-                        (util/update-music-notes event-data))
+                        (util/update-music-notes! event-data))
 
       (println event-id " is unknown event type"))))
 
@@ -84,8 +83,6 @@
   (let [[?uid ?csrf-token ?handshake-data] ?data]
     (println "Handshake:" ?data)
     (swap! util/game-state assoc :uid ?uid)
-    (game/start-game! {:chsk-send-fn! chsk-send!
-                       :send-reset-fn! send-reset!})
     (send-uid)))
 
 (defn start-web-socket! []                                  ; To create msg router to handle incoming msg.
