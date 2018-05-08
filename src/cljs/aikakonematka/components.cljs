@@ -54,7 +54,8 @@
                  [ui/table-row-column (ranking rank)]]))]]]))
 
 (defn app []
-  (if (string? @(rf/subscribe [:game-img]))
+  (if (and (= :game @(rf/subscribe [:screen]))
+           (string? @(rf/subscribe [:game-img])))
     (do (let [canvas (.getElementById js/document "canvas")]
           (game/start-game!
             @(rf/subscribe [:game-img])
