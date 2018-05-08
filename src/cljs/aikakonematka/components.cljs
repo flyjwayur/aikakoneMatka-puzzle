@@ -12,7 +12,7 @@
             ))
 
 ; - Finna API -
-(defn image-src-of [search-keyword]
+(defn set-game-image! [search-keyword]
   (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
                                    {:with-credentials? false
                                     :query-params      {"lookfor" search-keyword}}))]
@@ -20,6 +20,7 @@
                                                                    first
                                                                    :images
                                                                    first))]))))
+
 ;- view functions -
 
 (defn go-back-to-game-button []
@@ -83,7 +84,7 @@
                (map (fn [search-word]
                       [:li [:a {:href     "#"
                                 :on-click #(do
-                                             (image-src-of search-word)
+                                             (set-game-image! search-word)
                                              (util/show-game!))}
                             search-word]])
                     ["kirkko"
