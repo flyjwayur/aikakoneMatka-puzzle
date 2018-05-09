@@ -59,8 +59,11 @@
     (do (let [canvas (.getElementById js/document "canvas")]
           (game/start-game!
             @(rf/subscribe [:game-img])
-            {:chsk-send-fn! web-socket/chsk-send!
-             :send-reset-fn! web-socket/send-reset!})
+            {:send-game-start-fn! web-socket/send-game-start!
+             :send-reset-fn! web-socket/send-reset!
+             :send-sprites-state-fn! web-socket/send-sprites-state!
+             :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
+             :send-music-note-fn!      web-socket/send-button-music-notes!})
           (set! (.-display (.-style canvas)) "block"))
         [:div])
     (do
