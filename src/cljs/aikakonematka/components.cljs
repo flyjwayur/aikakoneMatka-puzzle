@@ -11,7 +11,8 @@
             [re-frame.core :as rf]
             ))
 
-; - Finna API -
+;- Finna API -
+
 (defn set-game-image! [search-keyword]
   (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
                                    {:with-credentials? false
@@ -20,6 +21,7 @@
                                                                    first
                                                                    :images
                                                                    first))]))))
+
 
 ;- view functions -
 
