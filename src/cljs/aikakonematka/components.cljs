@@ -53,6 +53,28 @@
                  [ui/table-row-column (inc rank)]
                  [ui/table-row-column (ranking rank)]]))]]]))
 
+(defn- puzzle-selection-view []
+  [:div
+   [:img {:src @(rf/subscribe [:game-img])}]
+   (into [:ul
+          [:li [:a
+                {:href     "#!"
+                 :on-click #(do
+                              (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
+                              (util/show-game!))}
+                "default"]]]
+         (map (fn [search-word]
+                [:li [:a {:href     "#"
+                          :on-click #(do
+                                       (set-game-image! search-word)
+                                       (util/show-game!))}
+                      search-word]])
+              ["kirkko"
+               "miehet"
+               "naiset"
+               "sotilas"
+               "rauta"]))])
+
 (defn app []
   (if (and (= :game @(rf/subscribe [:screen]))
            (string? @(rf/subscribe [:game-img])))
@@ -75,26 +97,9 @@
                :width    "100%"
                :height   "100%"
                :on-click util/show-puzzle-selection!}]
+
         (= :puzzle-selection @(rf/subscribe [:screen]))
-        [:div
-         [:img {:src @(rf/subscribe [:game-img])}]
-         (into [:ul
-                [:li [:a
-                      {:href     "#!"
-                       :on-click #(do
-                                    (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
-                                    (util/show-game!))}
-                      "default"]]]
-               (map (fn [search-word]
-                      [:li [:a {:href     "#"
-                                :on-click #(do
-                                             (set-game-image! search-word)
-                                             (util/show-game!))}
-                            search-word]])
-                    ["kirkko"
-                     "miehet"
-                     "naiset"
-                     "sotilas"
-                     "rauta"]))]
+        [puzzle-selection-view]
+
         (= :ranking-dashboard @(rf/subscribe [:screen]))
         [ranking-dashboard]))))
