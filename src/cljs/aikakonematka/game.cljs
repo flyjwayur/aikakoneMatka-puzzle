@@ -102,12 +102,7 @@
       (let [game-object-factory (.-add @util/game)
             piece-width-height (util/get-piece-width-height (:puzzle-width-height @util/game-state))
             left-margin (util/get-left-margin)
-            top-margin (util/get-top-margin)
-            set-on-click-callback! (fn [sprite callback-fn]
-                                     (set! (.-inputEnabled sprite) true)
-                                     (.add
-                                       (.-onInputDown (.-events sprite))
-                                       callback-fn))]
+            top-margin (util/get-top-margin)]
         (doseq [row (range util/row-col-num)
                 col (range util/row-col-num)
                 :let [frame-id (+ (* util/row-col-num row) col)
@@ -129,7 +124,7 @@
                                          5))
                   frequency (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num)]
               (util/make-buttons-same-size-as-puzzle-piece! bottom-left-button)
-              (set-on-click-callback!
+              (util/set-on-click-callback!
                 bottom-left-button
                 (fn []
                   (when (util/currently-playing-game?)
@@ -151,7 +146,7 @@
                                   row))
                   frequency (sound/frequencies-of-major-scale-in-4th-octave row)]
               (util/make-buttons-same-size-as-puzzle-piece! left-button)
-              (set-on-click-callback!
+              (util/set-on-click-callback!
                 left-button
                 (fn []
                   (when (util/currently-playing-game?)
@@ -173,7 +168,7 @@
                               (mod (+ 1 util/row-col-num col)
                                    (count sound/frequencies-of-major-scale-in-4th-octave)))]
               (util/make-buttons-same-size-as-puzzle-piece! bottom-button)
-              (set-on-click-callback!
+              (util/set-on-click-callback!
                 bottom-button
                 (fn []
                   (when (util/currently-playing-game?)

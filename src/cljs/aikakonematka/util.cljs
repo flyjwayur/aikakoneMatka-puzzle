@@ -169,6 +169,12 @@
                   this))))
   (display-ranking-button!))
 
+(defn set-on-click-callback! [sprite callback-fn]
+  (set! (.-inputEnabled sprite) true)
+  (.add
+    (.-onInputDown (.-events sprite))
+    callback-fn))
+
 (defn show-game! []
   (rf/dispatch [:screen-change :game]))
 
