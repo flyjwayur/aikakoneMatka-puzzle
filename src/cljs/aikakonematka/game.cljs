@@ -111,8 +111,8 @@
         (doseq [row (range util/row-col-num)
                 col (range util/row-col-num)
                 :let [frame-id (+ (* util/row-col-num row) col)
-                      x-pos (+ (* piece-width-height col) left-margin col)
-                      y-pos (+ (* piece-width-height row) top-margin row)]]
+                      x-pos (+ (* piece-width-height col) left-margin (+ 2 col))
+                      y-pos (+ (* piece-width-height row) top-margin (+ 2 row))]]
           (create-puzzle-piece-and-store! {:frame-id frame-id
                                            :x-pos     x-pos
                                            :y-pos     y-pos

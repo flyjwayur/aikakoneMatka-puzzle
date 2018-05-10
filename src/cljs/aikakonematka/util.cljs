@@ -38,7 +38,7 @@
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 2))
 
 (defn- get-piece-width-height [puzzle-width-height]
-  (/ puzzle-width-height row-col-num))
+  (int (/ puzzle-width-height row-col-num)))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
