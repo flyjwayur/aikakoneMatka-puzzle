@@ -194,7 +194,6 @@
         (fn []
           (reset! util/puzzle-image-width (.-width puzzle-img))
           (reset! util/puzzle-image-height (.-height puzzle-img))
-          (println (str "starting game with img src : " image-src))
           (reset! util/game
                   (js/Phaser.Game.
                     (.-innerWidth js/window)
