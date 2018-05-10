@@ -62,6 +62,7 @@
 
 (defn- store-control-button-and-return-it! [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
+  (.. control-button -scale (setTo 0 0))
   (set! (.. control-button -anchor -x) 0.5)
   (set! (.. control-button -anchor -y) 0.5)
   control-button)
@@ -123,7 +124,6 @@
                                          "flip-buttons"
                                          5))
                   frequency (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num)]
-              (util/make-buttons-same-size-as-puzzle-piece! bottom-left-button)
               (util/set-on-click-callback!
                 bottom-left-button
                 (fn []
@@ -145,7 +145,6 @@
                                   "flip-buttons"
                                   row))
                   frequency (sound/frequencies-of-major-scale-in-4th-octave row)]
-              (util/make-buttons-same-size-as-puzzle-piece! left-button)
               (util/set-on-click-callback!
                 left-button
                 (fn []
@@ -167,7 +166,6 @@
                   frequency (sound/frequencies-of-major-scale-in-4th-octave
                               (mod (+ 1 util/row-col-num col)
                                    (count sound/frequencies-of-major-scale-in-4th-octave)))]
-              (util/make-buttons-same-size-as-puzzle-piece! bottom-button)
               (util/set-on-click-callback!
                 bottom-button
                 (fn []
