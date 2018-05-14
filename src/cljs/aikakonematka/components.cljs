@@ -56,17 +56,25 @@
                  [ui/table-row-column (ranking rank)]]))]]]))
 
 (defn- puzzle-selection-view []
-  [:div {:style {:background-image "url(images/puzzle-selection-bg.png)"
-                 :width (.-innerWidth js/window)
-                 :height (.-innerHeight js/window)}}
-   [:img {:src "images/puzzleImage.jpg"
-          :width "20%"
-          :height "20%"
-          :href "#!"
+  [:div
+   [:img {:style  {:position "absolute"
+                   :z-index  "0"
+                   :display  "block"}
+          :src    "images/puzzle-selection-bg.png"
+          :width  "100%"
+          :height "100%"}]
+   [:img {:style    {:position "absolute"
+                     :z-index  "1"}
+          :src      "images/puzzleImage.jpg"
+          :width    "20%"
+          :height   "20%"
+          :href     "#!"
           :on-click #(do
                        (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
                        (util/show-game!))}]
    (into [:ul
+          {:style {:position "absolute"
+                   :z-index  "1"}}
           [:li [:a
                 {:href     "#!"
                  :on-click #(do
