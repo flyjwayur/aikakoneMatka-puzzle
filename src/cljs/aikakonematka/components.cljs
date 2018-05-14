@@ -59,7 +59,6 @@
   [:div {:style {:background-image "url(images/puzzle-selection-bg.png)"
                  :width (.-innerWidth js/window)
                  :height (.-innerHeight js/window)}}
-   [:img {:src @(rf/subscribe [:game-img])}]
    (into [:ul
           [:li [:a
                 {:href     "#!"
