@@ -19,7 +19,7 @@
                                     :query-params      {"lookfor" search-keyword}}))
             url (str "http://api.finna.fi"
                      (-> (filter :images (get-in response [:body :records]))
-                         first
+                         second
                          :images
                          first))]
         (rf/dispatch [:set-game-img [search-keyword url]]))))
@@ -65,18 +65,7 @@
                      :display  "block"}
             :src    "images/puzzle-selection-bg.png"
             :width  "100%"
-            :height "100%"}]
-     [:img {:style    {:position "absolute"
-                       :z-index  "1"
-                       :left     "18.5%"
-                       :top      "13.7%"}
-            :src      "images/puzzleImage.jpg"
-            :width    "20%"
-            :height   "27.5%"
-            :href     "#!"
-            :on-click #(do
-                         (rf/dispatch [:set-game-img ["default" "images/puzzleImage.jpg"]])
-                         (util/show-game! "default"))}]]
+            :height "100%"}]]
     (map (fn [{:keys [search-word left top]}]
            (set-game-image! search-word)
            ^{:key search-word} [:img
@@ -87,15 +76,19 @@
                                             :top      top}
                                  :src      (let [game-imgs @(rf/subscribe [:game-img])]
                                              (when game-imgs
+                                               (println game-imgs)
                                                (game-imgs search-word "")))
                                  :width    "20%"
                                  :height   "27.5%"
                                  :on-click #(util/show-game! search-word)}])
-         [{:search-word "kirkko" :left "39%" :top "13.7%"}
-          {:search-word "miehet" :left "60%" :top "13.7%"}
-          {:search-word "naiset" :left "18.5%" :top "43.5%"}
-          {:search-word "sotilas" :left "39%" :top "43.5%"}
-          {:search-word "rauta" :left "60%" :top "43.5%"}])))
+         [{:search-word "tori" :left "18.5%" :top "13.7%"}
+          {:search-word "Mannerheimintie" :left "39.3%" :top "13.7%"}
+          {:search-word "Lapinlahdenkatu" :left "60%" :top "13.7%"}
+          {:search-word "kamppi" :left "18.5%" :top "43.5%"}
+          {:search-word "tuomiokirkko" :left "39.3%" :top "43.5%"}
+          {:search-word "mustikka" :left "60%" :top "43.5%"}
+          {:search-word "Rovaniemi" :left "18.5%" :top "73.2%"}
+          {:search-word "suomenlinna" :left "60%" :top "73.2%"}])))
 
 (defn app []
   (if (and (= :game @(rf/subscribe [:screen]))
