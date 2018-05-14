@@ -30,8 +30,13 @@
 
 (rf/reg-event-db
   :set-game-img
-  (fn [db [_ screen]]
-    (assoc db :game-img screen)))
+  (fn [db [_ [search-word image-url]]]
+    (update db :game-img assoc search-word image-url)))
+
+(rf/reg-event-db
+  :set-game-play-image
+  (fn [db [_ image-name]]
+    (assoc db :game-play-image image-name)))
 
 ;- Query -
 
@@ -49,6 +54,11 @@
   :game-img
   (fn [db _]
     (:game-img db)))
+
+(rf/reg-sub
+  :game-play-image
+  (fn [db _]
+    (:game-play-image db)))
 
 (rf/dispatch-sync [:initialize])
 (r/render [view/app]

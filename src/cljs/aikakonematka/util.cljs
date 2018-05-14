@@ -189,7 +189,8 @@
     (.-onInputDown (.-events sprite))
     callback-fn))
 
-(defn show-game! []
+(defn show-game! [image-name]
+  (rf/dispatch [:set-game-play-image image-name])
   (rf/dispatch [:screen-change :game]))
 
 (defn show-puzzle-selection! []

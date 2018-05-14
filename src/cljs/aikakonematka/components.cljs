@@ -16,11 +16,13 @@
 (defn set-game-image! [search-keyword]
   (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
                                    {:with-credentials? false
-                                    :query-params      {"lookfor" search-keyword}}))]
-        (rf/dispatch [:set-game-img (str "http://api.finna.fi" (-> (filter :images (get-in response [:body :records]))
-                                                                   first
-                                                                   :images
-                                                                   first))]))))
+                                    :query-params      {"lookfor" search-keyword}}))
+            url (str "http://api.finna.fi"
+                     (-> (filter :images (get-in response [:body :records]))
+                         first
+                         :images
+                         first))]
+        (rf/dispatch [:set-game-img [search-keyword url]]))))
 
 
 ;- view functions -
@@ -56,50 +58,51 @@
                  [ui/table-row-column (ranking rank)]]))]]]))
 
 (defn- puzzle-selection-view []
-  [:div
-   [:img {:style  {:position "absolute"
-                   :z-index  "0"
-                   :display  "block"}
-          :src    "images/puzzle-selection-bg.png"
-          :width  "100%"
-          :height "100%"}]
-   [:img {:style    {:position "absolute"
-                     :z-index  "1"
-                     :left     "18.5%"
-                     :top      "13.7%"}
-          :src      "images/puzzleImage.jpg"
-          :width    "20%"
-          :height   "27.5%"
-          :href     "#!"
-          :on-click #(do
-                       (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
-                       (util/show-game!))}]
-   (into [:ul
-          {:style {:position "absolute"
-                   :z-index  "1"}}
-          [:li [:a
-                {:href     "#!"
-                 :on-click #(do
-                              (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
-                              (util/show-game!))}
-                "default"]]]
-         (map (fn [search-word]
-                ^{:key search-word} [:li [:a {:href     "#"
-                                              :on-click #(do
-                                                           (set-game-image! search-word) (util/show-game!))}
-                                          search-word]])
-              ["kirkko"
-               "miehet"
-               "naiset"
-               "sotilas"
-               "rauta"]))])
+  (into
+    [:div
+     [:img {:style  {:position "absolute"
+                     :z-index  "0"
+                     :display  "block"}
+            :src    "images/puzzle-selection-bg.png"
+            :width  "100%"
+            :height "100%"}]
+     [:img {:style    {:position "absolute"
+                       :z-index  "1"
+                       :left     "18.5%"
+                       :top      "13.7%"}
+            :src      "images/puzzleImage.jpg"
+            :width    "20%"
+            :height   "27.5%"
+            :href     "#!"
+            :on-click #(do
+                         (rf/dispatch [:set-game-img ["default" "images/puzzleImage.jpg"]])
+                         (util/show-game! "default"))}]]
+    (map (fn [{:keys [search-word left top]}]
+           (set-game-image! search-word)
+           ^{:key search-word} [:img
+                                {:id       search-word
+                                 :style    {:position "absolute"
+                                            :z-index  "1"
+                                            :left     left
+                                            :top      top}
+                                 :src      (let [game-imgs @(rf/subscribe [:game-img])]
+                                             (when game-imgs
+                                               (game-imgs search-word "")))
+                                 :width    "20%"
+                                 :height   "27.5%"
+                                 :on-click #(util/show-game! search-word)}])
+         [{:search-word "kirkko" :left "39%" :top "13.7%"}
+          {:search-word "miehet" :left "60%" :top "13.7%"}
+          {:search-word "naiset" :left "18.5%" :top "43.5%"}
+          {:search-word "sotilas" :left "39%" :top "43.5%"}
+          {:search-word "rauta" :left "60%" :top "43.5%"}])))
 
 (defn app []
   (if (and (= :game @(rf/subscribe [:screen]))
-           (string? @(rf/subscribe [:game-img])))
+           (string? @(rf/subscribe [:game-play-image])))
     (do (let [canvas (.getElementById js/document "canvas")]
           (game/start-game!
-            @(rf/subscribe [:game-img])
+            (@(rf/subscribe [:game-img]) @(rf/subscribe [:game-play-image]))
             {:send-game-start-fn!      web-socket/send-game-start!
              :send-reset-fn!           web-socket/send-reset!
              :send-sprites-state-fn!   web-socket/send-sprites-state!
