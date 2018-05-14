@@ -85,7 +85,7 @@
                 ^{:key search-word} [:li [:a {:href     "#"
                                               :on-click #(do
                                                            (set-game-image! search-word) (util/show-game!))}
-                      search-word]])
+                                          search-word]])
               ["kirkko"
                "miehet"
                "naiset"
@@ -98,9 +98,9 @@
     (do (let [canvas (.getElementById js/document "canvas")]
           (game/start-game!
             @(rf/subscribe [:game-img])
-            {:send-game-start-fn! web-socket/send-game-start!
-             :send-reset-fn! web-socket/send-reset!
-             :send-sprites-state-fn! web-socket/send-sprites-state!
+            {:send-game-start-fn!      web-socket/send-game-start!
+             :send-reset-fn!           web-socket/send-reset!
+             :send-sprites-state-fn!   web-socket/send-sprites-state!
              :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
              :send-music-note-fn!      web-socket/send-button-music-notes!})
           (set! (.-display (.-style canvas)) "block"))
