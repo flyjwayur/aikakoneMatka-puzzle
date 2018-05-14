@@ -64,10 +64,12 @@
           :width  "100%"
           :height "100%"}]
    [:img {:style    {:position "absolute"
-                     :z-index  "1"}
+                     :z-index  "1"
+                     :left     "18.5%"
+                     :top      "13.7%"}
           :src      "images/puzzleImage.jpg"
           :width    "20%"
-          :height   "20%"
+          :height   "27.5%"
           :href     "#!"
           :on-click #(do
                        (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
