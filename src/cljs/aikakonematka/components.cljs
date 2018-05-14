@@ -59,6 +59,13 @@
   [:div {:style {:background-image "url(images/puzzle-selection-bg.png)"
                  :width (.-innerWidth js/window)
                  :height (.-innerHeight js/window)}}
+   [:img {:src "images/puzzleImage.jpg"
+          :width "20%"
+          :height "20%"
+          :href "#!"
+          :on-click #(do
+                       (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
+                       (util/show-game!))}]
    (into [:ul
           [:li [:a
                 {:href     "#!"
@@ -67,10 +74,9 @@
                               (util/show-game!))}
                 "default"]]]
          (map (fn [search-word]
-                [:li [:a {:href     "#"
-                          :on-click #(do
-                                       (set-game-image! search-word)
-                                       (util/show-game!))}
+                ^{:key search-word} [:li [:a {:href     "#"
+                                              :on-click #(do
+                                                           (set-game-image! search-word) (util/show-game!))}
                       search-word]])
               ["kirkko"
                "miehet"
