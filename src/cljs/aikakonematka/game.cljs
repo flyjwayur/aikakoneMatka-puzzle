@@ -109,6 +109,7 @@
   (fn []
     (when-not (:play-button @util/game-state)
       (display-puzzle-background)
+      (util/display-game-intro-message!)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
       (util/make-reset-button! send-reset-fn!))

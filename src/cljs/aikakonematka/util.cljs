@@ -20,6 +20,7 @@
                            :play-time              0.0
                            :play-time-text         nil
                            :puzzle-completion-text nil
+                           :puzzle-game-intro-text nil
                            :ranking-button         nil
                            :music-pitches          []
                            :music-durations        []}))
@@ -182,6 +183,27 @@
                   #(rf/dispatch [:screen-change :ranking-dashboard])
                   this))))
   (display-ranking-button!))
+
+(defn- display-game-intro-message! []
+  (swap!
+    game-state
+    assoc
+    :puzzle-game-intro-text
+    (.text
+      (.-add @game)
+      (/ (.-innerWidth js/window) 2)
+      (/ (.-innerHeight js/window) 10)
+      "Back to the Suomi past!
+      Like our journey in our life,
+      playing this game with companions,
+      it might be more fun and enjoyable.
+      Are you ready for beautiful discovery?"
+      (clj->js {:font            "20px Gill Sans, serif"
+                :fill            "#fff"
+                :backgroundColor "#0a4f75"
+                :align           "center"
+                :padding "20px"
+                :borderRadius "10px"}))))
 
 (defn set-on-click-callback! [sprite callback-fn]
   (set! (.-inputEnabled sprite) true)
