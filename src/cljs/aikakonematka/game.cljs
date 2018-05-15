@@ -56,8 +56,8 @@
       (.. @util/game
           -add
           (button
-            10
-            10
+            (/ (.-innerWidth js/window) 2)
+            (/ (.-innerHeight js/window) 2)
             "play-button"
             (fn []
               (send-game-start-fn!)
