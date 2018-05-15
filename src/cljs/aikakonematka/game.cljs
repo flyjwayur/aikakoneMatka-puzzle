@@ -92,6 +92,15 @@
   (send-start-timer-fn!)
   (util/display-play-time!))
 
+(defn- display-puzzle-background []
+  (.tileSprite
+    (.-add @util/game)
+    0
+    0
+    1200
+    800
+    "game-play-bg"))
+
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
                             send-sprites-state-fn!
@@ -99,6 +108,7 @@
                             send-music-note-fn!]}]
   (fn []
     (when-not (:play-button @util/game-state)
+      (display-puzzle-background)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
       (util/make-reset-button! send-reset-fn!))
