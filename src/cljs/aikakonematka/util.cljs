@@ -176,8 +176,8 @@
     (this-as this
       (.. @game
           -add
-          (button (* 0.75 (.-innerWidth js/window))
-                  (* 0.2 (.-innerHeight js/window))
+          (button (/ (.-innerWidth js/window) 4)
+                  (/ (.-innerHeight js/window) 2)
                   "ranking-button"
                   #(rf/dispatch [:screen-change :ranking-dashboard])
                   this))))
