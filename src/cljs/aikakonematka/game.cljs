@@ -93,6 +93,7 @@
   (util/display-play-time!))
 
 (defn- display-puzzle-background []
+  (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
   (.tileSprite
     (.-add @util/game)
     0
@@ -119,7 +120,6 @@
             piece-width-height (util/get-piece-width-height (:puzzle-width-height @util/game-state))
             left-margin (util/get-left-margin)
             top-margin (util/get-top-margin)]
-        (set! (.. @util/game -stage -backgroundColor) "#697e96")
         (doseq [row (range util/row-col-num)
                 col (range util/row-col-num)
                 :let [frame-id (+ (* util/row-col-num row) col)

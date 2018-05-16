@@ -199,8 +199,8 @@
       it might be more fun and enjoyable.
       Are you ready for beautiful discovery?"
       (clj->js {:font            "20px Gill Sans, serif"
-                :fill            "#fff"
-                :backgroundColor "#0a4f75"
+                :fill            "#f6f4f3"
+                :backgroundColor "#3d5a80"
                 :align           "center"
                 :padding "20px"
                 :borderRadius "10px"}))))
