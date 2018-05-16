@@ -39,8 +39,8 @@
 (def puzzle-image-height (atom nil))
 (def button-sprite-sheet-width (atom nil))
 (def button-sprite-sheet-height (atom nil))
-(def button-sprite-col-num 3)
-(def button-sprite-row-num 2)
+(def button-sprite-col-num 2)
+(def button-sprite-row-num 3)
 
 
 ;- util functions to find size of puzzle and buttons
@@ -186,8 +186,8 @@
     (this-as this
       (.. @game
           -add
-          (button (/ (.-innerWidth js/window) 4)
-                  (/ (.-innerHeight js/window) 2)
+          (button (* 0.90 (.-innerWidth js/window))
+                  (* 0.03 (.-innerHeight js/window))
                   "ranking-button"
                   #(rf/dispatch [:screen-change :ranking-dashboard])
                   this))))
@@ -274,8 +274,8 @@
     (this-as this
       (.. @game
           -add
-          (button (* 0.85 (.-innerWidth js/window))
-                  (* 0.3 (.-innerHeight js/window))
+          (button (* 0.75 (.-innerWidth js/window))
+                  (* 0.5 (.-innerHeight js/window))
                   "reset-button"
                   (fn []
                     (reset-game!)
