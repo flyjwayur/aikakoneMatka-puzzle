@@ -274,8 +274,8 @@
     (this-as this
       (.. @game
           -add
-          (button (* 0.85 (.-innerWidth js/window))
-                  (* 0.3 (.-innerHeight js/window))
+          (button (* 0.75 (.-innerWidth js/window))
+                  (* 0.5 (.-innerHeight js/window))
                   "reset-button"
                   (fn []
                     (reset-game!)
