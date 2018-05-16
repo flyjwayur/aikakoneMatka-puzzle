@@ -39,8 +39,8 @@
 (def puzzle-image-height (atom nil))
 (def button-sprite-sheet-width (atom nil))
 (def button-sprite-sheet-height (atom nil))
-(def button-sprite-col-num 3)
-(def button-sprite-row-num 2)
+(def button-sprite-col-num 2)
+(def button-sprite-row-num 3)
 
 
 ;- util functions to find size of puzzle and buttons
