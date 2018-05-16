@@ -61,7 +61,8 @@
             "play-button"
             (fn []
               (send-game-start-fn!)
-              (util/destroy-stage-clear-text!))
+              (util/destroy-stage-clear-text!)
+              (util/destroy-game-intro-text!))
             this)))))
 
 (defn- store-control-button-and-return-it! [control-button]

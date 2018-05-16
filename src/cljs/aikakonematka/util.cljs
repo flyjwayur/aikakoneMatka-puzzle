@@ -302,6 +302,11 @@
                 :backgroundColor "#f7eb7e"
                 :align           "center"}))))
 
+(defn destroy-game-intro-text! []
+  (when-let [puzzle-completion-text (:puzzle-game-intro-text @game-state)]
+    (.destroy puzzle-completion-text))
+  (swap! game-state assoc :puzzle-game-intro-text nil))
+
 (defn destroy-stage-clear-text! []
   (when-let [puzzle-completion-text (:puzzle-completion-text @game-state)]
     (.destroy puzzle-completion-text))
