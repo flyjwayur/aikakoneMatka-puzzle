@@ -11,23 +11,13 @@
             [re-frame.core :as rf]
             ))
 
-; - Finna API -
-(defn set-game-image! [search-keyword]
-  (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
-                                   {:with-credentials? false
-                                    :query-params      {"lookfor" search-keyword}}))]
-        (rf/dispatch [:set-game-img (str "http://api.finna.fi" (-> (filter :images (get-in response [:body :records]))
-                                                                   first
-                                                                   :images
-                                                                   first))]))))
-
 ;- view functions -
 
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
    {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
    [ui/raised-button {:label    "Play game"
-                      :on-click util/show-game!}]])
+                      :on-click #(rf/dispatch [:screen-change :game])}]])
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
@@ -53,44 +43,65 @@
                  [ui/table-row-column (inc rank)]
                  [ui/table-row-column (ranking rank)]]))]]]))
 
+(defn- puzzle-selection-view []
+  (into
+    [:div
+     [:img {:style  {:position "absolute"
+                     :z-index  "0"
+                     :display  "block"}
+            :src    "images/puzzle-selection-bg.png"
+            :width  "100%"
+            :height "100%"}]]
+    (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
+           ^{:key search-keyword} [:img
+                                {:id       search-keyword
+                                 :style    {:position "absolute"
+                                            :z-index  "1"
+                                            :left     (:left img-pos-in-puzzle-selection-view)
+                                            :top      (:top img-pos-in-puzzle-selection-view)}
+                                 :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
+                                             (when game-imgs
+                                               (println game-imgs)
+                                               (game-imgs search-keyword "")))
+                                 :width    "20%"
+                                 :height   "27.5%"
+                                 :on-click #(util/show-game! search-keyword)}])
+         util/puzzle-images)))
+
 (defn app []
-  (if (string? @(rf/subscribe [:game-img]))
-    (do (let [canvas (.getElementById js/document "canvas")]
-          (game/start-game!
-            @(rf/subscribe [:game-img])
-            {:chsk-send-fn! web-socket/chsk-send!
-             :send-reset-fn! web-socket/send-reset!})
-          (set! (.-display (.-style canvas)) "block"))
-        [:div])
-    (do
-      (let [canvas (.getElementById js/document "canvas")]
-        (set! (.-display (.-style canvas)) "none"))
-      (cond
-        (= :intro @(rf/subscribe [:screen]))
-        [:img {:src      "images/aikakone-intro.png"
-               :width    "100%"
-               :height   "100%"
-               :on-click util/show-puzzle-selection!}]
-        (= :puzzle-selection @(rf/subscribe [:screen]))
-        [:div
-         [:img {:src @(rf/subscribe [:game-img])}]
-         (into [:ul
-                [:li [:a
-                      {:href     "#!"
-                       :on-click #(do
-                                    (rf/dispatch [:set-game-img "images/puzzleImage.jpg"])
-                                    (util/show-game!))}
-                      "default"]]]
-               (map (fn [search-word]
-                      [:li [:a {:href     "#"
-                                :on-click #(do
-                                             (set-game-image! search-word)
-                                             (util/show-game!))}
-                            search-word]])
-                    ["kirkko"
-                     "miehet"
-                     "naiset"
-                     "sotilas"
-                     "rauta"]))]
-        (= :ranking-dashboard @(rf/subscribe [:screen]))
-        [ranking-dashboard]))))
+  (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
+        game-img @(rf/subscribe [:game-img])]
+    (if (and (= :game @(rf/subscribe [:screen]))
+             (= (count util/puzzle-images) (count search-word->game-img-url))
+             (when search-word->game-img-url
+               (string? (search-word->game-img-url game-img))))
+      (do (let [canvas (.getElementById js/document "canvas")]
+            (game/start-game!
+              (search-word->game-img-url game-img)
+              {:send-game-start-fn!      web-socket/send-game-start!
+               :send-reset-fn!           web-socket/send-reset!
+               :send-sprites-state-fn!   web-socket/send-sprites-state!
+               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
+               :send-music-note-fn!      web-socket/send-button-music-notes!})
+            (set! (.-display (.-style canvas)) "block"))
+          [:div])
+      (do
+        (let [canvas (.getElementById js/document "canvas")]
+          (set! (.-display (.-style canvas)) "none"))
+        (cond
+          (= :intro @(rf/subscribe [:screen]))
+          [:div
+           [:img {:style {:position "absolute"
+                          :background-color "#fff"
+                          :z-index "2"}
+                  :src      "images/aikakone-intro.png"
+                  :width    "100%"
+                  :height   "100%"
+                  :on-click util/show-puzzle-selection!}]
+           [puzzle-selection-view]]
+
+          (= :puzzle-selection @(rf/subscribe [:screen]))
+          [puzzle-selection-view]
+
+          (= :ranking-dashboard @(rf/subscribe [:screen]))
+          [ranking-dashboard])))))

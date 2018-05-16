@@ -3,6 +3,18 @@
 
 (enable-console-print!)
 
+;- util variables
+
+(def puzzle-images
+  [{:search-keyword "tori" :img-pos-in-puzzle-selection-view {:left "18.5%" :top "13.7%"}}
+   {:search-keyword "Mannerheimintie" :img-pos-in-puzzle-selection-view {:left "39.3%" :top "13.7%"}}
+   {:search-keyword "Lapinlahdenkatu" :img-pos-in-puzzle-selection-view {:left "60%" :top "13.7%"}}
+   {:search-keyword "kamppi" :img-pos-in-puzzle-selection-view {:left "18.5%" :top "43.5%"}}
+   {:search-keyword "tuomiokirkko" :img-pos-in-puzzle-selection-view {:left "39.3%" :top "43.5%"}}
+   {:search-keyword "mustikka" :img-pos-in-puzzle-selection-view {:left "60%" :top "43.5%"}}
+   {:search-keyword "Rovaniemi" :img-pos-in-puzzle-selection-view {:left "18.5%" :top "73.2%"}}
+   {:search-keyword "suomenlinna" :img-pos-in-puzzle-selection-view {:left "60%" :top "73.2%"}}])
+
 (def row-col-num 6)
 
 (defn parse-json [json-string]
@@ -18,6 +30,7 @@
                            :play-time              0.0
                            :play-time-text         nil
                            :puzzle-completion-text nil
+                           :puzzle-game-intro-text nil
                            :ranking-button         nil
                            :music-pitches          []
                            :music-durations        []}))
@@ -28,17 +41,24 @@
 (def button-sprite-sheet-height (atom nil))
 (def button-sprite-col-num 3)
 (def button-sprite-row-num 2)
+
+
+;- util functions to find size of puzzle and buttons
+
 (defn- get-button-width [btn-sprite-col-num]
   (/ @button-sprite-sheet-width btn-sprite-col-num))
+
 (defn- get-button-height [btn-sprite-row-num]
   (/ @button-sprite-sheet-height btn-sprite-row-num))
+
 (defn- get-left-margin []
   (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2))
+
 (defn- get-top-margin []
   (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 2))
 
 (defn- get-piece-width-height [puzzle-width-height]
-  (/ puzzle-width-height row-col-num))
+  (int (/ puzzle-width-height row-col-num)))
 
 (defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
   (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
@@ -60,6 +80,9 @@
   (/ (:puzzle-width-height @game-state)
      (get-puzzle-image-height)))
 
+
+;- util functions for checking condition
+
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
     (and (not (empty? (:sprites-state dereffed-game-state)))
@@ -76,6 +99,8 @@
         (and (every? #(true? (val %)) row-flipped?)
              (every? #(true? (val %)) col-flipped?)
              (false? diagonal-flipped?)))))
+
+;- util functions to create/display/hide puzzle and buttons
 
 (defn- display-play-button! []
   (.. (:play-button @game-state) -scale (setTo 1 1)))
@@ -95,8 +120,7 @@
   (when (currently-playing-game?)
     (swap! game-state assoc :sprites-state sprites-state)
     (println "synchronizing.... :)")
-    (let [game-object-facotry (.-add game)
-          derefed-state @game-state
+    (let [derefed-state @game-state
           sprites (:sprites derefed-state)
           piece-x-scale (get-piece-x-scale)
           piece-y-scale (get-piece-y-scale)
@@ -162,14 +186,42 @@
     (this-as this
       (.. @game
           -add
-          (button (* 0.75 (.-innerWidth js/window))
-                  (* 0.2 (.-innerHeight js/window))
+          (button (/ (.-innerWidth js/window) 4)
+                  (/ (.-innerHeight js/window) 2)
                   "ranking-button"
                   #(rf/dispatch [:screen-change :ranking-dashboard])
                   this))))
   (display-ranking-button!))
 
-(defn show-game! []
+(defn- display-game-intro-message! []
+  (swap!
+    game-state
+    assoc
+    :puzzle-game-intro-text
+    (.text
+      (.-add @game)
+      (/ (.-innerWidth js/window) 2)
+      (/ (.-innerHeight js/window) 10)
+      "Back to the Suomi past!
+      Like our journey in our life,
+      playing this game with companions,
+      it might be more fun and enjoyable.
+      Are you ready for beautiful discovery?"
+      (clj->js {:font            "20px Gill Sans, serif"
+                :fill            "#f6f4f3"
+                :backgroundColor "#3d5a80"
+                :align           "center"
+                :padding "20px"
+                :borderRadius "10px"}))))
+
+(defn set-on-click-callback! [sprite callback-fn]
+  (set! (.-inputEnabled sprite) true)
+  (.add
+    (.-onInputDown (.-events sprite))
+    callback-fn))
+
+(defn show-game! [search-word]
+  (rf/dispatch [:set-game-img search-word])
   (rf/dispatch [:screen-change :game]))
 
 (defn show-puzzle-selection! []
@@ -232,6 +284,9 @@
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
 
+
+;- util functions for puzzle completion msg
+
 (defn- display-congrats-message! []
   (swap!
     game-state
@@ -239,13 +294,18 @@
     :puzzle-completion-text
     (.text
       (.-add @game)
-      (/ (.-innerWidth js/window) 5)
+      (/ (.-innerWidth js/window) 4)
       (/ (.-innerHeight js/window) 20)
-      "Congrats! \n You made it :D Yeahhhh!"
+      "Congrats! \n Awesome! You made it :D!"
       (clj->js {:font            "40px Arial"
-                :fill            "#06184c"
-                :backgroundColor "#f7eb7e"
+                :fill            "#F6F4F3"
+                :backgroundColor "#EE6C4D"
                 :align           "center"}))))
+
+(defn destroy-game-intro-text! []
+  (when-let [puzzle-completion-text (:puzzle-game-intro-text @game-state)]
+    (.destroy puzzle-completion-text))
+  (swap! game-state assoc :puzzle-game-intro-text nil))
 
 (defn destroy-stage-clear-text! []
   (when-let [puzzle-completion-text (:puzzle-completion-text @game-state)]
@@ -264,6 +324,9 @@
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))
 
+
+;- util functions for the play time
+
 (defn display-play-time! []
   (when-not (:play-time-text @game-state)
     (swap! game-state
@@ -275,8 +338,7 @@
                      (/ (.-innerHeight js/window) 20)
                      "0.000"
                      (clj->js {:font            "40px Arial"
-                               :fill            "#fff"
-                               :backgroundColor "#000"
+                               :fill            "#293241"
                                :align           "center"}))))))
 
 (defn update-play-time-to-current-time! [play-time]
@@ -286,6 +348,9 @@
       (:play-time-text derefed-state)
       (str play-time-in-sec))
     (swap! game-state assoc :play-time play-time-in-sec)))
+
+
+;- util funtion for updating music
 
 (defn update-music-notes! [music-pitches]
   (println "music notes : " music-pitches)

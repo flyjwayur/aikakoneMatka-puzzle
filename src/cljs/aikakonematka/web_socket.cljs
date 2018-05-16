@@ -19,6 +19,9 @@
 (defonce ch-chsk (:ch-recv channel-socket))                 ;To receive the msg
 (defonce chsk-send! (:send-fn channel-socket))              ;To send the msg
 
+(defn send-game-start! []
+  (chsk-send! [:aikakone/game-start]))
+
 (defn send-sprites-state! []
   (println "sending " (:sprites-state @util/game-state))
   (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
@@ -59,10 +62,7 @@
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
-                             (game/create-puzzle-board! {:send-sprites-state-fn!  send-sprites-state!
-                                                        :send-puzzle-complete-fn! send-puzzle-complete!
-                                                        :send-start-timer-fn!     send-start-timer!
-                                                        :send-music-note-fn!      send-button-music-notes!})
+                             (game/display-puzzle-board! {:send-start-timer-fn!     send-start-timer!})
                              (send-sprites-state!))
 
       :aikakone/current-time (when (and (:play-time-text @util/game-state)

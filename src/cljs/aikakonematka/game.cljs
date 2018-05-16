@@ -30,7 +30,11 @@
       (.image
         phaser-loader
         "reset-button"
-        "images/reset-button.jpg"))))
+        "images/reset-button.png")
+      (.image
+        phaser-loader
+        "game-play-bg"
+        "images/puzzle-play-bg.png"))))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
@@ -43,7 +47,7 @@
 
 (declare create-puzzle-board)
 
-(defn- make-play-button! [{:keys [chsk-send-fn!]}]
+(defn- make-play-button! [send-game-start-fn!]
   (swap!
     util/game-state
     assoc
@@ -52,16 +56,18 @@
       (.. @util/game
           -add
           (button
-            10
-            10
+            (/ (.-innerWidth js/window) 2)
+            (/ (.-innerHeight js/window) 2)
             "play-button"
             (fn []
-              (chsk-send-fn! [:aikakone/game-start])
-              (util/destroy-stage-clear-text!))
+              (send-game-start-fn!)
+              (util/destroy-stage-clear-text!)
+              (util/destroy-game-intro-text!))
             this)))))
 
 (defn- store-control-button-and-return-it! [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
+  (.. control-button -scale (setTo 0 0))
   (set! (.. control-button -anchor -x) 0.5)
   (set! (.. control-button -anchor -y) 0.5)
   control-button)
@@ -75,113 +81,112 @@
     (set! (.. piece -anchor -x) 0.5)
     (set! (.. piece -anchor -y) 0.5)))
 
-(defn- create-puzzle-board! [{:keys [send-sprites-state-fn!
-                                    send-puzzle-complete-fn!
-                                    send-start-timer-fn!
-                                    send-music-note-fn!]}]
+(defn- display-puzzle-board! [{:keys [send-start-timer-fn!]}]
   "Create randomized puzzle board with one black piece,
    It also checks whether it already created piece/button sprites."
   (util/show-reset-button!)
   (util/show-control-buttons!)
   (util/hide-play-button!)
   (util/hide-ranking-button!)
-  ;It only creates the puzzle piece/button sprites only once for each client.
-  (when (empty? (:sprites @util/game-state))
-    (let [game-object-factory (.-add @util/game)
-          piece-width-height (util/get-piece-width-height (:puzzle-width-height @util/game-state))
-          left-margin (util/get-left-margin)
-          top-margin (util/get-top-margin)
-          set-on-click-callback! (fn [sprite callback-fn]
-                                   (set! (.-inputEnabled sprite) true)
-                                   (.add
-                                     (.-onInputDown (.-events sprite))
-                                     callback-fn))]
-      (doseq [row (range util/row-col-num)
-              col (range util/row-col-num)
-              :let [frame-id (+ (* util/row-col-num row) col)
-                    x-pos (+ (* piece-width-height col) left-margin col)
-                    y-pos (+ (* piece-width-height row) top-margin row)]]
-        (create-puzzle-piece-and-store! {:frame-id frame-id
-                                        :x-pos     x-pos
-                                        :y-pos     y-pos
-                                        :row       row
-                                        :col       col})
-        (when
-          (and (zero? col) (= row (dec util/row-col-num)))
-          (let [bottom-left-button (store-control-button-and-return-it!
-                                     (.sprite
-                                       game-object-factory
-                                       (- x-pos piece-width-height)
-                                       (+ y-pos piece-width-height)
-                                       "flip-buttons"
-                                       5))
-                frequency (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num)]
-            (util/make-buttons-same-size-as-puzzle-piece! bottom-left-button)
-            (set-on-click-callback!
-              bottom-left-button
-              (fn []
-                (when (util/currently-playing-game?)
-                  ;Without getting new row & col range with doseq for flipping,
-                  ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
-                  (sound/play-beep! frequency)
-                  (send-music-note-fn! frequency)
-                  (flip-diagonal-pieces!)
-                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
-                  (send-sprites-state-fn!)
-                  (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
-        (when (zero? col)
-          (let [left-button (store-control-button-and-return-it!
-                              (.sprite
-                                game-object-factory
-                                (- x-pos piece-width-height)
-                                y-pos
-                                "flip-buttons"
-                                row))
-                frequency (sound/frequencies-of-major-scale-in-4th-octave row)]
-            (util/make-buttons-same-size-as-puzzle-piece! left-button)
-            (set-on-click-callback!
-              left-button
-              (fn []
-                (when (util/currently-playing-game?)
-                  (sound/play-beep! frequency)
-                  (send-music-note-fn! frequency)
-                  (flip-row! row)
-                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
-                  (send-sprites-state-fn!)
-                  (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
-        (when (= row (dec util/row-col-num))
-          (let [bottom-button (store-control-button-and-return-it!
-                                (.sprite
-                                  game-object-factory
-                                  x-pos
-                                  (+ y-pos piece-width-height)
-                                  "flip-buttons"
-                                  col))
-                frequency (sound/frequencies-of-major-scale-in-4th-octave
-                            (mod (+ 1 util/row-col-num col)
-                                 (count sound/frequencies-of-major-scale-in-4th-octave)))]
-            (util/make-buttons-same-size-as-puzzle-piece! bottom-button)
-            (set-on-click-callback!
-              bottom-button
-              (fn []
-                (when (util/currently-playing-game?)
-                  (sound/play-beep! frequency)
-                  (send-music-note-fn! frequency)
-                  (flip-col! col)
-                  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
-                  (send-sprites-state-fn!)
-                  (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))
   ;Change the scale of pieces according to the current sprites-state
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (send-start-timer-fn!)
   (util/display-play-time!))
 
-(defn- create-game [websocket-msg-send-fns]
+(defn- display-puzzle-background []
+  (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
+  (.. @util/game -add (image 0 0 "game-play-bg")))
+
+(defn- create-game [{:keys [send-game-start-fn!
+                            send-reset-fn!
+                            send-sprites-state-fn!
+                            send-puzzle-complete-fn!
+                            send-music-note-fn!]}]
   (fn []
+    (display-puzzle-background)
     (when-not (:play-button @util/game-state)
-      (make-play-button! websocket-msg-send-fns)
+      (util/display-game-intro-message!)
+      (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
-      (util/make-reset-button! (:send-reset-fn! websocket-msg-send-fns)))))
+      (util/make-reset-button! send-reset-fn!))
+    ;It only creates the puzzle piece/button sprites only once for each client.
+    (when (empty? (:sprites @util/game-state))
+      (let [game-object-factory (.-add @util/game)
+            piece-width-height (util/get-piece-width-height (:puzzle-width-height @util/game-state))
+            left-margin (util/get-left-margin)
+            top-margin (util/get-top-margin)]
+        (doseq [row (range util/row-col-num)
+                col (range util/row-col-num)
+                :let [frame-id (+ (* util/row-col-num row) col)
+                      x-pos (+ (* piece-width-height col) left-margin (+ 2 col))
+                      y-pos (+ (* piece-width-height row) top-margin (+ 2 row))]]
+          (create-puzzle-piece-and-store! {:frame-id frame-id
+                                           :x-pos     x-pos
+                                           :y-pos     y-pos
+                                           :row       row
+                                           :col       col})
+          (when
+            (and (zero? col) (= row (dec util/row-col-num)))
+            (let [bottom-left-button (store-control-button-and-return-it!
+                                       (.sprite
+                                         game-object-factory
+                                         (- x-pos piece-width-height)
+                                         (+ y-pos piece-width-height)
+                                         "flip-buttons"
+                                         5))
+                  frequency (sound/frequencies-of-major-scale-in-4th-octave util/row-col-num)]
+              (util/set-on-click-callback!
+                bottom-left-button
+                (fn []
+                  (when (util/currently-playing-game?)
+                    ;Without getting new row & col range with doseq for flipping,
+                    ;it won't flip the puzzle. it will consider row & col to clicked button's row & col
+                    (sound/play-beep! frequency)
+                    (send-music-note-fn! frequency)
+                    (flip-diagonal-pieces!)
+                    (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+                    (send-sprites-state-fn!)
+                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
+          (when (zero? col)
+            (let [left-button (store-control-button-and-return-it!
+                                (.sprite
+                                  game-object-factory
+                                  (- x-pos piece-width-height)
+                                  y-pos
+                                  "flip-buttons"
+                                  row))
+                  frequency (sound/frequencies-of-major-scale-in-4th-octave row)]
+              (util/set-on-click-callback!
+                left-button
+                (fn []
+                  (when (util/currently-playing-game?)
+                    (sound/play-beep! frequency)
+                    (send-music-note-fn! frequency)
+                    (flip-row! row)
+                    (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+                    (send-sprites-state-fn!)
+                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
+          (when (= row (dec util/row-col-num))
+            (let [bottom-button (store-control-button-and-return-it!
+                                  (.sprite
+                                    game-object-factory
+                                    x-pos
+                                    (+ y-pos piece-width-height)
+                                    "flip-buttons"
+                                    col))
+                  frequency (sound/frequencies-of-major-scale-in-4th-octave
+                              (mod (+ 1 util/row-col-num col)
+                                   (count sound/frequencies-of-major-scale-in-4th-octave)))]
+              (util/set-on-click-callback!
+                bottom-button
+                (fn []
+                  (when (util/currently-playing-game?)
+                    (sound/play-beep! frequency)
+                    (send-music-note-fn! frequency)
+                    (flip-col! col)
+                    (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+                    (send-sprites-state-fn!)
+                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))))
 
 (defn- game-update [])
 
@@ -193,7 +198,6 @@
         (fn []
           (reset! util/puzzle-image-width (.-width puzzle-img))
           (reset! util/puzzle-image-height (.-height puzzle-img))
-          (println (str "starting game with img src : " image-src))
           (reset! util/game
                   (js/Phaser.Game.
                     (.-innerWidth js/window)
