@@ -110,8 +110,7 @@
   (when (currently-playing-game?)
     (swap! game-state assoc :sprites-state sprites-state)
     (println "synchronizing.... :)")
-    (let [game-object-facotry (.-add game)
-          derefed-state @game-state
+    (let [derefed-state @game-state
           sprites (:sprites derefed-state)
           piece-x-scale (get-piece-x-scale)
           piece-y-scale (get-piece-y-scale)
