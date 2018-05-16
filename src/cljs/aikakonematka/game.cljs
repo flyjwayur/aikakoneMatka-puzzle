@@ -30,7 +30,7 @@
       (.image
         phaser-loader
         "reset-button"
-        "images/reset-button.jpg")
+        "images/reset-button.png")
       (.image
         phaser-loader
         "game-play-bg"
