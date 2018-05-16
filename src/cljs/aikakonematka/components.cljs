@@ -72,6 +72,7 @@
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
         game-img @(rf/subscribe [:game-img])]
     (if (and (= :game @(rf/subscribe [:screen]))
+             (= (count util/puzzle-images) (count search-word->game-img-url))
              (when search-word->game-img-url
                (string? (search-word->game-img-url game-img))))
       (do (let [canvas (.getElementById js/document "canvas")]
@@ -90,7 +91,7 @@
         (cond
           (= :intro @(rf/subscribe [:screen]))
           [:div
-           [:img {:style {:poistion "absolute"
+           [:img {:style {:position "absolute"
                           :background-color "#fff"
                           :z-index "2"}
                   :src      "images/aikakone-intro.png"
