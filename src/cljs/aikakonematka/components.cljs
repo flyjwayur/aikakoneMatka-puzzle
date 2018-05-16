@@ -17,7 +17,7 @@
   [ui/mui-theme-provider
    {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
    [ui/raised-button {:label    "Play game"
-                      :on-click util/show-game!}]])
+                      :on-click #(rf/dispatch [:screen-change :game])}]])
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
