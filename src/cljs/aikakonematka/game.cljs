@@ -94,13 +94,7 @@
 
 (defn- display-puzzle-background []
   (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
-  (.tileSprite
-    (.-add @util/game)
-    0
-    0
-    1200
-    800
-    "game-play-bg"))
+  (.. @util/game -add (image 0 0 "game-play-bg")))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -108,8 +102,8 @@
                             send-puzzle-complete-fn!
                             send-music-note-fn!]}]
   (fn []
+    (display-puzzle-background)
     (when-not (:play-button @util/game-state)
-      (display-puzzle-background)
       (util/display-game-intro-message!)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
