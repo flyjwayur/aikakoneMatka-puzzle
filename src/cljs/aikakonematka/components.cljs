@@ -6,6 +6,7 @@
             [cljsjs.material-ui]
             [cljs-react-material-ui.core :refer [get-mui-theme color]]
             [cljs-react-material-ui.reagent :as ui]
+            [cljs-react-material-ui.icons :as ic]
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
             [re-frame.core :as rf]
@@ -15,8 +16,9 @@
 
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
-   {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
+   {:muiTheme (get-mui-theme (aget js/MaterialUIStyles "DarkRawTheme"))}
    [ui/raised-button {:label    "Play game"
+                      :icon (ic/navigation-arrow-back)
                       :on-click #(rf/dispatch [:screen-change :game])}]])
 
 (defn ranking-dashboard []
@@ -29,13 +31,20 @@
   (let [ranking @(rf/subscribe [:ranking])]
     [:div
      [go-back-to-game-button]
+     [:div {:style {:padding "30px"}}]
      [ui/mui-theme-provider
-      {:muiTheme (get-mui-theme {:palette {:textColor (color :blue200)}})}
+      {:muiTheme (get-mui-theme {:palette {:text-color (color :grey600)}})}
       [ui/table
        [ui/table-header {:displaySelectAll false :adjustForCheckbox false}
         [ui/table-row
-         [ui/table-header-column "Ranking"]
-         [ui/table-header-column "Time Record"]]]
+         [ui/table-header-column
+          {:style
+           {:font-size "15px" :font-weight "700" :color "#EE6C4D"}}
+          "Ranking"]
+         [ui/table-header-column
+          {:style
+           {:font-size "15px" :font-weight "700" :color "#EE6C4D"}}
+          "Time Record"]]]
        (apply conj
               [ui/table-body {:displayRowCheckbox false}]
               (for [rank (range (count ranking))]
