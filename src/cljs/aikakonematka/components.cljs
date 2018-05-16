@@ -11,21 +11,6 @@
             [re-frame.core :as rf]
             ))
 
-;- Finna API -
-
-(defn add-game-img-url-to-DB! [search-keyword]
-  (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
-                                   {:with-credentials? false
-                                    :query-params      {"lookfor" search-keyword}}))]
-        (rf/dispatch [:add-game-img-url
-                      search-keyword
-                      (str "http://api.finna.fi"
-                           (-> (filter :images (get-in response [:body :records]))
-                               second
-                               :images
-                               first))]))))
-
-
 ;- view functions -
 
 (defn go-back-to-game-button []
@@ -68,7 +53,6 @@
             :width  "100%"
             :height "100%"}]]
     (map (fn [{:keys [search-word left top]}]
-           (add-game-img-url-to-DB! search-word)
            ^{:key search-word} [:img
                                 {:id       search-word
                                  :style    {:position "absolute"

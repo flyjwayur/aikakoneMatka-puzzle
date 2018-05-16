@@ -1,8 +1,10 @@
 (ns aikakonematka.core
-
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [aikakonematka.components :as view]
             [aikakonematka.web-socket :as web-sck]
             [aikakonematka.util :as util]
+            [cljs-http.client :as http]
+            [cljs.core.async :refer [<!]]
             [reagent.core :as r]
             [re-frame.core :as rf]
             [nightlight.repl-server]
@@ -10,11 +12,34 @@
 
 (enable-console-print!)
 
+;- Finna API -
+
+(defn add-game-img-url-to-DB! [search-keyword]
+  (go (let [response (<! (http/get "https://api.finna.fi/v1/search"
+                                   {:with-credentials? false
+                                    :query-params      {"lookfor" search-keyword}}))]
+        (rf/dispatch [:add-game-img-url
+                      search-keyword
+                      (str "http://api.finna.fi"
+                           (-> (filter :images (get-in response [:body :records]))
+                               second
+                               :images
+                               first))]))))
+
 ;- Event Handlers -
 
 (rf/reg-event-db
   :initialize
   (fn [_ _]
+    (doseq [search-keyword ["tori"
+                            "Mannerheimintie"
+                            "Lapinlahdenkatu"
+                            "kamppi"
+                            "tuomiokirkko"
+                            "mustikka"
+                            "Rovaniemi"
+                            "suomenlinna"]]
+      (add-game-img-url-to-DB! search-keyword))
     {:screen :intro
      :ranking []}))
 
