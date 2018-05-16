@@ -19,8 +19,21 @@ Go to 'localhost:4000' to edit project on the browser with 'Nightlight'.
 Run 'boot check' to find out if the code can be improved.
 
 ## Licensing
-*Image copyright
-For the Intro image used in this game,
+#### Image Copyright
+
+For the images used in this game,
+
+#### background images
+
+aikakone-intro.png
+puzzle-selection-bg.png
+puzzle-play-bg.png
+ranking-board-bg.png
+
+#### button images
+ranking-button.png
+control-buttons.png
+
 All rights reserved to the image creator, HyeSoo Park.
 
 Copyright @2018 HyeSoo Park 
