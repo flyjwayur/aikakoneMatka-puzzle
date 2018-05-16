@@ -294,12 +294,12 @@
     :puzzle-completion-text
     (.text
       (.-add @game)
-      (/ (.-innerWidth js/window) 5)
+      (/ (.-innerWidth js/window) 4)
       (/ (.-innerHeight js/window) 20)
-      "Congrats! \n You made it :D Yeahhhh!"
+      "Congrats! \n Awesome! You made it :D!"
       (clj->js {:font            "40px Arial"
-                :fill            "#06184c"
-                :backgroundColor "#f7eb7e"
+                :fill            "#F6F4F3"
+                :backgroundColor "#EE6C4D"
                 :align           "center"}))))
 
 (defn destroy-game-intro-text! []
