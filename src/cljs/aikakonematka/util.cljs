@@ -338,8 +338,7 @@
                      (/ (.-innerHeight js/window) 20)
                      "0.000"
                      (clj->js {:font            "40px Arial"
-                               :fill            "#fff"
-                               :backgroundColor "#000"
+                               :fill            "#293241"
                                :align           "center"}))))))
 
 (defn update-play-time-to-current-time! [play-time]
