@@ -31,14 +31,7 @@
 (rf/reg-event-db
   :initialize
   (fn [_ _]
-    (doseq [search-keyword ["tori"
-                            "Mannerheimintie"
-                            "Lapinlahdenkatu"
-                            "kamppi"
-                            "tuomiokirkko"
-                            "mustikka"
-                            "Rovaniemi"
-                            "suomenlinna"]]
+    (doseq [{:keys [search-keyword]} util/puzzle-images]
       (add-game-img-url-to-DB! search-keyword))
     {:screen :intro
      :ranking []}))

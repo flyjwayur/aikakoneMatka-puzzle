@@ -52,28 +52,21 @@
             :src    "images/puzzle-selection-bg.png"
             :width  "100%"
             :height "100%"}]]
-    (map (fn [{:keys [search-word left top]}]
-           ^{:key search-word} [:img
-                                {:id       search-word
+    (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
+           ^{:key search-keyword} [:img
+                                {:id       search-keyword
                                  :style    {:position "absolute"
                                             :z-index  "1"
-                                            :left     left
-                                            :top      top}
+                                            :left     (:left img-pos-in-puzzle-selection-view)
+                                            :top      (:top img-pos-in-puzzle-selection-view)}
                                  :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
                                              (when game-imgs
                                                (println game-imgs)
-                                               (game-imgs search-word "")))
+                                               (game-imgs search-keyword "")))
                                  :width    "20%"
                                  :height   "27.5%"
-                                 :on-click #(util/show-game! search-word)}])
-         [{:search-word "tori" :left "18.5%" :top "13.7%"}
-          {:search-word "Mannerheimintie" :left "39.3%" :top "13.7%"}
-          {:search-word "Lapinlahdenkatu" :left "60%" :top "13.7%"}
-          {:search-word "kamppi" :left "18.5%" :top "43.5%"}
-          {:search-word "tuomiokirkko" :left "39.3%" :top "43.5%"}
-          {:search-word "mustikka" :left "60%" :top "43.5%"}
-          {:search-word "Rovaniemi" :left "18.5%" :top "73.2%"}
-          {:search-word "suomenlinna" :left "60%" :top "73.2%"}])))
+                                 :on-click #(util/show-game! search-keyword)}])
+         util/puzzle-images)))
 
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
