@@ -61,7 +61,9 @@
             "play-button"
             (fn []
               (send-game-start-fn!)
-              (util/destroy-stage-clear-text!)
+              ;hide congrats msg for the next play(when it's not the first play)
+              ;because congrats msg only hide once right after it is created in create-game
+              (util/hide-congrats-msg!)
               (util/destroy-game-intro-text!))
             this)))))
 
@@ -91,8 +93,7 @@
   ;Change the scale of pieces according to the current sprites-state
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (send-start-timer-fn!)
-  (util/show-play-time-text!)
-  )
+  (util/show-play-time-text!))
 
 (defn- display-puzzle-background []
   (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
@@ -104,14 +105,6 @@
                             send-puzzle-complete-fn!
                             send-music-note-fn!]}]
   (fn []
-    (when-not (:play-button @util/game-state)
-      (display-puzzle-background)
-      (util/display-game-intro-message!)
-      (make-play-button! send-game-start-fn!)
-      (util/make-ranking-button!)
-      (util/make-play-time!)
-      (util/make-reset-button! send-reset-fn!)
-      (util/hide-play-time-text!))
     ;It only creates the puzzle piece/button sprites only once for each client.
     (when (empty? (:sprites @util/game-state))
       (let [game-object-factory (.-add @util/game)
@@ -189,7 +182,17 @@
                     (flip-col! col)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-finish-game! send-puzzle-complete-fn!)))))))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!)))))))))
+    (when-not (:play-button @util/game-state)
+      (display-puzzle-background)
+      (util/display-game-intro-message!)
+      (make-play-button! send-game-start-fn!)
+      (util/make-ranking-button!)
+      (util/make-play-time!)
+      (util/hide-play-time-text!)
+      (util/make-reset-button! send-reset-fn!)
+      (util/make-congrats-message!)
+      (util/hide-congrats-msg!))))
 
 (defn- game-update [])
 

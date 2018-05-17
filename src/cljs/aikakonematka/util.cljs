@@ -83,10 +83,14 @@
 
 ;- util functions for checking condition
 
+(defn- puzzle-completion-text-scale-zero? []
+  (let [dereffed-game-state @game-state]
+    (= 0 (.. (:puzzle-completion-text dereffed-game-state) -scale -x))))
+
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
     (and (not (empty? (:sprites-state dereffed-game-state)))
-         (nil? (:puzzle-completion-text dereffed-game-state)))))
+         puzzle-completion-text-scale-zero?)))
 
 (defn- puzzle-completed? []
   (let [sprites-state (:sprites-state @game-state)
@@ -321,7 +325,7 @@
 
 ;- util functions for puzzle completion msg
 
-(defn- display-congrats-message! []
+(defn- make-congrats-message! []
   (swap!
     game-state
     assoc
@@ -336,20 +340,22 @@
                 :backgroundColor "#EE6C4D"
                 :align           "center"}))))
 
-(defn destroy-stage-clear-text! []
-  (when-let [puzzle-completion-text (:puzzle-completion-text @game-state)]
-    (.destroy puzzle-completion-text))
-  (swap! game-state assoc :puzzle-completion-text nil))
+(defn show-congrats-msg! []
+  (.. (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
+
+(defn hide-congrats-msg! []
+  (.. (:puzzle-completion-text @game-state) -scale (setTo 0 0)))
 
 (defn congrats-finish-game! [send-puzzle-complete-fn!]
-  (when (and (currently-playing-game?)
-             (puzzle-completed?)
-             (not (:puzzle-completion-text @game-state)))
+  (when (and (puzzle-completed?)
+             ;for other client's (in case they didn't start a puzzle yet)
+             (currently-playing-game?)
+             (puzzle-completion-text-scale-zero?))
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)
     (display-ranking-button!)
-    (display-congrats-message!)
+    (show-congrats-msg!)
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))
 
