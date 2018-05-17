@@ -319,7 +319,7 @@
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)
-    (make-ranking-button!)
+    (display-ranking-button!)
     (display-congrats-message!)
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))

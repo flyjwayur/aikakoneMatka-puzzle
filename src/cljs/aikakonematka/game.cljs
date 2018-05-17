@@ -103,8 +103,8 @@
                             send-puzzle-complete-fn!
                             send-music-note-fn!]}]
   (fn []
-    (display-puzzle-background)
     (when-not (:play-button @util/game-state)
+      (display-puzzle-background)
       (util/display-game-intro-message!)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
