@@ -29,28 +29,30 @@
         ;Here it creates Clojure data
         (rf/dispatch [:ranking (util/parse-json ranking)])))
   (let [ranking @(rf/subscribe [:ranking])]
-    [:div
+    [:div {:style {:background-image  "url(\"images/ranking-board-bg.png\")"
+                   :width "100%"
+                   :height "100%"}}
      [go-back-to-game-button]
      [:div {:style {:padding "30px"}}]
      [ui/mui-theme-provider
       {:muiTheme (get-mui-theme {:palette {:text-color (color :grey600)}})}
-      [ui/table
+      [ui/table {:style {:background-color "rgba(255, 255, 255, 0.5)"}}
        [ui/table-header {:displaySelectAll false :adjustForCheckbox false}
         [ui/table-row
          [ui/table-header-column
           {:style
-           {:font-size "15px" :font-weight "700" :color "#EE6C4D"}}
+           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
           "Ranking"]
          [ui/table-header-column
           {:style
-           {:font-size "15px" :font-weight "700" :color "#EE6C4D"}}
+           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
           "Time Record"]]]
        (apply conj
               [ui/table-body {:displayRowCheckbox false}]
               (for [rank (range (count ranking))]
                 [ui/table-row
-                 [ui/table-row-column (inc rank)]
-                 [ui/table-row-column (ranking rank)]]))]]]))
+                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (inc rank)]
+                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (ranking rank)]]))]]]))
 
 (defn- puzzle-selection-view []
   (into
