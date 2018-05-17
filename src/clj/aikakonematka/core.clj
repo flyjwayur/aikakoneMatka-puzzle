@@ -22,7 +22,7 @@
 
 (def ranking (ref []))
 
-(def game-start-game (ref nil))
+(def game-start-time (ref nil))
 
 (def sending-time-future (ref nil))
 
@@ -55,7 +55,7 @@
 (defn- start-sending-current-playtime! []
   (future (loop []
             (Thread/sleep 200)
-            (when-let [start-time @game-start-game]
+            (when-let [start-time @game-start-time]
               (let [duration (jt/duration start-time (jt/local-date-time))
                     seconds (jt/value (jt/property duration :seconds))
                     nanos (jt/value (jt/property duration :nanos))]
@@ -90,7 +90,7 @@
 
 (defmethod event-msg-handler :aikakone/start-timer [{:keys [?data]}]
   (dosync
-      (ref-set game-start-game (jt/local-date-time))
+      (ref-set game-start-time (jt/local-date-time))
       (ref-set sending-time-future (start-sending-current-playtime!))))
 
 (defmethod event-msg-handler :aikakone/puzzle-complete! [{:keys [id client-id ?data]}]
@@ -98,15 +98,15 @@
     (ref-set sprites-state nil)
     (ref-set bgm-pitches nil)
     ;It will only take the first player's play time in each game
-    (when @game-start-game
-      (ref-set game-start-game nil)
+    (when @game-start-time
+      (ref-set game-start-time nil)
       (alter ranking (fn [ranking]
                       (take 10 (sort (conj ranking ?data))))))
     (broadcast-data-to-all-except-msg-sender client-id :aikakone/sprites-state {})))
 
 (defmethod event-msg-handler :aikakone/reset [{:keys [client-id]}]
   (dosync
-      (ref-set game-start-game nil)
+      (ref-set game-start-time nil)
       (ref-set sprites-state nil)
       (ref-set bgm-pitches nil)
       (broadcast-data-to-all-except-msg-sender client-id :aikakone/reset nil)))

@@ -91,7 +91,8 @@
   ;Change the scale of pieces according to the current sprites-state
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (send-start-timer-fn!)
-  (util/display-play-time!))
+  (util/show-play-time-text!)
+  )
 
 (defn- display-puzzle-background []
   (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
@@ -108,7 +109,9 @@
       (util/display-game-intro-message!)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
-      (util/make-reset-button! send-reset-fn!))
+      (util/make-play-time!)
+      (util/make-reset-button! send-reset-fn!)
+      (util/hide-play-time-text!))
     ;It only creates the puzzle piece/button sprites only once for each client.
     (when (empty? (:sprites @util/game-state))
       (let [game-object-factory (.-add @util/game)
@@ -146,7 +149,7 @@
                     (flip-diagonal-pieces!)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (zero? col)
             (let [left-button (store-control-button-and-return-it!
                                 (.sprite
@@ -165,7 +168,7 @@
                     (flip-row! row)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (= row (dec util/row-col-num))
             (let [bottom-button (store-control-button-and-return-it!
                                   (.sprite
@@ -186,7 +189,7 @@
                     (flip-col! col)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!)))))))))))
 
 (defn- game-update [])
 
