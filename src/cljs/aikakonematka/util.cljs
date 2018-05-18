@@ -350,19 +350,22 @@
 ;- util functions for puzzle completion msg
 
 (defn- make-congrats-message! []
-  (swap!
-    game-state
-    assoc
-    :puzzle-completion-text
-    (.text
-      (.-add @game)
-      (/ (.-innerWidth js/window) 4)
-      (/ (.-innerHeight js/window) 20)
-      "Congrats! \n Awesome! You made it :D!"
-      (clj->js {:font            "40px Arial"
-                :fill            "#F6F4F3"
-                :backgroundColor "#EE6C4D"
-                :align           "center"}))))
+  (let [congrats-msg (.text
+                       (.-add @game)
+                       (* 0.5 (.-innerWidth js/window))
+                       (* 0.5 (.-innerHeight js/window))
+                       "Congrats! \n Awesome! You made it :D!"
+                       (clj->js {:font            "40px Arial"
+                                 :fill            "#F6F4F3"
+                                 :backgroundColor "#EE6C4D"
+                                 :align           "center"}))]
+    (swap!
+      game-state
+      assoc
+      :puzzle-completion-text
+      congrats-msg)
+    (set! (.. congrats-msg -anchor -x) 0.5)
+    (set! (.. congrats-msg -anchor -y) 0.5)))
 
 (defn show-congrats-msg! []
   (.. (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
