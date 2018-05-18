@@ -29,6 +29,10 @@
         "images/ranking-button.png")
       (.image
         phaser-loader
+        "puzzle-selection-button"
+        "images/puzzle-selection-button.png")
+      (.image
+        phaser-loader
         "reset-button"
         "images/reset-button.png")
       (.image
@@ -188,6 +192,7 @@
       (util/display-game-intro-message!)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
+      (util/make-puzzle-selection-button!)
       (util/make-play-time!)
       (util/hide-play-time-text!)
       (util/make-reset-button! send-reset-fn!)

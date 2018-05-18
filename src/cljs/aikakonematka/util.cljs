@@ -22,18 +22,19 @@
 
 (def game (atom nil))
 
-(defonce game-state (atom {:sprites                {}
-                           :sprites-state          {}
-                           :puzzle-width-height    0
-                           :play-button            nil
-                           :control-buttons        []
-                           :play-time              0.0
-                           :play-time-text         nil
-                           :puzzle-completion-text nil
-                           :puzzle-game-intro-text nil
-                           :ranking-button         nil
-                           :music-pitches          []
-                           :music-durations        []}))
+(defonce game-state (atom {:sprites                 {}
+                           :sprites-state           {}
+                           :puzzle-width-height     0
+                           :play-button             nil
+                           :control-buttons         []
+                           :play-time               0.0
+                           :play-time-text          nil
+                           :puzzle-completion-text  nil
+                           :puzzle-game-intro-text  nil
+                           :ranking-button          nil
+                           :puzzle-selection-button nil
+                           :music-pitches           []
+                           :music-durations         []}))
 
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
@@ -294,6 +295,29 @@
                   this))))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
+
+;- util functions for puzzle-selection-button
+
+(defn- display-puzzle-selection-button! []
+  (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5)))
+
+(defn hide-puzzle-selection-button! []
+  (.. (:puzzle-selection-button @game-state) -scale (setTo 0 0)))
+
+(defn make-puzzle-selection-button! []
+  (swap!
+    game-state
+    assoc
+    :puzzle-selection-button
+    (this-as this
+      (.. @game
+          -add
+          (button (* 0.85 (.-innerWidth js/window))
+                  (* 0.03 (.-innerHeight js/window))
+                  "puzzle-selection-button"
+                  #(rf/dispatch [:screen-change :puzzle-selection])
+                  this))))
+  (display-puzzle-selection-button!))
 
 ;- util functions for game intro message
 
