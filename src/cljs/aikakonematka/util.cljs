@@ -244,7 +244,7 @@
            :play-time-text
            (.. @game
                -add
-               (text (* (.-innerWidth js/window) 0.8)
+               (text (/ (.-innerHeight js/window) 20)
                      (/ (.-innerHeight js/window) 20)
                      "0.000"
                      (clj->js {:font            "40px Arial"
@@ -312,7 +312,7 @@
     (this-as this
       (.. @game
           -add
-          (button (* 0.81 (.-innerWidth js/window))
+          (button (- (* 0.90 (.-innerWidth js/window)) 90)
                   (* 0.03 (.-innerHeight js/window))
                   "puzzle-selection-button"
                   #(rf/dispatch [:screen-change :puzzle-selection])
@@ -353,7 +353,7 @@
   (let [congrats-msg (.text
                        (.-add @game)
                        (* 0.5 (.-innerWidth js/window))
-                       (* 0.5 (.-innerHeight js/window))
+                       (* 0.3 (.-innerHeight js/window))
                        "Congrats! \n Awesome! You made it :D!"
                        (clj->js {:font            "40px Arial"
                                  :fill            "#F6F4F3"

@@ -60,8 +60,8 @@
       (.. @util/game
           -add
           (button
-            10
-            10
+            (/ (.-innerWidth js/window) 2)
+            (/ (.-innerHeight js/window)2)
             "play-button"
             (fn []
               (send-game-start-fn!)
@@ -69,7 +69,9 @@
               ;because congrats msg only hide once right after it is created in create-game
               (util/hide-congrats-msg!)
               (util/destroy-game-intro-text!))
-            this)))))
+            this))))
+  (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
+  (set! (.. (:play-button @util/game-state) -anchor -y) 0.5))
 
 (defn- store-control-button-and-return-it! [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
