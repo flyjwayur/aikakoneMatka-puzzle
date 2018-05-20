@@ -96,5 +96,4 @@
         (reset! util/button-sprite-sheet-width (.-width buttons-img))
         (reset! util/button-sprite-sheet-height (.-height buttons-img))
         (web-sck/start-web-socket!)))) ; start game after loading image
-  (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
   (set! (.-src buttons-img) "images/control-buttons.png"))

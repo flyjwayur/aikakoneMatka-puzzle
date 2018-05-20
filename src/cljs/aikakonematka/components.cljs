@@ -86,19 +86,18 @@
              (= (count util/puzzle-images) (count search-word->game-img-url))
              (when search-word->game-img-url
                (string? (search-word->game-img-url game-img))))
-      (do (let [canvas (.getElementById js/document "canvas")]
-            (game/start-game!
-              (search-word->game-img-url game-img)
-              {:send-game-start-fn!      web-socket/send-game-start!
-               :send-reset-fn!           web-socket/send-reset!
-               :send-sprites-state-fn!   web-socket/send-sprites-state!
-               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
-               :send-music-note-fn!      web-socket/send-button-music-notes!})
-            (set! (.-display (.-style canvas)) "block"))
-          [:div])
       (do
-        (let [canvas (.getElementById js/document "canvas")]
-          (set! (.-display (.-style canvas)) "none"))
+        (swap! util/game-state merge util/initial-game-state)
+        (js/setTimeout #(game/start-game!
+                          (search-word->game-img-url game-img)
+                          {:send-game-start-fn!      web-socket/send-game-start!
+                           :send-reset-fn!           web-socket/send-reset!
+                           :send-sprites-state-fn!   web-socket/send-sprites-state!
+                           :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
+                           :send-music-note-fn!      web-socket/send-button-music-notes!})
+                       500)
+        [:div#canvas])
+      (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
           [:div

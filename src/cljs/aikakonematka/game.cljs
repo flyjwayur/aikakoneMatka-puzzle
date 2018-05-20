@@ -218,4 +218,5 @@
                     (clj->js {:preload (create-preload image-src)
                               :create  (create-game websocket-msg-send-fns)
                               :update  game-update}))))))
+    (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
     (set! (.-src puzzle-img) image-src)))

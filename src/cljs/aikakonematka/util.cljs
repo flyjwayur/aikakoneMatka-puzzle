@@ -22,19 +22,22 @@
 
 (def game (atom nil))
 
-(defonce game-state (atom {:sprites                 {}
-                           :sprites-state           {}
-                           :puzzle-width-height     0
-                           :play-button             nil
-                           :control-buttons         []
-                           :play-time               0.0
-                           :play-time-text          nil
-                           :puzzle-completion-text  nil
-                           :puzzle-game-intro-text  nil
-                           :ranking-button          nil
-                           :puzzle-selection-button nil
-                           :music-pitches           []
-                           :music-durations         []}))
+(def initial-game-state
+  {:sprites                 {}
+   :sprites-state           {}
+   :puzzle-width-height     0
+   :play-button             nil
+   :control-buttons         []
+   :play-time               0.0
+   :play-time-text          nil
+   :puzzle-completion-text  nil
+   :puzzle-game-intro-text  nil
+   :ranking-button          nil
+   :puzzle-selection-button nil
+   :music-pitches           []
+   :music-durations         []})
+
+(defonce game-state (atom initial-game-state))
 
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
