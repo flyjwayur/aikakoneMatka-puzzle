@@ -96,7 +96,12 @@
                            :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
                            :send-music-note-fn!      web-socket/send-button-music-notes!})
                        500)
-        [:div#canvas])
+        [:div
+         [:div#canvas {:style {:position "absolute"
+                               :display "block"}
+                       :width  "100%"
+                       :height "100%"}]
+         [:h1 {:style {:display "inline"}} "Loading..."]])
       (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
