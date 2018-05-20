@@ -301,9 +301,6 @@
 (defn- display-puzzle-selection-button! []
   (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5)))
 
-(defn hide-puzzle-selection-button! []
-  (.. (:puzzle-selection-button @game-state) -scale (setTo 0 0)))
-
 (defn make-puzzle-selection-button! []
   (swap!
     game-state
@@ -312,7 +309,7 @@
     (this-as this
       (.. @game
           -add
-          (button (* 0.85 (.-innerWidth js/window))
+          (button (* 0.81 (.-innerWidth js/window))
                   (* 0.03 (.-innerHeight js/window))
                   "puzzle-selection-button"
                   #(rf/dispatch [:screen-change :puzzle-selection])
