@@ -109,6 +109,7 @@
                             send-puzzle-complete-fn!
                             send-music-note-fn!]}]
   (fn []
+    (display-puzzle-background)
     ;It only creates the puzzle piece/button sprites only once for each client.
     (when (empty? (:sprites @util/game-state))
       (let [game-object-factory (.-add @util/game)
@@ -188,7 +189,6 @@
                     (send-sprites-state-fn!)
                     (util/congrats-finish-game! send-puzzle-complete-fn!)))))))))
     (when-not (:play-button @util/game-state)
-      (display-puzzle-background)
       (util/display-game-intro-message!)
       (make-play-button! send-game-start-fn!)
       (util/make-ranking-button!)
