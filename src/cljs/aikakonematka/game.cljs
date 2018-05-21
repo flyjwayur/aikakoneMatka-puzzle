@@ -29,6 +29,10 @@
         "images/ranking-button.png")
       (.image
         phaser-loader
+        "puzzle-selection-button"
+        "images/puzzle-selection-button.png")
+      (.image
+        phaser-loader
         "reset-button"
         "images/reset-button.png")
       (.image
@@ -56,14 +60,18 @@
       (.. @util/game
           -add
           (button
-            10
-            10
+            (/ (.-innerWidth js/window) 2)
+            (/ (.-innerHeight js/window)2)
             "play-button"
             (fn []
               (send-game-start-fn!)
-              (util/destroy-stage-clear-text!)
+              ;hide congrats msg for the next play(when it's not the first play)
+              ;because congrats msg only hide once right after it is created in create-game
+              (util/hide-congrats-msg!)
               (util/destroy-game-intro-text!))
-            this)))))
+            this))))
+  (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
+  (set! (.. (:play-button @util/game-state) -anchor -y) 0.5))
 
 (defn- store-control-button-and-return-it! [control-button]
   (swap! util/game-state update :control-buttons conj control-button)
@@ -91,7 +99,7 @@
   ;Change the scale of pieces according to the current sprites-state
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (send-start-timer-fn!)
-  (util/display-play-time!))
+  (util/show-play-time-text!))
 
 (defn- display-puzzle-background []
   (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
@@ -104,11 +112,6 @@
                             send-music-note-fn!]}]
   (fn []
     (display-puzzle-background)
-    (when-not (:play-button @util/game-state)
-      (util/display-game-intro-message!)
-      (make-play-button! send-game-start-fn!)
-      (util/make-ranking-button!)
-      (util/make-reset-button! send-reset-fn!))
     ;It only creates the puzzle piece/button sprites only once for each client.
     (when (empty? (:sprites @util/game-state))
       (let [game-object-factory (.-add @util/game)
@@ -146,7 +149,7 @@
                     (flip-diagonal-pieces!)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (zero? col)
             (let [left-button (store-control-button-and-return-it!
                                 (.sprite
@@ -165,7 +168,7 @@
                     (flip-row! row)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (= row (dec util/row-col-num))
             (let [bottom-button (store-control-button-and-return-it!
                                   (.sprite
@@ -186,7 +189,17 @@
                     (flip-col! col)
                     (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
-                    (util/congrats-completion-finish-game! send-puzzle-complete-fn!)))))))))))
+                    (util/congrats-finish-game! send-puzzle-complete-fn!)))))))))
+    (when-not (:play-button @util/game-state)
+      (util/display-game-intro-message!)
+      (make-play-button! send-game-start-fn!)
+      (util/make-ranking-button!)
+      (util/make-puzzle-selection-button!)
+      (util/make-play-time!)
+      (util/hide-play-time-text!)
+      (util/make-reset-button! send-reset-fn!)
+      (util/make-congrats-message!)
+      (util/hide-congrats-msg!))))
 
 (defn- game-update [])
 
@@ -207,4 +220,5 @@
                     (clj->js {:preload (create-preload image-src)
                               :create  (create-game websocket-msg-send-fns)
                               :update  game-update}))))))
+    (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
     (set! (.-src puzzle-img) image-src)))

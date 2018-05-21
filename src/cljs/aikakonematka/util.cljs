@@ -22,18 +22,22 @@
 
 (def game (atom nil))
 
-(defonce game-state (atom {:sprites                {}
-                           :sprites-state          {}
-                           :puzzle-width-height    0
-                           :play-button            nil
-                           :control-buttons        []
-                           :play-time              0.0
-                           :play-time-text         nil
-                           :puzzle-completion-text nil
-                           :puzzle-game-intro-text nil
-                           :ranking-button         nil
-                           :music-pitches          []
-                           :music-durations        []}))
+(def initial-game-state
+  {:sprites                 {}
+   :sprites-state           {}
+   :puzzle-width-height     0
+   :play-button             nil
+   :control-buttons         []
+   :play-time               0.0
+   :play-time-text          nil
+   :puzzle-completion-text  nil
+   :puzzle-game-intro-text  nil
+   :ranking-button          nil
+   :puzzle-selection-button nil
+   :music-pitches           []
+   :music-durations         []})
+
+(defonce game-state (atom initial-game-state))
 
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
@@ -83,10 +87,14 @@
 
 ;- util functions for checking condition
 
+(defn- puzzle-completion-text-scale-zero? []
+  (let [dereffed-game-state @game-state]
+    (= 0 (.. (:puzzle-completion-text dereffed-game-state) -scale -x))))
+
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
     (and (not (empty? (:sprites-state dereffed-game-state)))
-         (nil? (:puzzle-completion-text dereffed-game-state)))))
+         puzzle-completion-text-scale-zero?)))
 
 (defn- puzzle-completed? []
   (let [sprites-state (:sprites-state @game-state)
@@ -193,27 +201,6 @@
                   this))))
   (display-ranking-button!))
 
-(defn- display-game-intro-message! []
-  (swap!
-    game-state
-    assoc
-    :puzzle-game-intro-text
-    (.text
-      (.-add @game)
-      (/ (.-innerWidth js/window) 2)
-      (/ (.-innerHeight js/window) 10)
-      "Back to the Suomi past!
-      Like our journey in our life,
-      playing this game with companions,
-      it might be more fun and enjoyable.
-      Are you ready for beautiful discovery?"
-      (clj->js {:font            "20px Gill Sans, serif"
-                :fill            "#f6f4f3"
-                :backgroundColor "#3d5a80"
-                :align           "center"
-                :padding "20px"
-                :borderRadius "10px"}))))
-
 (defn set-on-click-callback! [sprite callback-fn]
   (set! (.-inputEnabled sprite) true)
   (.add
@@ -248,10 +235,38 @@
      :diagonal-flipped? false})
   (swap! game-state assoc :sprites-state nil))
 
-(defn hide-play-time! []
-  (when-let [play-time-text (:play-time-text @game-state)]
-    (.destroy play-time-text))
-  (swap! game-state assoc :play-time-text nil))
+;- util functions for the play time
+
+(defn make-play-time! []
+  (when-not (:play-time-text @game-state)
+    (swap! game-state
+           assoc
+           :play-time-text
+           (.. @game
+               -add
+               (text (/ (.-innerHeight js/window) 20)
+                     (/ (.-innerHeight js/window) 20)
+                     "0.000"
+                     (clj->js {:font            "40px Arial"
+                               :fill            "#293241"
+                               :align           "center"}))))))
+
+(defn show-play-time-text! []
+  (.. (:play-time-text @game-state) -scale (setTo 1 1)))
+
+(defn hide-play-time-text! []
+  (.. (:play-time-text @game-state) -scale (setTo 0 0)))
+
+(defn update-play-time-to-current-time! [play-time]
+  (let [derefed-state @game-state
+        play-time-in-sec (/ play-time 1000)]
+    (.setText
+      (:play-time-text derefed-state)
+      (str play-time-in-sec))
+    (swap! game-state assoc :play-time play-time-in-sec)))
+
+
+;- util functions to create/display/hide reset button
 
 (defn show-reset-button! []
   (.. (:reset-button @game-state) -scale (setTo 0.1 0.1)))
@@ -262,7 +277,7 @@
 (defn reset-game! []
   (hide-all-puzzle-pieces!)
   (hide-control-buttons!)
-  (hide-play-time!)
+  (hide-play-time-text!)
   (display-play-button!)
   (display-ranking-button!))
 
@@ -284,73 +299,94 @@
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
 
+;- util functions for puzzle-selection-button
 
-;- util functions for puzzle completion msg
+(defn- display-puzzle-selection-button! []
+  (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5)))
 
-(defn- display-congrats-message! []
+(defn make-puzzle-selection-button! []
   (swap!
     game-state
     assoc
-    :puzzle-completion-text
+    :puzzle-selection-button
+    (this-as this
+      (.. @game
+          -add
+          (button (- (* 0.90 (.-innerWidth js/window)) 90)
+                  (* 0.03 (.-innerHeight js/window))
+                  "puzzle-selection-button"
+                  #(rf/dispatch [:screen-change :puzzle-selection])
+                  this))))
+  (display-puzzle-selection-button!))
+
+;- util functions for game intro message
+
+(defn- display-game-intro-message! []
+  (swap!
+    game-state
+    assoc
+    :puzzle-game-intro-text
     (.text
       (.-add @game)
-      (/ (.-innerWidth js/window) 4)
-      (/ (.-innerHeight js/window) 20)
-      "Congrats! \n Awesome! You made it :D!"
-      (clj->js {:font            "40px Arial"
-                :fill            "#F6F4F3"
-                :backgroundColor "#EE6C4D"
-                :align           "center"}))))
+      (/ (.-innerWidth js/window) 2)
+      (/ (.-innerHeight js/window) 10)
+      "Back to the Suomi past!
+      Like our journey in our life,
+      playing this game with companions,
+      it might be more fun and enjoyable.
+      Are you ready for beautiful discovery?"
+      (clj->js {:font            "20px Gill Sans, serif"
+                :fill            "#f6f4f3"
+                :backgroundColor "#3d5a80"
+                :align           "center"
+                :padding "20px"
+                :borderRadius "10px"}))))
 
 (defn destroy-game-intro-text! []
   (when-let [puzzle-completion-text (:puzzle-game-intro-text @game-state)]
     (.destroy puzzle-completion-text))
   (swap! game-state assoc :puzzle-game-intro-text nil))
 
-(defn destroy-stage-clear-text! []
-  (when-let [puzzle-completion-text (:puzzle-completion-text @game-state)]
-    (.destroy puzzle-completion-text))
-  (swap! game-state assoc :puzzle-completion-text nil))
+;- util functions for puzzle completion msg
 
-(defn congrats-completion-finish-game! [send-puzzle-complete-fn!]
-  (when (and (currently-playing-game?)
-             (puzzle-completed?)
-             (not (:puzzle-completion-text @game-state)))
+(defn- make-congrats-message! []
+  (let [congrats-msg (.text
+                       (.-add @game)
+                       (* 0.5 (.-innerWidth js/window))
+                       (* 0.3 (.-innerHeight js/window))
+                       "Congrats! \n Awesome! You made it :D!"
+                       (clj->js {:font            "40px Arial"
+                                 :fill            "#F6F4F3"
+                                 :backgroundColor "#EE6C4D"
+                                 :align           "center"}))]
+    (swap!
+      game-state
+      assoc
+      :puzzle-completion-text
+      congrats-msg)
+    (set! (.. congrats-msg -anchor -x) 0.5)
+    (set! (.. congrats-msg -anchor -y) 0.5)))
+
+(defn show-congrats-msg! []
+  (.. (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
+
+(defn hide-congrats-msg! []
+  (.. (:puzzle-completion-text @game-state) -scale (setTo 0 0)))
+
+(defn congrats-finish-game! [send-puzzle-complete-fn!]
+  (when (and (puzzle-completed?)
+             ;for other client's (in case they didn't start a puzzle yet)
+             (currently-playing-game?)
+             (puzzle-completion-text-scale-zero?))
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)
-    (make-ranking-button!)
-    (display-congrats-message!)
+    (display-ranking-button!)
+    (show-congrats-msg!)
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))
 
-
-;- util functions for the play time
-
-(defn display-play-time! []
-  (when-not (:play-time-text @game-state)
-    (swap! game-state
-           assoc
-           :play-time-text
-           (.. @game
-               -add
-               (text (* (.-innerWidth js/window) 0.8)
-                     (/ (.-innerHeight js/window) 20)
-                     "0.000"
-                     (clj->js {:font            "40px Arial"
-                               :fill            "#293241"
-                               :align           "center"}))))))
-
-(defn update-play-time-to-current-time! [play-time]
-  (let [derefed-state @game-state
-        play-time-in-sec (/ play-time 1000)]
-    (.setText
-      (:play-time-text derefed-state)
-      (str play-time-in-sec))
-    (swap! game-state assoc :play-time play-time-in-sec)))
-
-
-;- util funtion for updating music
+;- util function for updating music
 
 (defn update-music-notes! [music-pitches]
   (println "music notes : " music-pitches)

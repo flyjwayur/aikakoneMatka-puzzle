@@ -29,28 +29,30 @@
         ;Here it creates Clojure data
         (rf/dispatch [:ranking (util/parse-json ranking)])))
   (let [ranking @(rf/subscribe [:ranking])]
-    [:div
+    [:div {:style {:background-image  "url(\"images/ranking-board-bg.png\")"
+                   :width "100%"
+                   :height "100%"}}
      [go-back-to-game-button]
      [:div {:style {:padding "30px"}}]
      [ui/mui-theme-provider
       {:muiTheme (get-mui-theme {:palette {:text-color (color :grey600)}})}
-      [ui/table
+      [ui/table {:style {:background-color "rgba(255, 255, 255, 0.5)"}}
        [ui/table-header {:displaySelectAll false :adjustForCheckbox false}
         [ui/table-row
          [ui/table-header-column
           {:style
-           {:font-size "15px" :font-weight "700" :color "#EE6C4D"}}
+           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
           "Ranking"]
          [ui/table-header-column
           {:style
-           {:font-size "15px" :font-weight "700" :color "#EE6C4D"}}
+           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
           "Time Record"]]]
        (apply conj
               [ui/table-body {:displayRowCheckbox false}]
               (for [rank (range (count ranking))]
                 [ui/table-row
-                 [ui/table-row-column (inc rank)]
-                 [ui/table-row-column (ranking rank)]]))]]]))
+                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (inc rank)]
+                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (ranking rank)]]))]]]))
 
 (defn- puzzle-selection-view []
   (into
@@ -84,19 +86,23 @@
              (= (count util/puzzle-images) (count search-word->game-img-url))
              (when search-word->game-img-url
                (string? (search-word->game-img-url game-img))))
-      (do (let [canvas (.getElementById js/document "canvas")]
-            (game/start-game!
-              (search-word->game-img-url game-img)
-              {:send-game-start-fn!      web-socket/send-game-start!
-               :send-reset-fn!           web-socket/send-reset!
-               :send-sprites-state-fn!   web-socket/send-sprites-state!
-               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
-               :send-music-note-fn!      web-socket/send-button-music-notes!})
-            (set! (.-display (.-style canvas)) "block"))
-          [:div])
       (do
-        (let [canvas (.getElementById js/document "canvas")]
-          (set! (.-display (.-style canvas)) "none"))
+        (swap! util/game-state merge util/initial-game-state)
+        (js/setTimeout #(game/start-game!
+                          (search-word->game-img-url game-img)
+                          {:send-game-start-fn!      web-socket/send-game-start!
+                           :send-reset-fn!           web-socket/send-reset!
+                           :send-sprites-state-fn!   web-socket/send-sprites-state!
+                           :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
+                           :send-music-note-fn!      web-socket/send-button-music-notes!})
+                       500)
+        [:div
+         [:div#canvas {:style {:position "absolute"
+                               :display "block"}
+                       :width  "100%"
+                       :height "100%"}]
+         [:h1 {:style {:display "inline"}} "Loading..."]])
+      (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
           [:div

@@ -57,7 +57,7 @@
     (case event-id
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board! event-data)
-                                (util/congrats-completion-finish-game! send-puzzle-complete!))
+                                (util/congrats-finish-game! send-puzzle-complete!))
 
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
