@@ -1,6 +1,7 @@
 (ns aikakonematka.components
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [aikakonematka.util :as util]
+  (:require [aikakonematka.config :as config]
+            [aikakonematka.util :as util]
             [aikakonematka.game :as game]
             [aikakonematka.web-socket :as web-socket]
             [cljsjs.material-ui]
@@ -23,7 +24,7 @@
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
-  (go (let [response (<! (http/get (str util/protocol-to-backend "://" util/backend-host "/rankings")))
+  (go (let [response (<! (http/get (str config/protocol-to-backend "://" config/backend-host "/rankings")))
             ranking (:body response)]
         ;JSON.parse turns a string of JSON text into a Javascript object.
         ;Here it creates Clojure data

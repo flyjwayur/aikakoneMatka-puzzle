@@ -43,14 +43,15 @@
                                      :max-line-length 120})))
 
 (deftask run []
-  (comp
-    (serve :dir "target/public")
-    (watch)
-    (reload)
-    (cljs :source-map true :optimizations :none)
-    (target)
-    (nightlight :port 4000 :url "http://localhost:3000")))
+    (set-env! :source-paths #(conj % "dev"))
+        (comp
+        (serve :dir "target/public")
+        (watch)
+        (reload)
+        (cljs :source-map true :optimizations :none)
+        (target)
+        (nightlight :port 4000 :url "http://localhost:3000")))
 
 (deftask build []
+    (set-env! :source-paths #(conj % "prod"))
   (comp (cljs :optimizations :advanced) (target)))
-
