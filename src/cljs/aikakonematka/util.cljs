@@ -3,6 +3,12 @@
 
 (enable-console-print!)
 
+(def protocol-to-backend
+  "http")
+
+(def backend-host
+  "localhost:2222")
+
 ;- util variables
 
 (def puzzle-images

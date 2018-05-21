@@ -23,7 +23,7 @@
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
-  (go (let [response (<! (http/get "http://localhost:2222/rankings"))
+  (go (let [response (<! (http/get (str util/protocol-to-backend "://" util/backend-host "/rankings")))
             ranking (:body response)]
         ;JSON.parse turns a string of JSON text into a Javascript object.
         ;Here it creates Clojure data
