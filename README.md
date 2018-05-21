@@ -1,7 +1,9 @@
 ## Introduction
-Back to the past \^o^/
+Back to the Suomi past \^o^/
 
 It is a collaborative multiplayer puzzle game with inspiring Finnish architecture images.
+
+It is composed of 'front end'(written in Clojurescript) and ['backend'(written in Clojure)](https://github.com/flyjwayur/aikakonematka-puzzle-backend).
 
 ## Development 
 ### Using 'boot'(boot run & boot build) 
