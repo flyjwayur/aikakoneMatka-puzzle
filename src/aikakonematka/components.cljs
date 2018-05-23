@@ -80,6 +80,12 @@
                                  :on-click #(util/show-game! search-keyword)}])
          util/puzzle-images)))
 
+(defn game-screen []
+  [:div#canvas {:style {:position "absolute"
+                        :display "block"}
+                :width  "100%"
+                :height "100%"}])
+
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
         game-img @(rf/subscribe [:game-img])]
@@ -98,10 +104,7 @@
                            :send-music-note-fn!      web-socket/send-button-music-notes!})
                        500)
         [:div
-         [:div#canvas {:style {:position "absolute"
-                               :display "block"}
-                       :width  "100%"
-                       :height "100%"}]
+         [game-screen]
          [:h1 {:style {:display "inline"}} "Loading..."]])
       (do
         (cond
