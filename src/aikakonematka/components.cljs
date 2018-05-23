@@ -10,6 +10,7 @@
             [cljs-react-material-ui.icons :as ic]
             [cljs-http.client :as http]
             [cljs.core.async :refer [<!]]
+            [reagent.core :as r]
             [re-frame.core :as rf]
             ))
 
@@ -80,11 +81,19 @@
                                  :on-click #(util/show-game! search-keyword)}])
          util/puzzle-images)))
 
-(defn game-screen []
-  [:div#canvas {:style {:position "absolute"
-                        :display "block"}
-                :width  "100%"
-                :height "100%"}])
+(defn game-screen [search-word->game-img-url game-img]
+  (r/create-class
+    {:component-did-mount #(game/start-game!
+                             (search-word->game-img-url game-img)
+                             {:send-game-start-fn!      web-socket/send-game-start!
+                              :send-reset-fn!           web-socket/send-reset!
+                              :send-sprites-state-fn!   web-socket/send-sprites-state!
+                              :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
+                              :send-music-note-fn!      web-socket/send-button-music-notes!})
+     :reagent-render (fn [] [:div#canvas {:style {:position "absolute"
+                                              :display "block"}
+                                      :width  "100%"
+                                      :height "100%"}])}))
 
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
@@ -95,16 +104,10 @@
                (string? (search-word->game-img-url game-img))))
       (do
         (swap! util/game-state merge util/initial-game-state)
-        (js/setTimeout #(game/start-game!
-                          (search-word->game-img-url game-img)
-                          {:send-game-start-fn!      web-socket/send-game-start!
-                           :send-reset-fn!           web-socket/send-reset!
-                           :send-sprites-state-fn!   web-socket/send-sprites-state!
-                           :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
-                           :send-music-note-fn!      web-socket/send-button-music-notes!})
+        (js/setTimeout
                        500)
         [:div
-         [game-screen]
+         [game-screen search-word->game-img-url game-img]
          [:h1 {:style {:display "inline"}} "Loading..."]])
       (do
         (cond
