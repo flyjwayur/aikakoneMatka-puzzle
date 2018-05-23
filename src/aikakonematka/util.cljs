@@ -64,11 +64,27 @@
 (defn- get-piece-width-height [puzzle-width-height]
   (int (/ puzzle-width-height row-col-num)))
 
-(defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
-  (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
-    (do
-      (.. button-sprite -scale (setTo (/ piece-width-height (get-button-width button-sprite-col-num))
-                                      (/ piece-width-height (get-button-height button-sprite-row-num)))))))
+(defn get-scale-for-same-size-as-piece! []
+  (/ (get-piece-width-height (:puzzle-width-height @game-state))
+     (get-button-width button-sprite-col-num)))
+
+(defn- display-control-buttons-and-use-tween-scale! [control-button]
+  (let [control-button-scale (get-scale-for-same-size-as-piece!)]
+    (.. control-button
+        -scale
+        (setTo (* 0.90 control-button-scale)
+               (* 0.90 control-button-scale)))
+    (.. ^js/Phaser.Game @game
+        -add
+        (tween (.-scale control-button))
+        (to (clj->js {:x control-button-scale
+                      :y control-button-scale}) ; properties
+            1000                                ; duration
+            js/Phaser.Easing.Linear.None        ; ease
+            true                                ; autoStart
+            0                                   ; delay
+            -1                                  ; repeat
+            true))))                            ; yoyo
 
 (defn- get-puzzle-image-width []
   (.. ^js/Phaser.Game @game -cache (getImage "puzzle") -width))
@@ -220,7 +236,7 @@
 
 (defn- show-control-buttons! []
   (doseq [control-button (:control-buttons @game-state)]
-    (make-buttons-same-size-as-puzzle-piece! control-button)))
+    (display-control-buttons-and-use-tween-scale! control-button)))
 
 (defn hide-all-puzzle-pieces! []
   (synchronize-puzzle-board!
