@@ -113,6 +113,17 @@
         (cond
           (= :intro @(rf/subscribe [:screen]))
           [:div
+           [:img {:style {:position "fixed"
+                          :z-index "3"
+                          :width "20%"
+                          :height "20%"
+                          :right "10%"
+                          :animation-name "touchAnywhere"
+                          :animation-duration "2s"
+                          :animation-iteration-count "infinite"
+                          :animation-direction "alternate"}
+                  :src "images/touch-anywhere.png"
+                  :on-click util/show-puzzle-selection!}]
            [:img {:style {:position "absolute"
                           :background-color "#fff"
                           :z-index "2"}

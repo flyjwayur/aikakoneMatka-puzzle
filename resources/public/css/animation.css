@@ -1,0 +1,11 @@
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes touchAnywhere {
+    from {bottom: 40%;}
+    to {bottom: 50%;}
+}
+
+/* Standard syntax */
+@keyframes touchAnywhere {
+    from {bottom: 40%;}
+    to {bottom: 50%;}
+}
