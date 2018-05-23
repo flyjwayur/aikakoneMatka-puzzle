@@ -71,10 +71,10 @@
                                       (/ piece-width-height (get-button-height button-sprite-row-num)))))))
 
 (defn- get-puzzle-image-width []
-  (.. @game -cache (getImage "puzzle") -width))
+  (.. ^js/Phaser.Game @game -cache (getImage "puzzle") -width))
 
 (defn- get-puzzle-image-height []
-  (.. @game -cache (getImage "puzzle") -height))
+  (.. ^js/Phaser.Game @game -cache (getImage "puzzle") -height))
 
 (defn- get-piece-x-scale []
   (/ (:puzzle-width-height @game-state)
@@ -111,10 +111,10 @@
 ;- util functions to create/display/hide puzzle and buttons
 
 (defn- display-play-button! []
-  (.. (:play-button @game-state) -scale (setTo 1 1)))
+  (.. ^js/Phaser.Button (:play-button @game-state) -scale (setTo 1 1)))
 
 (defn hide-play-button! []
-  (.. (:play-button @game-state) -scale (setTo 0 0)))
+  (.. ^js/Phaser.Button (:play-button @game-state) -scale (setTo 0 0)))
 
 (def initial-sprites-state-per-piece
   (reduce
@@ -164,7 +164,7 @@
                                   (range row-col-num))]
       (doseq [[[row col] sprite-flipped-state] diagonal-flip-applied]
         (let [piece-scale (.-scale (sprites [row col]))
-              game-object-factory (.-add @game)]
+              game-object-factory (.-add ^js/Phaser.Game @game)]
           (if (= false sprite-flipped-state)
             (.. game-object-factory
                 (tween piece-scale)
@@ -181,10 +181,10 @@
                     true))))))))
 
 (defn- display-ranking-button! []
-  (.. (:ranking-button @game-state) -scale (setTo 0.5 0.5)))
+  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0.5 0.5)))
 
 (defn hide-ranking-button! []
-  (.. (:ranking-button @game-state) -scale (setTo 0 0)))
+  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0 0)))
 
 (defn make-ranking-button! []
   (swap!
@@ -192,7 +192,7 @@
     assoc
     :ranking-button
     (this-as this
-      (.. @game
+      (.. ^js/Phaser.Game @game
           -add
           (button (* 0.90 (.-innerWidth js/window))
                   (* 0.03 (.-innerHeight js/window))
@@ -201,7 +201,7 @@
                   this))))
   (display-ranking-button!))
 
-(defn set-on-click-callback! [sprite callback-fn]
+(defn set-on-click-callback! [^js/Phaser.Sprite sprite callback-fn]
   (set! (.-inputEnabled sprite) true)
   (.add
     (.-onInputDown (.-events sprite))
@@ -242,7 +242,7 @@
     (swap! game-state
            assoc
            :play-time-text
-           (.. @game
+           (.. ^js/Phaser.Game @game
                -add
                (text (/ (.-innerHeight js/window) 20)
                      (/ (.-innerHeight js/window) 20)
@@ -252,16 +252,16 @@
                                :align           "center"}))))))
 
 (defn show-play-time-text! []
-  (.. (:play-time-text @game-state) -scale (setTo 1 1)))
+  (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 1 1)))
 
 (defn hide-play-time-text! []
-  (.. (:play-time-text @game-state) -scale (setTo 0 0)))
+  (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 0 0)))
 
 (defn update-play-time-to-current-time! [play-time]
   (let [derefed-state @game-state
         play-time-in-sec (/ play-time 1000)]
     (.setText
-      (:play-time-text derefed-state)
+      ^js/Phaser.Text (:play-time-text derefed-state)
       (str play-time-in-sec))
     (swap! game-state assoc :play-time play-time-in-sec)))
 
@@ -269,10 +269,10 @@
 ;- util functions to create/display/hide reset button
 
 (defn show-reset-button! []
-  (.. (:reset-button @game-state) -scale (setTo 0.1 0.1)))
+  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.1 0.1)))
 
 (defn hide-reset-button! []
-  (.. (:reset-button @game-state) -scale (setTo 0 0)))
+  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
 
 (defn reset-game! []
   (hide-all-puzzle-pieces!)
@@ -287,7 +287,7 @@
     assoc
     :reset-button
     (this-as this
-      (.. @game
+      (.. ^js/Phaser.Game @game
           -add
           (button (* 0.75 (.-innerWidth js/window))
                   (* 0.5 (.-innerHeight js/window))
@@ -310,7 +310,7 @@
     assoc
     :puzzle-selection-button
     (this-as this
-      (.. @game
+      (.. ^js/Phaser.Game @game
           -add
           (button (- (* 0.90 (.-innerWidth js/window)) 90)
                   (* 0.03 (.-innerHeight js/window))
@@ -327,7 +327,7 @@
     assoc
     :puzzle-game-intro-text
     (.text
-      (.-add @game)
+      (.-add ^js/Phaser.Game @game)
       (/ (.-innerWidth js/window) 2)
       (/ (.-innerHeight js/window) 10)
       "Back to the Suomi past!
@@ -343,7 +343,7 @@
                 :borderRadius "10px"}))))
 
 (defn destroy-game-intro-text! []
-  (when-let [puzzle-completion-text (:puzzle-game-intro-text @game-state)]
+  (when-let [puzzle-completion-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
     (.destroy puzzle-completion-text))
   (swap! game-state assoc :puzzle-game-intro-text nil))
 
@@ -351,7 +351,7 @@
 
 (defn- make-congrats-message! []
   (let [congrats-msg (.text
-                       (.-add @game)
+                       (.-add ^js/Phaser.Game @game)
                        (* 0.5 (.-innerWidth js/window))
                        (* 0.3 (.-innerHeight js/window))
                        "Congrats! \n Awesome! You made it :D!"
@@ -368,10 +368,10 @@
     (set! (.. congrats-msg -anchor -y) 0.5)))
 
 (defn show-congrats-msg! []
-  (.. (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
+  (.. ^js/Phaser.Text (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
 
 (defn hide-congrats-msg! []
-  (.. (:puzzle-completion-text @game-state) -scale (setTo 0 0)))
+  (.. ^js/Phaser.Text (:puzzle-completion-text @game-state) -scale (setTo 0 0)))
 
 (defn congrats-finish-game! [send-puzzle-complete-fn!]
   (when (and (puzzle-completed?)

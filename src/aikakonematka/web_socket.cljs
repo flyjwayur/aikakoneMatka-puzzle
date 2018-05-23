@@ -1,5 +1,6 @@
 (ns aikakonematka.web-socket
   (:require [taoensso.sente :as sente :refer (cb-success?)]
+            [aikakonematka.config :as config]
             [aikakonematka.util :as util]
             [aikakonematka.game :as game]
             [aikakonematka.sound :as sound]
@@ -11,7 +12,7 @@
   [protocol chsk-host chsk-path type]
   (let [protocol (case type :ajax protocol
                             :ws (if (= protocol "https:") "wss:" "ws:"))] ; To specify the route /ws where the connection is made
-    (str protocol "//" "localhost:2222" chsk-path)))
+    (str protocol "//" config/backend-host chsk-path)))
 
 (defonce channel-socket                                     ;To initialize the connection
          (with-redefs [sente/get-chsk-url get-chsk-url]     ;and it returns a map with the initialized variables.
