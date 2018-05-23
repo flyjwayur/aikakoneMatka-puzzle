@@ -4,7 +4,7 @@
 
 (defn- create-preload [image-src]
   (fn []
-    (let [phaser-loader (.-load @util/game)]
+    (let [phaser-loader (.-load ^js/Phaser.Game @util/game)]
       (.spritesheet
         phaser-loader
         "puzzle"
@@ -57,7 +57,7 @@
     assoc
     :play-button
     (this-as this
-      (.. @util/game
+      (.. ^js/Phaser.Game @util/game
           -add
           (button
             (/ (.-innerWidth js/window) 2)
@@ -73,7 +73,7 @@
   (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
   (set! (.. (:play-button @util/game-state) -anchor -y) 0.5))
 
-(defn- store-control-button-and-return-it! [control-button]
+(defn- store-control-button-and-return-it! [^js/Phaser.Game control-button]
   (swap! util/game-state update :control-buttons conj control-button)
   (.. control-button -scale (setTo 0 0))
   (set! (.. control-button -anchor -x) 0.5)
@@ -81,7 +81,7 @@
   control-button)
 
 (defn- create-puzzle-piece-and-store! [{:keys [frame-id x-pos y-pos row col]}]
-  (let [piece (.. @util/game
+  (let [piece (.. ^js/Phaser.Game @util/game
                   -add
                   (sprite x-pos y-pos "puzzle" frame-id))]
     (swap! util/game-state assoc-in [:sprites [row col]] piece)
@@ -102,8 +102,8 @@
   (util/show-play-time-text!))
 
 (defn- display-puzzle-background []
-  (set! (.. @util/game -stage -backgroundColor) "#f6f4f3")
-  (.. @util/game -add (image 0 0 "game-play-bg")))
+  (set! (.. ^js/Phaser.Game @util/game -stage -backgroundColor) "#f6f4f3")
+  (.. ^js/Phaser.Game @util/game -add (image 0 0 "game-play-bg")))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -114,7 +114,7 @@
     (display-puzzle-background)
     ;It only creates the puzzle piece/button sprites only once for each client.
     (when (empty? (:sprites @util/game-state))
-      (let [game-object-factory (.-add @util/game)
+      (let [game-object-factory (.-add ^js/Phaser.Game @util/game)
             piece-width-height (util/get-piece-width-height (:puzzle-width-height @util/game-state))
             left-margin (util/get-left-margin)
             top-margin (util/get-top-margin)]

@@ -54,4 +54,7 @@
 
 (deftask build []
     (set-env! :source-paths #(conj % "prod"))
-  (comp (cljs :optimizations :advanced) (target)))
+  (comp
+    (cljs :optimizations :advanced
+          :compiler-options {:infer-externs true})
+    (target)))
