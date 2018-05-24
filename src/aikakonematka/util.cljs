@@ -254,18 +254,22 @@
 ;- util functions for the play time
 
 (defn make-play-time! []
-  (when-not (:play-time-text @game-state)
-    (swap! game-state
-           assoc
-           :play-time-text
-           (.. ^js/Phaser.Game @game
-               -add
-               (text (/ (.-innerHeight js/window) 20)
-                     (/ (.-innerHeight js/window) 20)
-                     "0.000"
-                     (clj->js {:font            "40px Arial"
-                               :fill            "#293241"
-                               :align           "center"}))))))
+  (let [play-time-text (.. ^js/Phaser.Game @game
+                            -add
+                           (text (/ (.-innerHeight js/window) 20)
+                            (/ (.-innerHeight js/window) 20)
+                            "0.000"
+                            (clj->js {:font            "bold 30px Arial"
+                                      :fontVariant     "small-caps"
+                                      :fill            "#F6F4F3"
+                                      :align           "center"
+                                      :stroke "#3D5A80"
+                                      :strokeThickness "7"})))]
+    (when-not (:play-time-text @game-state)
+      (swap! game-state assoc :play-time-text play-time-text))
+    (.setShadow ^js/Phaser.Text play-time-text 3 3 "rgba(0,0,0,0.5)" 3)))
+
+
 
 (defn show-play-time-text! []
   (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 1 1)))
@@ -338,25 +342,27 @@
 ;- util functions for game intro message
 
 (defn- display-game-intro-message! []
-  (swap!
-    game-state
-    assoc
-    :puzzle-game-intro-text
-    (.text
-      (.-add ^js/Phaser.Game @game)
-      (/ (.-innerWidth js/window) 2)
-      (/ (.-innerHeight js/window) 10)
-      "Back to the Suomi past!
-      Like our journey in our life,
-      playing this game with companions,
-      it might be more fun and enjoyable.
-      Are you ready for beautiful discovery?"
-      (clj->js {:font            "20px Gill Sans, serif"
-                :fill            "#f6f4f3"
-                :backgroundColor "#3d5a80"
-                :align           "center"
-                :padding "20px"
-                :borderRadius "10px"}))))
+  (let [intro-text (.text
+                     (.-add ^js/Phaser.Game @game)
+                     (/ (.-innerWidth js/window) 2)
+                     (/ (.-innerHeight js/window) 4)
+                     "Back to the Suomi past!
+                     Like our journey in our life,
+                     playing this game with companions,
+                     it might be more fun and enjoyable.
+                     Are you ready for beautiful discovery?"
+                     (clj->js {:font            "bold 25px Arial"
+                               :fontVariant     "small-caps"
+                               :fill            "#F6F4F3"
+                               :align           "center"
+                               :boundsAlignH    "center"
+                               :boundsAlignV    "center"
+                               :stroke "#3D5A80"
+                               :strokeThickness "7"}))]
+    (swap! game-state assoc :puzzle-game-intro-text intro-text)
+    (set! (.. intro-text -anchor -x) 0.5)
+    (set! (.. intro-text -anchor -y) 0.5)
+    (.setShadow ^js/Phaser.Text intro-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
 (defn destroy-game-intro-text! []
   (when-let [puzzle-completion-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
@@ -370,18 +376,19 @@
                        (.-add ^js/Phaser.Game @game)
                        (* 0.5 (.-innerWidth js/window))
                        (* 0.3 (.-innerHeight js/window))
-                       "Congrats! \n Awesome! You made it :D!"
-                       (clj->js {:font            "40px Arial"
+                       "Congrats! \n Awesome! You made it :D"
+                       (clj->js {:font            "bold 40px Arial"
+                                 :fontVariant     "small-caps"
                                  :fill            "#F6F4F3"
-                                 :backgroundColor "#EE6C4D"
-                                 :align           "center"}))]
-    (swap!
-      game-state
-      assoc
-      :puzzle-completion-text
-      congrats-msg)
+                                 :align           "center"
+                                 :boundsAlignH    "center"
+                                 :boundsAlignV    "center"
+                                 :stroke "#EE6C4D"
+                                 :strokeThickness "10"}))]
+    (swap! game-state assoc :puzzle-completion-text congrats-msg)
     (set! (.. congrats-msg -anchor -x) 0.5)
-    (set! (.. congrats-msg -anchor -y) 0.5)))
+    (set! (.. congrats-msg -anchor -y) 0.5)
+    (.setShadow ^js/Phaser.Text congrats-msg 3 3 "rgba(32,32,32, 0.8)" 1)))
 
 (defn show-congrats-msg! []
   (.. ^js/Phaser.Text (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
