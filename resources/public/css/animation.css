@@ -9,3 +9,15 @@
     from {bottom: 40%;}
     to {bottom: 50%;}
 }
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes titleAnimation {
+    from {bottom: 30%;}
+    to {bottom: 40%;}
+}
+
+/* Standard syntax */
+@keyframes titleAnimation {
+    from {bottom: 30%;}
+    to {bottom: 40%;}
+}

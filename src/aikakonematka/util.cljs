@@ -289,7 +289,7 @@
 ;- util functions to create/display/hide reset button
 
 (defn show-reset-button! []
-  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.1 0.1)))
+  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.5 0.5)))
 
 (defn hide-reset-button! []
   (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
