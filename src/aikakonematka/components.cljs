@@ -76,6 +76,7 @@
                                 {:id       search-keyword
                                  :style    {:position "absolute"
                                             :z-index  "1"
+                                            :box-shadow "6px 6px 3px -3px rgb(119,136,153)"
                                             :left     (:left img-pos-in-puzzle-selection-view)
                                             :top      (:top img-pos-in-puzzle-selection-view)}
                                  :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
