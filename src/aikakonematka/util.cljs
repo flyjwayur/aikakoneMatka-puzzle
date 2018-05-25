@@ -382,14 +382,15 @@
                        (* 0.5 (.-innerWidth js/window))
                        (* 0.3 (.-innerHeight js/window))
                        "Congrats! \n Awesome! You made it :D"
-                       (clj->js {:font            "bold 40px Arial"
-                                 :fontVariant     "small-caps"
-                                 :fill            "#F6F4F3"
-                                 :align           "center"
-                                 :boundsAlignH    "center"
-                                 :boundsAlignV    "center"
-                                 :stroke "#EE6C4D"
-                                 :strokeThickness "10"}))]
+                       (clj->js {:font             "bold 60px Arial"
+                                 :fontVariant      "small-caps"
+                                 :fill             "#F6F4F3"
+                                 :backgroundColor  "rgba(242,242,242, 0.7)"
+                                 :align            "center"
+                                 :boundsAlignH     "center"
+                                 :boundsAlignV     "center"
+                                 :stroke           "#EE6C4D"
+                                 :strokeThickness  "10"}))]
     (swap! game-state assoc :puzzle-completion-text congrats-msg)
     (set! (.. congrats-msg -anchor -x) 0.5)
     (set! (.. congrats-msg -anchor -y) 0.5)
