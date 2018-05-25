@@ -114,17 +114,10 @@
   (util/show-play-time-text!))
 
 (defn- display-puzzle-background []
-  (let [puzzle-background (.. ^js/Phaser.Game @util/game -add (image 0 0 "game-play-bg"))]
-    ;(set! (.. ^js/Phaser.Game @util/game -stage -backgroundColor) "#f6f4f3")
-    (.. puzzle-background -scale
-        (setTo (/ (.-innerWidth js/window) (.. ^js/Phaser.Game @util/game -cache (getImage "game-play-bg") -width))
-               (/ (.-innerHeight js/window) (.. ^js/Phaser.Game @util/game -cache (getImage "game-play-bg") -height))))))
+  (set! (.. ^js/Phaser.Game @util/game -stage -backgroundColor) "#fff")
+  (.. ^js/Phaser.Game @util/game -add (image 0 0 "game-play-bg")))
 
 (defn- display-lovely-baby-in-bg []
-  (.. ^js/Phaser.Game @util/game -add (image
-                                        (* 0.20 (.-innerWidth js/window))
-                                        (* 0.20 (.-innerHeight js/window))
-                                        "lovely-baby-in-puzzle")))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
