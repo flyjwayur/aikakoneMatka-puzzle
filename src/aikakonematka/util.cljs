@@ -28,6 +28,7 @@
    :puzzle-width-height     0
    :play-button             nil
    :control-buttons         []
+   :control-button-tweens   []
    :play-time               0.0
    :play-time-text          nil
    :puzzle-completion-text  nil
@@ -69,22 +70,23 @@
      (get-button-width button-sprite-col-num)))
 
 (defn- display-control-buttons-and-use-tween-scale! [control-button]
-  (let [control-button-scale (get-scale-for-same-size-as-piece!)]
+  (let [control-button-scale (get-scale-for-same-size-as-piece!)
+        tween (.. ^js/Phaser.Game @game
+                  -add
+                  (tween (.-scale control-button)))]
     (.. control-button
         -scale
         (setTo (* 0.90 control-button-scale)
                (* 0.90 control-button-scale)))
-    (.. ^js/Phaser.Game @game
-        -add
-        (tween (.-scale control-button))
-        (to (clj->js {:x control-button-scale
-                      :y control-button-scale}) ; properties
-            1000                                ; duration
-            js/Phaser.Easing.Linear.None        ; ease
-            true                                ; autoStart
-            0                                   ; delay
-            -1                                  ; repeat
-            true))))                            ; yoyo
+    (swap! game-state update :control-button-tweens conj tween)
+    (.to tween (clj->js {:x control-button-scale
+                         :y control-button-scale}) ; properties
+                         1000                      ; duration
+                         js/Phaser.Easing.Linear.None        ; ease
+                         true                                ; autoStart
+                         0                                   ; delay
+                        -1                                  ; repeat
+                         true)))                            ; yoyo
 
 (defn- get-puzzle-image-width []
   (.. ^js/Phaser.Game @game -cache (getImage "puzzle") -width))
@@ -231,6 +233,9 @@
   (rf/dispatch [:screen-change :puzzle-selection]))
 
 (defn- hide-control-buttons! []
+  (doseq [control-button-tween (:control-button-tweens @game-state)]
+    (.stop control-button-tween))
+  (swap! game-state assoc :control-button-tweens [])
   (doseq [control-button (:control-buttons @game-state)]
     (.setTo (.-scale control-button) 0 0)))
 
