@@ -116,9 +116,9 @@
                               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
                               :send-music-note-fn!      web-socket/send-button-music-notes!})
      :reagent-render (fn [] [:div#canvas {:style {:position "absolute"
-                                              :display "block"}
-                                      :width  "100%"
-                                      :height "100%"}])}))
+                                                  :display "block"}
+                                          :width  "100%"
+                                          :height "100%"}])}))
 
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
@@ -143,7 +143,12 @@
                           :height "55%"
                           :z-index "6"
                           :right "30%"
-                          :bottom "30%"}
+                          :bottom "30%"
+                          :animation-name "titleAnimation"
+                          :transform "rotateX(40deg)"
+                          :animation-duration "2s"
+                          :animation-iteration-count "infinite"
+                          :animation-direction "alternate"}
                   :src      "images/intro-title.png"
                   :width    "100%"
                   :height   "100%"

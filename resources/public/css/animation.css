@@ -12,12 +12,20 @@
 
 /* Safari 4.0 - 8.0 */
 @-webkit-keyframes titleAnimation {
-    from {bottom: 30%;}
-    to {bottom: 40%;}
-}
+   0% {
+      transform: rotateX(0);
+   }
+   100% {
+      transform: rotateX(50deg);
+   }
+  }
 
 /* Standard syntax */
 @keyframes titleAnimation {
-    from {bottom: 30%;}
-    to {bottom: 40%;}
-}
+   0% {
+      transform: rotateX(0);
+   }
+   100% {
+      transform: rotateX(50deg);
+   }
+  }
