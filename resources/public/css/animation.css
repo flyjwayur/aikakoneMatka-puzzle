@@ -1,0 +1,31 @@
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes touchAnywhere {
+    from {bottom: 40%;}
+    to {bottom: 50%;}
+}
+
+/* Standard syntax */
+@keyframes touchAnywhere {
+    from {bottom: 40%;}
+    to {bottom: 50%;}
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes titleAnimation {
+   0% {
+      transform: rotateX(0);
+   }
+   100% {
+      transform: rotateX(50deg);
+   }
+  }
+
+/* Standard syntax */
+@keyframes titleAnimation {
+   0% {
+      transform: rotateX(0);
+   }
+   100% {
+      transform: rotateX(50deg);
+   }
+  }

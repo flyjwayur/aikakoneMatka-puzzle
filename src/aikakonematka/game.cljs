@@ -38,7 +38,19 @@
       (.image
         phaser-loader
         "game-play-bg"
-        "images/puzzle-play-bg.png"))))
+        "images/puzzle-play-bg.jpg")
+      (.image
+        phaser-loader
+        "intro-title"
+        "images/intro-title.png")
+      (.image
+        phaser-loader
+        "lovely-baby-in-selection"
+        "images/lovely-baby-in-selection.png")
+      (.image
+        phaser-loader
+        "lovely-baby-in-puzzle"
+        "images/lovely-baby-in-puzzle.png"))))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
@@ -61,7 +73,7 @@
           -add
           (button
             (/ (.-innerWidth js/window) 2)
-            (/ (.-innerHeight js/window)2)
+            (* 0.7 (.-innerHeight js/window))
             "play-button"
             (fn []
               (send-game-start-fn!)
@@ -102,8 +114,16 @@
   (util/show-play-time-text!))
 
 (defn- display-puzzle-background []
-  (set! (.. ^js/Phaser.Game @util/game -stage -backgroundColor) "#f6f4f3")
+  (set! (.. ^js/Phaser.Game @util/game -stage -backgroundColor) "#fff")
   (.. ^js/Phaser.Game @util/game -add (image 0 0 "game-play-bg")))
+
+(defn- display-lovely-baby-in-bg []
+  (let [baby-image (.. ^js/Phaser.Game @util/game -add (image
+                                                         (* 0.20 (.-innerWidth js/window))
+                                                         (* 0.30 (.-innerHeight js/window))
+                                                         "lovely-baby-in-puzzle"))]
+    (.. baby-image -scale (setTo 0.9 0.9))
+    ))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -112,6 +132,7 @@
                             send-music-note-fn!]}]
   (fn []
     (display-puzzle-background)
+    (display-lovely-baby-in-bg)
     ;It only creates the puzzle piece/button sprites only once for each client.
     (when (empty? (:sprites @util/game-state))
       (let [game-object-factory (.-add ^js/Phaser.Game @util/game)

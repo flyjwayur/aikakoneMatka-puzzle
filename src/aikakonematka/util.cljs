@@ -28,6 +28,7 @@
    :puzzle-width-height     0
    :play-button             nil
    :control-buttons         []
+   :control-button-tweens   []
    :play-time               0.0
    :play-time-text          nil
    :puzzle-completion-text  nil
@@ -64,11 +65,28 @@
 (defn- get-piece-width-height [puzzle-width-height]
   (int (/ puzzle-width-height row-col-num)))
 
-(defn- make-buttons-same-size-as-puzzle-piece! [button-sprite]
-  (let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))]
-    (do
-      (.. button-sprite -scale (setTo (/ piece-width-height (get-button-width button-sprite-col-num))
-                                      (/ piece-width-height (get-button-height button-sprite-row-num)))))))
+(defn get-scale-for-same-size-as-piece! []
+  (/ (get-piece-width-height (:puzzle-width-height @game-state))
+     (get-button-width button-sprite-col-num)))
+
+(defn- display-control-buttons-and-use-tween-scale! [control-button]
+  (let [control-button-scale (get-scale-for-same-size-as-piece!)
+        tween (.. ^js/Phaser.Game @game
+                  -add
+                  (tween (.-scale control-button)))]
+    (.. control-button
+        -scale
+        (setTo (* 0.90 control-button-scale)
+               (* 0.90 control-button-scale)))
+    (swap! game-state update :control-button-tweens conj tween)
+    (.to tween (clj->js {:x control-button-scale
+                         :y control-button-scale}) ; properties
+                         1000                      ; duration
+                         js/Phaser.Easing.Linear.None        ; ease
+                         true                                ; autoStart
+                         0                                   ; delay
+                        -1                                  ; repeat
+                         true)))                            ; yoyo
 
 (defn- get-puzzle-image-width []
   (.. ^js/Phaser.Game @game -cache (getImage "puzzle") -width))
@@ -215,12 +233,15 @@
   (rf/dispatch [:screen-change :puzzle-selection]))
 
 (defn- hide-control-buttons! []
+  (doseq [control-button-tween (:control-button-tweens @game-state)]
+    (.stop control-button-tween))
+  (swap! game-state assoc :control-button-tweens [])
   (doseq [control-button (:control-buttons @game-state)]
     (.setTo (.-scale control-button) 0 0)))
 
 (defn- show-control-buttons! []
   (doseq [control-button (:control-buttons @game-state)]
-    (make-buttons-same-size-as-puzzle-piece! control-button)))
+    (display-control-buttons-and-use-tween-scale! control-button)))
 
 (defn hide-all-puzzle-pieces! []
   (synchronize-puzzle-board!
@@ -238,18 +259,22 @@
 ;- util functions for the play time
 
 (defn make-play-time! []
-  (when-not (:play-time-text @game-state)
-    (swap! game-state
-           assoc
-           :play-time-text
-           (.. ^js/Phaser.Game @game
-               -add
-               (text (/ (.-innerHeight js/window) 20)
-                     (/ (.-innerHeight js/window) 20)
-                     "0.000"
-                     (clj->js {:font            "40px Arial"
-                               :fill            "#293241"
-                               :align           "center"}))))))
+  (let [play-time-text (.. ^js/Phaser.Game @game
+                            -add
+                           (text (/ (.-innerHeight js/window) 20)
+                            (/ (.-innerHeight js/window) 20)
+                            "0.000"
+                            (clj->js {:font            "bold 30px Arial"
+                                      :fontVariant     "small-caps"
+                                      :fill            "#F6F4F3"
+                                      :align           "center"
+                                      :stroke "#3D5A80"
+                                      :strokeThickness "7"})))]
+    (when-not (:play-time-text @game-state)
+      (swap! game-state assoc :play-time-text play-time-text))
+    (.setShadow ^js/Phaser.Text play-time-text 3 3 "rgba(0,0,0,0.5)" 3)))
+
+
 
 (defn show-play-time-text! []
   (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 1 1)))
@@ -269,7 +294,7 @@
 ;- util functions to create/display/hide reset button
 
 (defn show-reset-button! []
-  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.1 0.1)))
+  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.5 0.5)))
 
 (defn hide-reset-button! []
   (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
@@ -322,25 +347,27 @@
 ;- util functions for game intro message
 
 (defn- display-game-intro-message! []
-  (swap!
-    game-state
-    assoc
-    :puzzle-game-intro-text
-    (.text
-      (.-add ^js/Phaser.Game @game)
-      (/ (.-innerWidth js/window) 2)
-      (/ (.-innerHeight js/window) 10)
-      "Back to the Suomi past!
-      Like our journey in our life,
-      playing this game with companions,
-      it might be more fun and enjoyable.
-      Are you ready for beautiful discovery?"
-      (clj->js {:font            "20px Gill Sans, serif"
-                :fill            "#f6f4f3"
-                :backgroundColor "#3d5a80"
-                :align           "center"
-                :padding "20px"
-                :borderRadius "10px"}))))
+  (let [intro-text (.text
+                     (.-add ^js/Phaser.Game @game)
+                     (/ (.-innerWidth js/window) 2)
+                     (/ (.-innerHeight js/window) 4)
+                     "Back to the Suomi past!
+                     Like our journey in our life,
+                     playing this game with companions,
+                     it might be more fun and enjoyable.
+                     Are you ready for beautiful discovery?"
+                     (clj->js {:font            "bold 25px Arial"
+                               :fontVariant     "small-caps"
+                               :fill            "#F6F4F3"
+                               :align           "center"
+                               :boundsAlignH    "center"
+                               :boundsAlignV    "center"
+                               :stroke "#3D5A80"
+                               :strokeThickness "7"}))]
+    (swap! game-state assoc :puzzle-game-intro-text intro-text)
+    (set! (.. intro-text -anchor -x) 0.5)
+    (set! (.. intro-text -anchor -y) 0.5)
+    (.setShadow ^js/Phaser.Text intro-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
 (defn destroy-game-intro-text! []
   (when-let [puzzle-completion-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
@@ -354,18 +381,20 @@
                        (.-add ^js/Phaser.Game @game)
                        (* 0.5 (.-innerWidth js/window))
                        (* 0.3 (.-innerHeight js/window))
-                       "Congrats! \n Awesome! You made it :D!"
-                       (clj->js {:font            "40px Arial"
-                                 :fill            "#F6F4F3"
-                                 :backgroundColor "#EE6C4D"
-                                 :align           "center"}))]
-    (swap!
-      game-state
-      assoc
-      :puzzle-completion-text
-      congrats-msg)
+                       "Congrats! \n Awesome! You made it :D"
+                       (clj->js {:font             "bold 60px Arial"
+                                 :fontVariant      "small-caps"
+                                 :fill             "#F6F4F3"
+                                 :backgroundColor  "rgba(242,242,242, 0.7)"
+                                 :align            "center"
+                                 :boundsAlignH     "center"
+                                 :boundsAlignV     "center"
+                                 :stroke           "#EE6C4D"
+                                 :strokeThickness  "10"}))]
+    (swap! game-state assoc :puzzle-completion-text congrats-msg)
     (set! (.. congrats-msg -anchor -x) 0.5)
-    (set! (.. congrats-msg -anchor -y) 0.5)))
+    (set! (.. congrats-msg -anchor -y) 0.5)
+    (.setShadow ^js/Phaser.Text congrats-msg 3 3 "rgba(32,32,32, 0.8)" 1)))
 
 (defn show-congrats-msg! []
   (.. ^js/Phaser.Text (:puzzle-completion-text @game-state) -scale (setTo 1 1)))

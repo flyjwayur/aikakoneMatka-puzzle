@@ -64,12 +64,37 @@
                      :display  "block"}
             :src    "images/puzzle-selection-bg.png"
             :width  "100%"
-            :height "100%"}]]
+            :height "100%"}]
+     [:img {:style  {:position "absolute"
+                     :z-index  "2"
+                     :display  "block"
+                     :right "0.1%"
+                     :bottom "0.1%"}
+            :src    "images/lovely-baby-in-selection.png"
+            :width    "25%"
+            :height   "33.5%"}]
+     [:img {:style  {:position "absolute"
+                     :z-index  "2"
+                     :display  "block"
+                     :right "38%"
+                     :bottom "0.1%"}
+            :src    "images/puzzle-selection-door.png"
+            :width    "25%"
+            :height   "33.5%"}]
+     [:img {:style {:position "absolute"
+                    :z-index "3"
+                    :right "3%"
+                    :bottom "37%"
+                    :width "16%"}
+            :src "images/choose-image.png"
+            :width    "15%"
+            :height   "5%"}]]
     (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
            ^{:key search-keyword} [:img
                                 {:id       search-keyword
                                  :style    {:position "absolute"
                                             :z-index  "1"
+                                            :box-shadow "6px 6px 3px -3px rgb(119,136,153)"
                                             :left     (:left img-pos-in-puzzle-selection-view)
                                             :top      (:top img-pos-in-puzzle-selection-view)}
                                  :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
@@ -91,9 +116,9 @@
                               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
                               :send-music-note-fn!      web-socket/send-button-music-notes!})
      :reagent-render (fn [] [:div#canvas {:style {:position "absolute"
-                                              :display "block"}
-                                      :width  "100%"
-                                      :height "100%"}])}))
+                                                  :display "block"}
+                                          :width  "100%"
+                                          :height "100%"}])}))
 
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
@@ -113,10 +138,35 @@
         (cond
           (= :intro @(rf/subscribe [:screen]))
           [:div
+           [:img {:style {:position "fixed"
+                          :width "60%"
+                          :height "55%"
+                          :z-index "6"
+                          :right "30%"
+                          :bottom "30%"
+                          :animation-name "titleAnimation"
+                          :transform "rotateX(40deg)"
+                          :animation-duration "2s"
+                          :animation-iteration-count "infinite"
+                          :animation-direction "alternate"}
+                  :src      "images/intro-title.png"
+                  :width    "100%"
+                  :height   "100%"
+                  :on-click util/show-puzzle-selection!}]
+           [:img {:style {:position "fixed"
+                          :z-index "5"
+                          :width "20%"
+                          :height "20%"
+                          :right "10%"
+                          :animation-name "touchAnywhere"
+                          :animation-duration "2s"
+                          :animation-iteration-count "infinite"
+                          :animation-direction "alternate"}
+                  :src "images/click-to-start-button.png"
+                  :on-click util/show-puzzle-selection!}]
            [:img {:style {:position "absolute"
-                          :background-color "#fff"
-                          :z-index "2"}
-                  :src      "images/aikakone-intro.png"
+                          :z-index  "4"}
+                  :src      "images/aikakone-intro.jpg"
                   :width    "100%"
                   :height   "100%"
                   :on-click util/show-puzzle-selection!}]
