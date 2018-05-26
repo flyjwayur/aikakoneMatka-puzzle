@@ -133,7 +133,8 @@
                        500)
         [:div
          [game-screen search-word->game-img-url game-img]
-         [:h1 {:style {:display "inline"}} "Loading..."]])
+         [:div#loader
+          [:h1 {:style {:display "inline"}} "Loading..."]]])
       (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
