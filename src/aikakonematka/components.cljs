@@ -129,8 +129,6 @@
                (string? (search-word->game-img-url game-img))))
       (do
         (swap! util/game-state merge util/initial-game-state)
-        (js/setTimeout
-                       500)
         [:div
          [game-screen search-word->game-img-url game-img]
          [:div#loader
@@ -171,6 +169,17 @@
                   :width    "100%"
                   :height   "100%"
                   :on-click util/show-puzzle-selection!}]
+           [:picture {:style {:position "absolute"
+                              :z-index  "4"}
+                      :on-click util/show-puzzle-selection!}
+            [:source {:media "(min-width: 600px)"
+                      :srcSet "images/aikakone-intro.jpg"
+                      :width "100%"
+                      :height "100%"}]
+            [:img {:src "images/aikakone-intro-mobile.jpg"
+                   :alt "aikakone intro image"
+                   :width "100%"
+                   :height "100%"}]]
            [puzzle-selection-view]]
 
           (= :puzzle-selection @(rf/subscribe [:screen]))
