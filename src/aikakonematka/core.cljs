@@ -56,6 +56,11 @@
   (fn [db [_ search-keyword image-url]]
     (update db :search-keyword->game-img-url assoc search-keyword image-url)))
 
+(rf/reg-event-db
+  :loading?
+  (fn [db [_ loading?]]
+    (assoc db :loading? loading?)))
+
 ;- Query -
 
 (rf/reg-sub
@@ -77,6 +82,11 @@
   :search-keyword->game-img-url
   (fn [db _]
     (:search-keyword->game-img-url db)))
+
+(rf/reg-sub
+  :loading?
+  (fn [db _]
+    (:loading? db)))
 
 
 (rf/dispatch-sync [:initialize])

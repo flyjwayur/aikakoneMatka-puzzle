@@ -1,6 +1,7 @@
 (ns aikakonematka.game
   (:require [aikakonematka.util :as util]
-            [aikakonematka.sound :as sound]))
+            [aikakonematka.sound :as sound]
+            [re-frame.core :as rf]))
 
 (defn- create-preload [image-src]
   (fn []
@@ -131,8 +132,7 @@
                             send-puzzle-complete-fn!
                             send-music-note-fn!]}]
   (fn []
-    (let [loading-msg (.getElementById js/document "loader")]
-      (.removeChild (.-parentElement loading-msg) loading-msg))
+    (rf/dispatch [:loading? false])
     (display-puzzle-background)
     (display-lovely-baby-in-bg)
     ;It only creates the puzzle piece/button sprites only once for each client.
@@ -227,6 +227,7 @@
 (defn- game-update [])
 
 (defn- start-game! [image-src websocket-msg-send-fns]
+  (rf/dispatch [:loading? true])
   (let [puzzle-img (js/Image.)]
     (set!
       (.-onload puzzle-img)

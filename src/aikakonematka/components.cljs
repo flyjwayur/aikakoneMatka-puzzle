@@ -131,8 +131,11 @@
         (swap! util/game-state merge util/initial-game-state)
         [:div
          [game-screen search-word->game-img-url game-img]
-         [:div#loader
-          [:h1 {:style {:display "inline"}} "Loading..."]]])
+         (when @(rf/subscribe [:loading?])
+           [:div#loader
+            [:h1 {:style {:display "inline-block"
+                          :align "center"}}
+             "Loading..."]])])
       (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
