@@ -1,11 +1,12 @@
+/* Click to start */
 /* Safari 4.0 - 8.0 */
-@-webkit-keyframes touchAnywhere {
+@-webkit-keyframes clicktostart {
     from {bottom: 40%;}
     to {bottom: 50%;}
 }
 
 /* Standard syntax */
-@keyframes touchAnywhere {
+@keyframes clicktostart {
     from {bottom: 40%;}
     to {bottom: 50%;}
 }

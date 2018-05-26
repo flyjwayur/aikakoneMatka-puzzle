@@ -158,7 +158,7 @@
                           :width "20%"
                           :height "20%"
                           :right "10%"
-                          :animation-name "touchAnywhere"
+                          :animation-name "clicktostart"
                           :animation-duration "2s"
                           :animation-iteration-count "infinite"
                           :animation-direction "alternate"}
