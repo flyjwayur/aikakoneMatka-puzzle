@@ -33,7 +33,7 @@
   (fn [_ _]
     (doseq [{:keys [search-keyword]} util/puzzle-images]
       (add-game-img-url-to-DB! search-keyword))
-    {:screen :intro
+    {:screen  :intro
      :ranking []}))
 
 (rf/reg-event-db
@@ -105,5 +105,5 @@
       (fn []
         (reset! util/button-sprite-sheet-width (.-width buttons-img))
         (reset! util/button-sprite-sheet-height (.-height buttons-img))
-        (web-sck/start-web-socket!)))) ; start game after loading image
+        (web-sck/start-web-socket!))))                      ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png"))

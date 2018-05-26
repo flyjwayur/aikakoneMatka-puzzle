@@ -147,10 +147,10 @@
                       x-pos (+ (* piece-width-height col) left-margin (+ 2 col))
                       y-pos (+ (* piece-width-height row) top-margin (+ 2 row))]]
           (create-puzzle-piece-and-store! {:frame-id frame-id
-                                           :x-pos     x-pos
-                                           :y-pos     y-pos
-                                           :row       row
-                                           :col       col})
+                                           :x-pos    x-pos
+                                           :y-pos    y-pos
+                                           :row      row
+                                           :col      col})
           (when
             (and (zero? col) (= row (dec util/row-col-num)))
             (let [bottom-left-button (store-control-button-and-return-it!

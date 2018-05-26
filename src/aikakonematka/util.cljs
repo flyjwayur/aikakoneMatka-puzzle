@@ -80,13 +80,13 @@
                (* 0.90 control-button-scale)))
     (swap! game-state update :control-button-tweens conj tween)
     (.to tween (clj->js {:x control-button-scale
-                         :y control-button-scale}) ; properties
-                         1000                      ; duration
-                         js/Phaser.Easing.Linear.None        ; ease
-                         true                                ; autoStart
-                         0                                   ; delay
-                        -1                                  ; repeat
-                         true)))                            ; yoyo
+                         :y control-button-scale})          ; properties
+         1000                                               ; duration
+         js/Phaser.Easing.Linear.None                       ; ease
+         true                                               ; autoStart
+         0                                                  ; delay
+         -1                                                 ; repeat
+         true)))                                            ; yoyo
 
 (defn- get-puzzle-image-width []
   (.. ^js/Phaser.Game @game -cache (getImage "puzzle") -width))
@@ -188,9 +188,9 @@
                 (tween piece-scale)
                 (to (clj->js {:x piece-x-scale
                               :y piece-y-scale})
-                  500
-                  js/Phaser.Easing.Cubic.In
-                  true))
+                    500
+                    js/Phaser.Easing.Cubic.In
+                    true))
             (.. game-object-factory
                 (tween piece-scale)
                 (to (clj->js {:x 0 :y 0})
@@ -245,14 +245,14 @@
 
 (defn hide-all-puzzle-pieces! []
   (synchronize-puzzle-board!
-    {:row-flipped? (reduce
-                     #(assoc %1 %2 true)
-                     {}
-                     (range row-col-num))
-     :col-flipped? (reduce
-                     #(assoc %1 %2 false)
-                     {}
-                     (range row-col-num))
+    {:row-flipped?      (reduce
+                          #(assoc %1 %2 true)
+                          {}
+                          (range row-col-num))
+     :col-flipped?      (reduce
+                          #(assoc %1 %2 false)
+                          {}
+                          (range row-col-num))
      :diagonal-flipped? false})
   (swap! game-state assoc :sprites-state nil))
 
@@ -260,16 +260,16 @@
 
 (defn make-play-time! []
   (let [play-time-text (.. ^js/Phaser.Game @game
-                            -add
+                           -add
                            (text (/ (.-innerHeight js/window) 20)
-                            (/ (.-innerHeight js/window) 20)
-                            "0.000"
-                            (clj->js {:font            "bold 30px Arial"
-                                      :fontVariant     "small-caps"
-                                      :fill            "#F6F4F3"
-                                      :align           "center"
-                                      :stroke "#3D5A80"
-                                      :strokeThickness "7"})))]
+                                 (/ (.-innerHeight js/window) 20)
+                                 "0.000"
+                                 (clj->js {:font            "bold 30px Arial"
+                                           :fontVariant     "small-caps"
+                                           :fill            "#F6F4F3"
+                                           :align           "center"
+                                           :stroke          "#3D5A80"
+                                           :strokeThickness "7"})))]
     (when-not (:play-time-text @game-state)
       (swap! game-state assoc :play-time-text play-time-text))
     (.setShadow ^js/Phaser.Text play-time-text 3 3 "rgba(0,0,0,0.5)" 3)))
@@ -362,7 +362,7 @@
                                :align           "center"
                                :boundsAlignH    "center"
                                :boundsAlignV    "center"
-                               :stroke "#3D5A80"
+                               :stroke          "#3D5A80"
                                :strokeThickness "7"}))]
     (swap! game-state assoc :puzzle-game-intro-text intro-text)
     (set! (.. intro-text -anchor -x) 0.5)
@@ -382,15 +382,15 @@
                        (* 0.5 (.-innerWidth js/window))
                        (* 0.3 (.-innerHeight js/window))
                        "Congrats! \n Awesome! You made it :D"
-                       (clj->js {:font             "bold 60px Arial"
-                                 :fontVariant      "small-caps"
-                                 :fill             "#F6F4F3"
-                                 :backgroundColor  "rgba(242,242,242, 0.7)"
-                                 :align            "center"
-                                 :boundsAlignH     "center"
-                                 :boundsAlignV     "center"
-                                 :stroke           "#EE6C4D"
-                                 :strokeThickness  "10"}))]
+                       (clj->js {:font            "bold 60px Arial"
+                                 :fontVariant     "small-caps"
+                                 :fill            "#F6F4F3"
+                                 :backgroundColor "rgba(242,242,242, 0.7)"
+                                 :align           "center"
+                                 :boundsAlignH    "center"
+                                 :boundsAlignV    "center"
+                                 :stroke          "#EE6C4D"
+                                 :strokeThickness "10"}))]
     (swap! game-state assoc :puzzle-completion-text congrats-msg)
     (set! (.. congrats-msg -anchor -x) 0.5)
     (set! (.. congrats-msg -anchor -y) 0.5)
