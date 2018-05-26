@@ -20,7 +20,7 @@
   [ui/mui-theme-provider
    {:muiTheme (get-mui-theme (aget js/MaterialUIStyles "DarkRawTheme"))}
    [ui/raised-button {:label    "Play game"
-                      :icon (ic/navigation-arrow-back)
+                      :icon     (ic/navigation-arrow-back)
                       :on-click #(rf/dispatch [:screen-change :game])}]])
 
 (defn ranking-dashboard []
@@ -31,9 +31,9 @@
         ;Here it creates Clojure data
         (rf/dispatch [:ranking (util/parse-json ranking)])))
   (let [ranking @(rf/subscribe [:ranking])]
-    [:div {:style {:background-image  "url(\"images/ranking-board-bg.png\")"
-                   :width "100%"
-                   :height "100%"}}
+    [:div {:style {:background-image "url(\"images/ranking-board-bg.png\")"
+                   :width            "100%"
+                   :height           "100%"}}
      [go-back-to-game-button]
      [:div {:style {:padding "30px"}}]
      [ui/mui-theme-provider
@@ -68,42 +68,42 @@
      [:img {:style  {:position "absolute"
                      :z-index  "2"
                      :display  "block"
-                     :right "0.1%"
-                     :bottom "0.1%"}
+                     :right    "0.1%"
+                     :bottom   "0.1%"}
             :src    "images/lovely-baby-in-selection.png"
-            :width    "25%"
-            :height   "33.5%"}]
+            :width  "25%"
+            :height "33.5%"}]
      [:img {:style  {:position "absolute"
                      :z-index  "2"
                      :display  "block"
-                     :right "38%"
-                     :bottom "0.1%"}
+                     :right    "38%"
+                     :bottom   "0.1%"}
             :src    "images/puzzle-selection-door.png"
-            :width    "25%"
-            :height   "33.5%"}]
-     [:img {:style {:position "absolute"
-                    :z-index "3"
-                    :right "3%"
-                    :bottom "37%"
-                    :width "16%"}
-            :src "images/choose-image.png"
-            :width    "15%"
-            :height   "5%"}]]
+            :width  "25%"
+            :height "33.5%"}]
+     [:img {:style  {:position "absolute"
+                     :z-index  "3"
+                     :right    "3%"
+                     :bottom   "37%"
+                     :width    "16%"}
+            :src    "images/choose-image.png"
+            :width  "15%"
+            :height "5%"}]]
     (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
            ^{:key search-keyword} [:img
-                                {:id       search-keyword
-                                 :style    {:position "absolute"
-                                            :z-index  "1"
-                                            :box-shadow "6px 6px 3px -3px rgb(119,136,153)"
-                                            :left     (:left img-pos-in-puzzle-selection-view)
-                                            :top      (:top img-pos-in-puzzle-selection-view)}
-                                 :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
-                                             (when game-imgs
-                                               (println game-imgs)
-                                               (game-imgs search-keyword "")))
-                                 :width    "20%"
-                                 :height   "27.5%"
-                                 :on-click #(util/show-game! search-keyword)}])
+                                   {:id       search-keyword
+                                    :style    {:position   "absolute"
+                                               :z-index    "1"
+                                               :box-shadow "6px 6px 3px -3px rgb(119,136,153)"
+                                               :left       (:left img-pos-in-puzzle-selection-view)
+                                               :top        (:top img-pos-in-puzzle-selection-view)}
+                                    :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
+                                                (when game-imgs
+                                                  (println game-imgs)
+                                                  (game-imgs search-keyword "")))
+                                    :width    "20%"
+                                    :height   "27.5%"
+                                    :on-click #(util/show-game! search-keyword)}])
          util/puzzle-images)))
 
 (defn game-screen [search-word->game-img-url game-img]
@@ -115,10 +115,10 @@
                               :send-sprites-state-fn!   web-socket/send-sprites-state!
                               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
                               :send-music-note-fn!      web-socket/send-button-music-notes!})
-     :reagent-render (fn [] [:div#canvas {:style {:position "absolute"
-                                                  :display "block"}
-                                          :width  "100%"
-                                          :height "100%"}])}))
+     :reagent-render      (fn [] [:div#canvas {:style  {:position "absolute"
+                                                        :display  "block"}
+                                               :width  "100%"
+                                               :height "100%"}])}))
 
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
@@ -129,47 +129,60 @@
                (string? (search-word->game-img-url game-img))))
       (do
         (swap! util/game-state merge util/initial-game-state)
-        (js/setTimeout
-                       500)
         [:div
          [game-screen search-word->game-img-url game-img]
-         [:h1 {:style {:display "inline"}} "Loading..."]])
+         (when @(rf/subscribe [:loading?])
+           [:div#loader
+            [:h1 {:style {:display "inline-block"
+                          :align   "center"}}
+             "Loading..."]])])
       (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
           [:div
-           [:img {:style {:position "fixed"
-                          :width "60%"
-                          :height "55%"
-                          :z-index "6"
-                          :right "30%"
-                          :bottom "30%"
-                          :animation-name "titleAnimation"
-                          :transform "rotateX(40deg)"
-                          :animation-duration "2s"
-                          :animation-iteration-count "infinite"
-                          :animation-direction "alternate"}
+           [:img {:style    {:position                  "fixed"
+                             :width                     "60%"
+                             :height                    "55%"
+                             :z-index                   "6"
+                             :right                     "30%"
+                             :bottom                    "30%"
+                             :animation-name            "titleAnimation"
+                             :transform                 "rotateX(40deg)"
+                             :animation-duration        "2s"
+                             :animation-iteration-count "infinite"
+                             :animation-direction       "alternate"}
                   :src      "images/intro-title.png"
                   :width    "100%"
                   :height   "100%"
                   :on-click util/show-puzzle-selection!}]
-           [:img {:style {:position "fixed"
-                          :z-index "5"
-                          :width "20%"
-                          :height "20%"
-                          :right "10%"
-                          :animation-name "touchAnywhere"
-                          :animation-duration "2s"
-                          :animation-iteration-count "infinite"
-                          :animation-direction "alternate"}
-                  :src "images/click-to-start-button.png"
+           [:img {:style    {:position                  "fixed"
+                             :z-index                   "5"
+                             :width                     "20%"
+                             :height                    "20%"
+                             :right                     "10%"
+                             :animation-name            "clicktostart"
+                             :animation-duration        "2s"
+                             :animation-iteration-count "infinite"
+                             :animation-direction       "alternate"}
+                  :src      "images/click-to-start-button.png"
                   :on-click util/show-puzzle-selection!}]
-           [:img {:style {:position "absolute"
-                          :z-index  "4"}
+           [:img {:style    {:position "absolute"
+                             :z-index  "4"}
                   :src      "images/aikakone-intro.jpg"
                   :width    "100%"
                   :height   "100%"
                   :on-click util/show-puzzle-selection!}]
+           [:picture {:style    {:position "absolute"
+                                 :z-index  "4"}
+                      :on-click util/show-puzzle-selection!}
+            [:source {:media  "(min-width: 600px)"
+                      :srcSet "images/aikakone-intro.jpg"
+                      :width  "100%"
+                      :height "100%"}]
+            [:img {:src    "images/aikakone-intro-mobile.jpg"
+                   :alt    "aikakone intro image"
+                   :width  "100%"
+                   :height "100%"}]]
            [puzzle-selection-view]]
 
           (= :puzzle-selection @(rf/subscribe [:screen]))

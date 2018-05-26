@@ -1,11 +1,12 @@
+/* Click to start */
 /* Safari 4.0 - 8.0 */
-@-webkit-keyframes touchAnywhere {
+@-webkit-keyframes clicktostart {
     from {bottom: 40%;}
     to {bottom: 50%;}
 }
 
 /* Standard syntax */
-@keyframes touchAnywhere {
+@keyframes clicktostart {
     from {bottom: 40%;}
     to {bottom: 50%;}
 }
@@ -20,6 +21,7 @@
    }
   }
 
+/* Intro title */
 /* Standard syntax */
 @keyframes titleAnimation {
    0% {
@@ -29,3 +31,32 @@
       transform: rotateX(50deg);
    }
   }
+
+/* loader */
+
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid blue;
+  border-right: 16px solid green;
+  border-bottom: 16px solid red;
+  border-left: 16px solid pink;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

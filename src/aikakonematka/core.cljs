@@ -33,7 +33,7 @@
   (fn [_ _]
     (doseq [{:keys [search-keyword]} util/puzzle-images]
       (add-game-img-url-to-DB! search-keyword))
-    {:screen :intro
+    {:screen  :intro
      :ranking []}))
 
 (rf/reg-event-db
@@ -55,6 +55,11 @@
   :add-game-img-url
   (fn [db [_ search-keyword image-url]]
     (update db :search-keyword->game-img-url assoc search-keyword image-url)))
+
+(rf/reg-event-db
+  :loading?
+  (fn [db [_ loading?]]
+    (assoc db :loading? loading?)))
 
 ;- Query -
 
@@ -78,6 +83,11 @@
   (fn [db _]
     (:search-keyword->game-img-url db)))
 
+(rf/reg-sub
+  :loading?
+  (fn [db _]
+    (:loading? db)))
+
 
 (rf/dispatch-sync [:initialize])
 (r/render [view/app]
@@ -95,5 +105,5 @@
       (fn []
         (reset! util/button-sprite-sheet-width (.-width buttons-img))
         (reset! util/button-sprite-sheet-height (.-height buttons-img))
-        (web-sck/start-web-socket!)))) ; start game after loading image
+        (web-sck/start-web-socket!))))                      ; start game after loading image
   (set! (.-src buttons-img) "images/control-buttons.png"))
