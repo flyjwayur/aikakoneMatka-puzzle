@@ -166,27 +166,23 @@
                              :animation-direction       "alternate"}
                   :src      "images/click-to-start-button.png"
                   :on-click util/show-puzzle-selection!}]
-           [:img {:style    {:position "absolute"
-                             :z-index  "4"}
-                  :src      "images/aikakone-intro.jpg"
-                  :width    "100%"
-                  :height   "100%"
-                  :on-click util/show-puzzle-selection!}]
            [:picture {:style    {:position "absolute"
-                                 :z-index  "4"}
+                                 :z-index  "4"
+                                 :width    "100%"
+                                 :height "100%"}
                       :on-click util/show-puzzle-selection!}
             [:source {:media  "(min-width: 600px)"
-                      :srcSet "images/aikakone-intro.jpg"
-                      :width  "100%"
-                      :height "100%"}]
+                      :srcSet "images/aikakone-intro.jpg"}]
             [:img {:src    "images/aikakone-intro-mobile.jpg"
                    :alt    "aikakone intro image"
                    :width  "100%"
                    :height "100%"}]]
-           [puzzle-selection-view]]
+           [:div {:style {:display "none"}}
+            [puzzle-selection-view]]]
 
           (= :puzzle-selection @(rf/subscribe [:screen]))
-          [puzzle-selection-view]
+          [:div {:style {:display "block"}}
+           [puzzle-selection-view]]
 
           (= :ranking-dashboard @(rf/subscribe [:screen]))
           [ranking-dashboard])))))
