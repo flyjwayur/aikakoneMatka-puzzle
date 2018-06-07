@@ -370,8 +370,8 @@
     (.setShadow ^js/Phaser.Text intro-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
 (defn destroy-game-intro-text! []
-  (when-let [puzzle-completion-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
-    (.destroy puzzle-completion-text))
+  (when-let [puzzle-intro-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
+    (.destroy puzzle-intro-text))
   (swap! game-state assoc :puzzle-game-intro-text nil))
 
 ;- util functions for puzzle completion msg
