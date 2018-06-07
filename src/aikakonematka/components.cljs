@@ -168,7 +168,7 @@
            [:picture {:style    {:position "absolute"
                                  :z-index  "4"
                                  :width    "100%"
-                                 :height "100%"}
+                                 :height   "100%"}
                       :on-click util/show-puzzle-selection!}
             [:source {:media  "(min-width: 600px)"
                       :srcSet "images/aikakone-intro.jpg"}]

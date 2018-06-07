@@ -269,8 +269,6 @@
       (swap! game-state assoc :play-time-text play-time-text))
     (.setShadow ^js/Phaser.Text play-time-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
-
-
 (defn show-play-time-text! []
   (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 1 1)))
 

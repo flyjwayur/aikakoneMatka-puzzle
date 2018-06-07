@@ -121,8 +121,7 @@
                                                          (* 0.20 (.-innerWidth js/window))
                                                          (* 0.30 (.-innerHeight js/window))
                                                          "lovely-baby-in-puzzle"))]
-    (.. baby-image -scale (setTo 0.9 0.9))
-    ))
+    (.. baby-image -scale (setTo 0.9 0.9))))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
