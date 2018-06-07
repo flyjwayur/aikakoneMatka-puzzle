@@ -78,9 +78,6 @@
             "play-button"
             (fn []
               (send-game-start-fn!)
-              ;hide congrats msg for the next play(when it's not the first play)
-              ;because congrats msg only hide once right after it is created in create-game
-              (util/hide-congrats-msg!)
               (util/destroy-game-intro-text!))
             this))))
   (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
