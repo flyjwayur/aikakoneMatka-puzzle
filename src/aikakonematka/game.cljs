@@ -78,6 +78,7 @@
             "play-button"
             (fn []
               (send-game-start-fn!)
+              (util/destroy-congrats-message!)
               (util/destroy-game-intro-text!))
             this))))
   (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
@@ -217,9 +218,7 @@
       (util/make-puzzle-selection-button!)
       (util/make-play-time!)
       (util/hide-play-time-text!)
-      (util/make-reset-button! send-reset-fn!)
-      (util/make-congrats-message!)
-      (util/hide-congrats-msg!))))
+      (util/make-reset-button! send-reset-fn!))))
 
 (defn- game-update [])
 
