@@ -225,6 +225,7 @@
 
 (defn- start-game! [image-src websocket-msg-send-fns]
   (rf/dispatch [:loading? true])
+  (swap! util/game-state merge util/initial-game-state)
   (let [puzzle-img (js/Image.)]
     (set!
       (.-onload puzzle-img)

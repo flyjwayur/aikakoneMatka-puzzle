@@ -128,7 +128,6 @@
              (when search-word->game-img-url
                (string? (search-word->game-img-url game-img))))
       (do
-        (swap! util/game-state merge util/initial-game-state)
         [:div
          [game-screen search-word->game-img-url game-img]
          (when @(rf/subscribe [:loading?])
