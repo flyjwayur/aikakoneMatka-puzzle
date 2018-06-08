@@ -14,7 +14,7 @@
             [re-frame.core :as rf]
             ))
 
-;- view functions -
+;- view functions & definition -
 
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
@@ -106,6 +106,48 @@
                                     :on-click #(util/show-game! search-keyword)}])
          util/puzzle-images)))
 
+(def game-intro-view
+  [:div
+   [:img {:style    {:position                  "fixed"
+                     :width                     "60%"
+                     :height                    "55%"
+                     :z-index                   "6"
+                     :right                     "30%"
+                     :bottom                    "30%"
+                     :animation-name            "titleAnimation"
+                     :transform                 "rotateX(40deg)"
+                     :animation-duration        "2s"
+                     :animation-iteration-count "infinite"
+                     :animation-direction       "alternate"}
+          :src      "images/intro-title.png"
+          :width    "100%"
+          :height   "100%"
+          :on-click util/show-puzzle-selection!}]
+   [:img {:style    {:position                  "fixed"
+                     :z-index                   "5"
+                     :width                     "20%"
+                     :height                    "20%"
+                     :right                     "10%"
+                     :animation-name            "clicktostart"
+                     :animation-duration        "2s"
+                     :animation-iteration-count "infinite"
+                     :animation-direction       "alternate"}
+          :src      "images/click-to-start-button.png"
+          :on-click util/show-puzzle-selection!}]
+   [:picture {:style    {:position "absolute"
+                         :z-index  "4"
+                         :width    "100%"
+                         :height   "100%"}
+              :on-click util/show-puzzle-selection!}
+    [:source {:media  "(min-width: 600px)"
+              :srcSet "images/aikakone-intro.jpg"}]
+    [:img {:src    "images/aikakone-intro-mobile.jpg"
+           :alt    "aikakone intro image"
+           :width  "100%"
+           :height "100%"}]]
+   [:div {:style {:display "none"}}
+    [puzzle-selection-view]]])
+
 (defn game-screen [search-word->game-img-url game-img]
   (r/create-class
     {:component-did-mount #(game/start-game!
@@ -138,46 +180,7 @@
       (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
-          [:div
-           [:img {:style    {:position                  "fixed"
-                             :width                     "60%"
-                             :height                    "55%"
-                             :z-index                   "6"
-                             :right                     "30%"
-                             :bottom                    "30%"
-                             :animation-name            "titleAnimation"
-                             :transform                 "rotateX(40deg)"
-                             :animation-duration        "2s"
-                             :animation-iteration-count "infinite"
-                             :animation-direction       "alternate"}
-                  :src      "images/intro-title.png"
-                  :width    "100%"
-                  :height   "100%"
-                  :on-click util/show-puzzle-selection!}]
-           [:img {:style    {:position                  "fixed"
-                             :z-index                   "5"
-                             :width                     "20%"
-                             :height                    "20%"
-                             :right                     "10%"
-                             :animation-name            "clicktostart"
-                             :animation-duration        "2s"
-                             :animation-iteration-count "infinite"
-                             :animation-direction       "alternate"}
-                  :src      "images/click-to-start-button.png"
-                  :on-click util/show-puzzle-selection!}]
-           [:picture {:style    {:position "absolute"
-                                 :z-index  "4"
-                                 :width    "100%"
-                                 :height   "100%"}
-                      :on-click util/show-puzzle-selection!}
-            [:source {:media  "(min-width: 600px)"
-                      :srcSet "images/aikakone-intro.jpg"}]
-            [:img {:src    "images/aikakone-intro-mobile.jpg"
-                   :alt    "aikakone intro image"
-                   :width  "100%"
-                   :height "100%"}]]
-           [:div {:style {:display "none"}}
-            [puzzle-selection-view]]]
+          game-intro-view
 
           (= :puzzle-selection @(rf/subscribe [:screen]))
           [:div {:style {:display "block"}}
