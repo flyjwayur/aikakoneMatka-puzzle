@@ -41,7 +41,6 @@
     [:div {:style {:background-image "url(\"images/ranking-board-bg.png\")"
                    :width            "100%"
                    :height           "100%"}}
-     [go-back-to-game-button]
      [:div {:style {:padding "30px"}}]
      [ui/mui-theme-provider
       {:muiTheme (get-mui-theme {:palette {:text-color (color :grey600)}})}
@@ -55,7 +54,10 @@
               (for [rank (range (count ranking))]
                 [ui/table-row
                  [ui/table-row-column table-body-style (inc rank)]
-                 [ui/table-row-column table-body-style (ranking rank)]]))]]]))
+                 [ui/table-row-column table-body-style (ranking rank)]]))]]
+     [:div {:style {:display "flex"
+                    :justify-content "flex-end"}}
+      [go-back-to-game-button]]]))
 
 (defn- puzzle-selection-view []
   (into
