@@ -14,6 +14,13 @@
             [re-frame.core :as rf]
             ))
 
+(def table-header-style
+  {:style
+   {:font-size "2.5em" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}})
+
+(def table-body-style
+  {:style {:color "#696969" :font-size "18px"}})
+
 ;- view functions & definition -
 
 (defn go-back-to-game-button []
@@ -41,20 +48,14 @@
       [ui/table {:style {:background-color "rgba(255, 255, 255, 0.5)"}}
        [ui/table-header {:displaySelectAll false :adjustForCheckbox false}
         [ui/table-row
-         [ui/table-header-column
-          {:style
-           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
-          "Ranking"]
-         [ui/table-header-column
-          {:style
-           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
-          "Time Record"]]]
+         [ui/table-header-column table-header-style "Ranking"]
+         [ui/table-header-column table-header-style "Time Record"]]]
        (apply conj
               [ui/table-body {:displayRowCheckbox false}]
               (for [rank (range (count ranking))]
                 [ui/table-row
-                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (inc rank)]
-                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (ranking rank)]]))]]]))
+                 [ui/table-row-column table-body-style (inc rank)]
+                 [ui/table-row-column table-body-style (ranking rank)]]))]]]))
 
 (defn- puzzle-selection-view []
   (into
