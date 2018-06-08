@@ -16,10 +16,15 @@
 
 (def table-header-style
   {:style
-   {:font-size "2.5em" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}})
+   {:font-size "4.5vw"
+    :font-weight "700"
+    :color "#fff"
+    :background-color "rgba(238, 108, 77, 0.7)"}})
 
 (def table-body-style
-  {:style {:color "#696969" :font-size "18px"}})
+  {:style
+   {:font-size "3.5vw"
+    :color "#696969"}})
 
 ;- view functions & definition -
 
