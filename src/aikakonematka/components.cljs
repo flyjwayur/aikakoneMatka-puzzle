@@ -94,9 +94,7 @@
                      :right    "3%"
                      :bottom   "37%"
                      :width    "16%"}
-            :src    "images/choose-image.png"
-            :width  "15%"
-            :height "5%"}]]
+            :src    "images/choose-image.png"}]]
     (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
            ^{:key search-keyword} [:img
                                    {:id       search-keyword
