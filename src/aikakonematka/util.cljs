@@ -307,8 +307,8 @@
     (this-as this
       (.. ^js/Phaser.Game @game
           -add
-          (button (* 0.75 (.-innerWidth js/window))
-                  (* 0.5 (.-innerHeight js/window))
+          (button (- (* 0.90 (.-innerWidth js/window)) 180)
+                  (* 0.03 (.-innerHeight js/window))
                   "reset-button"
                   (fn []
                     (reset-game!)
