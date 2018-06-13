@@ -36,7 +36,8 @@
    :ranking-button          nil
    :puzzle-selection-button nil
    :music-pitches           []
-   :music-durations         []})
+   :music-durations         []
+   :audio-on?               false})
 
 (defonce game-state (atom initial-game-state))
 
@@ -307,7 +308,7 @@
     (this-as this
       (.. ^js/Phaser.Game @game
           -add
-          (button (- (* 0.90 (.-innerWidth js/window)) 180)
+          (button (- (* 0.90 (.-innerWidth js/window)) 270)
                   (* 0.03 (.-innerHeight js/window))
                   "reset-button"
                   (fn []
@@ -316,6 +317,32 @@
                   this))))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
+
+
+;- util functions for audio-button
+
+(defn make-audio-button! []
+  (swap!
+    game-state
+    assoc
+    :audio-button
+    (this-as this
+      (.. ^js/Phaser.Game @game
+          -add
+          (button (- (* 0.9 (.-innerWidth js/window)) 180)
+                  (* 0.03 (.-innerHeight js/window))
+                  "audio-on-button"
+                  (fn []
+                    (swap! game-state
+                           update
+                           :audio-on?
+                           not)
+                    (println :audio-on? (:audio-on? @game-state)))
+                  this
+                  2
+                  1
+                  "audio-off-button"))))
+  (.. ^js/Phaser.Button (:audio-button @game-state) -scale (setTo 0.5 0.5)))
 
 ;- util functions for puzzle-selection-button
 

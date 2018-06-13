@@ -51,7 +51,15 @@
       (.image
         phaser-loader
         "lovely-baby-in-puzzle"
-        "images/lovely-baby-in-puzzle.png"))))
+        "images/lovely-baby-in-puzzle.png")
+      (.image
+        phaser-loader
+        "audio-on-button"
+        "images/audio-on.png")
+      (.image
+        phaser-loader
+        "audio-off-button"
+        "images/audio-off.png"))))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
@@ -224,7 +232,8 @@
       (util/make-puzzle-selection-button!)
       (util/make-play-time!)
       (util/hide-play-time-text!)
-      (util/make-reset-button! send-reset-fn!))))
+      (util/make-reset-button! send-reset-fn!)
+      (util/make-audio-button!))))
 
 (defn- game-update [])
 
