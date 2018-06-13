@@ -59,7 +59,13 @@
       (.image
         phaser-loader
         "audio-off-button"
-        "images/audio-off.png"))))
+        "images/audio-off.png")
+      (.spritesheet
+        phaser-loader
+        "audio-onoff-toggle-button"
+        "images/audio-button.png"
+        150
+        150))))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))

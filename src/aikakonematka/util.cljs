@@ -37,7 +37,7 @@
    :puzzle-selection-button nil
    :music-pitches           []
    :music-durations         []
-   :audio-on?               false})
+   :audio-on?               true})
 
 (defonce game-state (atom initial-game-state))
 
@@ -320,6 +320,14 @@
 
 
 ;- util functions for audio-button
+(defn- toggle-sound-on-off []
+  (swap! game-state
+         update
+         :audio-on?
+         not)
+  (if (:audio-on? @game-state)
+    (set! (.. ^js/Phaser.Button (:audio-button @game-state) -frame) 0)
+    (set! (.. ^js/Phaser.Button (:audio-button @game-state) -frame) 1)))
 
 (defn make-audio-button! []
   (swap!
@@ -331,18 +339,11 @@
           -add
           (button (- (* 0.9 (.-innerWidth js/window)) 180)
                   (* 0.03 (.-innerHeight js/window))
-                  "audio-on-button"
-                  (fn []
-                    (swap! game-state
-                           update
-                           :audio-on?
-                           not)
-                    (println :audio-on? (:audio-on? @game-state)))
-                  this
-                  2
-                  1
-                  "audio-off-button"))))
-  (.. ^js/Phaser.Button (:audio-button @game-state) -scale (setTo 0.5 0.5)))
+                  "audio-onoff-toggle-button"
+                  toggle-sound-on-off
+                  this))))
+  (.. ^js/Phaser.Button (:audio-button @game-state) -scale (setTo 0.5 0.5))
+  (set! (.. ^js/Phaser.Button (:audio-button @game-state) -frame) 0))
 
 ;- util functions for puzzle-selection-button
 
