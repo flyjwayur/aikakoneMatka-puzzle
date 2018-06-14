@@ -41,6 +41,10 @@
 
 (defonce game-state (atom initial-game-state))
 
+(defn set-puzzle-width-height-in-relation-to-window-size! []
+  (swap! game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
+                                                                     (.-innerHeight js/window))))))
+
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
 (def button-sprite-sheet-width (atom nil))

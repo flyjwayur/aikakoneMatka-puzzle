@@ -236,6 +236,11 @@
 (defn- game-update [])
 
 (defn- on-resize []
+  (util/set-puzzle-width-height-in-relation-to-window-size!)
+  ;Scale 0 in hide-control-buttons and Tween in show-control-buttons!
+  (util/hide-control-buttons!)
+  (util/show-control-buttons!)
+  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]
@@ -258,5 +263,5 @@
                               :create  (create-game websocket-msg-send-fns)
                               :update  game-update
                               :resize on-resize}))))))
-    (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
+    (util/set-puzzle-width-height-in-relation-to-window-size!)
     (set! (.-src puzzle-img) image-src)))
