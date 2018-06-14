@@ -27,7 +27,7 @@
    :sprites-state           {}
    :puzzle-width-height     0
    :play-button             nil
-   :control-buttons         []
+   :control-buttons         {}
    :control-button-tweens   []
    :play-time               0.0
    :play-time-text          nil
@@ -57,18 +57,19 @@
 (defn- get-button-height [btn-sprite-row-num]
   (/ @button-sprite-sheet-height btn-sprite-row-num))
 
-(defn- get-left-margin []
-  (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2))
-
-(defn- get-top-margin []
-  (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 2))
-
 (defn- get-piece-width-height [puzzle-width-height]
   (int (/ puzzle-width-height row-col-num)))
 
 (defn get-scale-for-same-size-as-piece! []
   (/ (get-piece-width-height (:puzzle-width-height @game-state))
      (get-button-width button-sprite-col-num)))
+
+(defn- get-left-margin []
+  (+ (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2)
+     (* (get-button-width button-sprite-col-num) (get-scale-for-same-size-as-piece!))))
+
+(defn- get-top-margin []
+  (/ (- (.-innerHeight js/window) (:puzzle-width-height @game-state)) 2))
 
 (defn- display-control-buttons-and-use-tween-scale! [control-button]
   (let [control-button-scale (get-scale-for-same-size-as-piece!)
@@ -232,11 +233,11 @@
   (doseq [control-button-tween (:control-button-tweens @game-state)]
     (.stop control-button-tween))
   (swap! game-state assoc :control-button-tweens [])
-  (doseq [control-button (:control-buttons @game-state)]
+  (doseq [[_ control-button] (:control-buttons @game-state)]
     (.setTo (.-scale control-button) 0 0)))
 
 (defn- show-control-buttons! []
-  (doseq [control-button (:control-buttons @game-state)]
+  (doseq [[_ control-button] (:control-buttons @game-state)]
     (display-control-buttons-and-use-tween-scale! control-button)))
 
 (defn hide-all-puzzle-pieces! []
@@ -444,6 +445,50 @@
 
 ;- util UI elements for positioning
 
+(defn- repositioning-puzzle-pieces! [{:keys [x-pos y-pos row col]}]
+  (let [piece (get-in @game-state [:sprites [row col]])]
+    (when piece
+      (set! (.-x piece) x-pos)
+      (set! (.-y piece) y-pos))))
+
+(defn- repositioning-control-button! [{:keys [row col x-pos y-pos piece-width-height]}]
+  ; bottom left
+  (when
+    (and (and (zero? col) (= row (dec row-col-num))))
+    (let [control-button ((@game-state :control-buttons) :bottom-left)]
+      (when control-button
+        (set! (.-x control-button) (- x-pos piece-width-height))
+        (set! (.-y control-button) (+ y-pos piece-width-height)))))
+  ; left buttons
+  (when (zero? col)
+    (let [control-button ((@game-state :control-buttons) [:left row])]
+      (when control-button
+        (set! (.-x control-button) (- x-pos piece-width-height))
+        (set! (.-y control-button) y-pos))))
+
+  ; bottom buttons
+  (when (= row (dec row-col-num))
+    (let [control-button ((@game-state :control-buttons) [:bottom col])]
+      (when control-button
+        (set! (.-x control-button) x-pos)
+        (set! (.-y control-button) (+ y-pos piece-width-height))))))
+
+(defn- positioning-control-buttons-and-puzzle-pieces! []
+  (doseq [row (range row-col-num)
+          col (range row-col-num)
+          :let [piece-width-height (get-piece-width-height (:puzzle-width-height @game-state))
+                x-pos (+ (* piece-width-height col) (get-left-margin) (+ 2 col))
+                y-pos (+ (* piece-width-height row) (get-top-margin) (+ 2 row))]]
+    (repositioning-puzzle-pieces! {:x-pos x-pos
+                                   :y-pos y-pos
+                                   :row row
+                                   :col col})
+    (repositioning-control-button! {:row row
+                                    :col col
+                                    :x-pos x-pos
+                                    :y-pos y-pos
+                                    :piece-width-height piece-width-height})))
+
 (defn positioning-ui-elements-for-portrait-mode! []
   (let [derefed-stated @game-state
         window-inner-width (.-innerWidth js/window)
@@ -481,5 +526,6 @@
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHieght js/window)
         is-landscape (< (/ window-inner-width window-inner-height) 1.3)]
+    (positioning-control-buttons-and-puzzle-pieces!)
     (when-not is-landscape
       (positioning-ui-elements-for-portrait-mode!))))

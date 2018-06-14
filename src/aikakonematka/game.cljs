@@ -5,9 +5,7 @@
 
 (defn- create-preload [image-src]
   (fn []
-    (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.SHOW_ALL)
-    (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignHorizontally) true)
-    (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignVertically) true)
+    (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.RESIZE)
     (let [phaser-loader (.-load ^js/Phaser.Game @util/game)]
       (.spritesheet
         phaser-loader
@@ -93,8 +91,8 @@
   (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
   (set! (.. (:play-button @util/game-state) -anchor -y) 0.5))
 
-(defn- store-control-button-and-return-it! [^js/Phaser.Game control-button]
-  (swap! util/game-state update :control-buttons conj control-button)
+(defn- store-control-button-and-return-it! [key-for-control-button ^js/Phaser.Game control-button]
+  (swap! util/game-state assoc-in [:control-buttons key-for-control-button] control-button)
   (.. control-button -scale (setTo 0 0))
   (set! (.. control-button -anchor -x) 0.5)
   (set! (.. control-button -anchor -y) 0.5)
@@ -160,6 +158,7 @@
           (when
             (and (zero? col) (= row (dec util/row-col-num)))
             (let [bottom-left-button (store-control-button-and-return-it!
+                                       :bottom-left
                                        (.sprite
                                          game-object-factory
                                          (- x-pos piece-width-height)
@@ -181,6 +180,7 @@
                     (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (zero? col)
             (let [left-button (store-control-button-and-return-it!
+                                [:left row]
                                 (.sprite
                                   game-object-factory
                                   (- x-pos piece-width-height)
@@ -200,6 +200,7 @@
                     (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (= row (dec util/row-col-num))
             (let [bottom-button (store-control-button-and-return-it!
+                                  [:bottom col]
                                   (.sprite
                                     game-object-factory
                                     x-pos
@@ -230,9 +231,12 @@
       (util/make-audio-button!)
       (util/make-congrats-message!)
       (util/hide-congrats-message!))
-    (util/positioning-ui-elements!)))
+      (util/positioning-ui-elements!)))
 
 (defn- game-update [])
+
+(defn- on-resize []
+  (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]
   (rf/dispatch [:loading? true])
@@ -252,6 +256,7 @@
                     "canvas"
                     (clj->js {:preload (create-preload image-src)
                               :create  (create-game websocket-msg-send-fns)
-                              :update  game-update}))))))
+                              :update  game-update
+                              :resize on-resize}))))))
     (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
     (set! (.-src puzzle-img) image-src)))
