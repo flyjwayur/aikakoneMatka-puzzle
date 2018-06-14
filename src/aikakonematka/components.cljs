@@ -14,7 +14,19 @@
             [re-frame.core :as rf]
             ))
 
-;- view functions -
+(def table-header-style
+  {:style
+   {:font-size "4.5vw"
+    :font-weight "700"
+    :color "#fff"
+    :background-color "rgba(238, 108, 77, 0.7)"}})
+
+(def table-body-style
+  {:style
+   {:font-size "3.5vw"
+    :color "#696969"}})
+
+;- view functions & definition -
 
 (defn go-back-to-game-button []
   [ui/mui-theme-provider
@@ -34,27 +46,23 @@
     [:div {:style {:background-image "url(\"images/ranking-board-bg.png\")"
                    :width            "100%"
                    :height           "100%"}}
-     [go-back-to-game-button]
      [:div {:style {:padding "30px"}}]
      [ui/mui-theme-provider
       {:muiTheme (get-mui-theme {:palette {:text-color (color :grey600)}})}
       [ui/table {:style {:background-color "rgba(255, 255, 255, 0.5)"}}
        [ui/table-header {:displaySelectAll false :adjustForCheckbox false}
         [ui/table-row
-         [ui/table-header-column
-          {:style
-           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
-          "Ranking"]
-         [ui/table-header-column
-          {:style
-           {:font-size "25px" :font-weight "700" :color "#fff" :background-color "rgba(238, 108, 77, 0.7)"}}
-          "Time Record"]]]
+         [ui/table-header-column table-header-style "Ranking"]
+         [ui/table-header-column table-header-style "Time Record"]]]
        (apply conj
               [ui/table-body {:displayRowCheckbox false}]
               (for [rank (range (count ranking))]
                 [ui/table-row
-                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (inc rank)]
-                 [ui/table-row-column {:style {:color "#696969" :font-size "18px"}} (ranking rank)]]))]]]))
+                 [ui/table-row-column table-body-style (inc rank)]
+                 [ui/table-row-column table-body-style (ranking rank)]]))]]
+     [:div {:style {:display "flex"
+                    :justify-content "flex-end"}}
+      [go-back-to-game-button]]]))
 
 (defn- puzzle-selection-view []
   (into
@@ -86,9 +94,7 @@
                      :right    "3%"
                      :bottom   "37%"
                      :width    "16%"}
-            :src    "images/choose-image.png"
-            :width  "15%"
-            :height "5%"}]]
+            :src    "images/choose-image.png"}]]
     (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
            ^{:key search-keyword} [:img
                                    {:id       search-keyword
@@ -105,6 +111,48 @@
                                     :height   "27.5%"
                                     :on-click #(util/show-game! search-keyword)}])
          util/puzzle-images)))
+
+(def game-intro-view
+  [:div
+   [:img {:style    {:position                  "fixed"
+                     :width                     "60%"
+                     :height                    "55%"
+                     :z-index                   "6"
+                     :right                     "30%"
+                     :bottom                    "30%"
+                     :animation-name            "titleAnimation"
+                     :transform                 "rotateX(40deg)"
+                     :animation-duration        "2s"
+                     :animation-iteration-count "infinite"
+                     :animation-direction       "alternate"}
+          :src      "images/intro-title.png"
+          :width    "100%"
+          :height   "100%"
+          :on-click util/show-puzzle-selection!}]
+   [:img {:style    {:position                  "fixed"
+                     :z-index                   "5"
+                     :width                     "20%"
+                     :height                    "20%"
+                     :right                     "10%"
+                     :animation-name            "clicktostart"
+                     :animation-duration        "2s"
+                     :animation-iteration-count "infinite"
+                     :animation-direction       "alternate"}
+          :src      "images/click-to-start-button.png"
+          :on-click util/show-puzzle-selection!}]
+   [:picture {:style    {:position "absolute"
+                         :z-index  "4"
+                         :width    "100%"
+                         :height   "100%"}
+              :on-click util/show-puzzle-selection!}
+    [:source {:media  "(min-width: 600px)"
+              :srcSet "images/aikakone-intro.jpg"}]
+    [:img {:src    "images/aikakone-intro-mobile.jpg"
+           :alt    "aikakone intro image"
+           :width  "100%"
+           :height "100%"}]]
+   [:div {:style {:display "none"}}
+    [puzzle-selection-view]]])
 
 (defn game-screen [search-word->game-img-url game-img]
   (r/create-class
@@ -128,7 +176,6 @@
              (when search-word->game-img-url
                (string? (search-word->game-img-url game-img))))
       (do
-        (swap! util/game-state merge util/initial-game-state)
         [:div
          [game-screen search-word->game-img-url game-img]
          (when @(rf/subscribe [:loading?])
@@ -139,54 +186,11 @@
       (do
         (cond
           (= :intro @(rf/subscribe [:screen]))
-          [:div
-           [:img {:style    {:position                  "fixed"
-                             :width                     "60%"
-                             :height                    "55%"
-                             :z-index                   "6"
-                             :right                     "30%"
-                             :bottom                    "30%"
-                             :animation-name            "titleAnimation"
-                             :transform                 "rotateX(40deg)"
-                             :animation-duration        "2s"
-                             :animation-iteration-count "infinite"
-                             :animation-direction       "alternate"}
-                  :src      "images/intro-title.png"
-                  :width    "100%"
-                  :height   "100%"
-                  :on-click util/show-puzzle-selection!}]
-           [:img {:style    {:position                  "fixed"
-                             :z-index                   "5"
-                             :width                     "20%"
-                             :height                    "20%"
-                             :right                     "10%"
-                             :animation-name            "clicktostart"
-                             :animation-duration        "2s"
-                             :animation-iteration-count "infinite"
-                             :animation-direction       "alternate"}
-                  :src      "images/click-to-start-button.png"
-                  :on-click util/show-puzzle-selection!}]
-           [:img {:style    {:position "absolute"
-                             :z-index  "4"}
-                  :src      "images/aikakone-intro.jpg"
-                  :width    "100%"
-                  :height   "100%"
-                  :on-click util/show-puzzle-selection!}]
-           [:picture {:style    {:position "absolute"
-                                 :z-index  "4"}
-                      :on-click util/show-puzzle-selection!}
-            [:source {:media  "(min-width: 600px)"
-                      :srcSet "images/aikakone-intro.jpg"
-                      :width  "100%"
-                      :height "100%"}]
-            [:img {:src    "images/aikakone-intro-mobile.jpg"
-                   :alt    "aikakone intro image"
-                   :width  "100%"
-                   :height "100%"}]]
-           [puzzle-selection-view]]
+          game-intro-view
 
           (= :puzzle-selection @(rf/subscribe [:screen]))
-          [puzzle-selection-view]
+          [:div {:style {:display "block"}}
+           [puzzle-selection-view]]
 
           (= :ranking-dashboard @(rf/subscribe [:screen]))
           [ranking-dashboard])))))

@@ -33,16 +33,17 @@
 (def C6 (* 4 (frequencies-of-major-scale-in-4th-octave 0)))
 
 (defn play-beep! [sq-freq]
-  (run-with
-    (connect->
-      (square sq-freq)                                      ;Define the periodic waves
-      (low-pass 600)
-      (percussive 0.01 0.4)                                 ;Define how log it takes the note and a decay
-      (gain 0.3)                                            ;Alter amplitude of the wave                                       ;                                         ;
-      destination)
-    context
-    (current-time context)
-    1.0))
+  (when (:audio-on? @util/game-state)
+    (run-with
+      (connect->
+        (square sq-freq)                                      ;Define the periodic waves
+        (low-pass 600)
+        (percussive 0.01 0.4)                                 ;Define how log it takes the note and a decay
+        (gain 0.3)                                            ;Alter amplitude of the wave                                       ;                                         ;
+        destination)
+      context
+      (current-time context)
+      1.0)))
 
 (defn make-melody! []
   (melody/phrase (:music-durations @util/game-state) (:music-pitches @util/game-state)))
@@ -160,7 +161,7 @@
          (play! context))))
 
 (defn song-from-players []
-  (when (util/currently-playing-game?)
+  (when (:audio-on? @util/game-state)
     (play-song-with-instrument))
   (js/setTimeout song-from-players (+ 1000 (* 1000 (apply + (:music-durations @util/game-state))))))
 

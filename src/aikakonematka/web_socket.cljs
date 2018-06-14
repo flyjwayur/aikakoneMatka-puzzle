@@ -72,7 +72,7 @@
 
       :aikakone/reset (util/reset-game!)
 
-      :aikakone/music (when (util/currently-playing-game?)
+      :aikakone/music (when (:audio-on? @util/game-state)
                         (util/update-music-notes! event-data))
 
       (println event-id " is unknown event type"))))

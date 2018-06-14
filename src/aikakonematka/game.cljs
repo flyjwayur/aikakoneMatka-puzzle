@@ -51,7 +51,21 @@
       (.image
         phaser-loader
         "lovely-baby-in-puzzle"
-        "images/lovely-baby-in-puzzle.png"))))
+        "images/lovely-baby-in-puzzle.png")
+      (.image
+        phaser-loader
+        "audio-on-button"
+        "images/audio-on.png")
+      (.image
+        phaser-loader
+        "audio-off-button"
+        "images/audio-off.png")
+      (.spritesheet
+        phaser-loader
+        "audio-onoff-toggle-button"
+        "images/audio-button.png"
+        150
+        150))))
 
 (defn flip-diagonal-pieces! []
   (swap! util/game-state update-in [:sprites-state :diagonal-flipped?] not))
@@ -78,9 +92,7 @@
             "play-button"
             (fn []
               (send-game-start-fn!)
-              ;hide congrats msg for the next play(when it's not the first play)
-              ;because congrats msg only hide once right after it is created in create-game
-              (util/hide-congrats-msg!)
+              (util/destroy-congrats-message!)
               (util/destroy-game-intro-text!))
             this))))
   (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
@@ -123,8 +135,13 @@
                                                          (* 0.20 (.-innerWidth js/window))
                                                          (* 0.30 (.-innerHeight js/window))
                                                          "lovely-baby-in-puzzle"))]
-    (.. baby-image -scale (setTo 0.9 0.9))
-    ))
+    (.. baby-image -scale (setTo 0.9 0.9))))
+
+(defn- makeFullScreen []
+  (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignHorizontally) true)
+  (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignVertically) true)
+  (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.SHOW_ALL)
+  (set! (.. ^js/Phaser.Game @util/game -scale -setScreenSize)  true))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -133,6 +150,7 @@
                             send-music-note-fn!]}]
   (fn []
     (rf/dispatch [:loading? false])
+    (makeFullScreen)
     (display-puzzle-background)
     (display-lovely-baby-in-bg)
     ;It only creates the puzzle piece/button sprites only once for each client.
@@ -221,13 +239,13 @@
       (util/make-play-time!)
       (util/hide-play-time-text!)
       (util/make-reset-button! send-reset-fn!)
-      (util/make-congrats-message!)
-      (util/hide-congrats-msg!))))
+      (util/make-audio-button!))))
 
 (defn- game-update [])
 
 (defn- start-game! [image-src websocket-msg-send-fns]
   (rf/dispatch [:loading? true])
+  (swap! util/game-state merge util/initial-game-state)
   (let [puzzle-img (js/Image.)]
     (set!
       (.-onload puzzle-img)

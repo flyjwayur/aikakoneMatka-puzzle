@@ -36,7 +36,8 @@
    :ranking-button          nil
    :puzzle-selection-button nil
    :music-pitches           []
-   :music-durations         []})
+   :music-durations         []
+   :audio-on?               true})
 
 (defonce game-state (atom initial-game-state))
 
@@ -104,15 +105,10 @@
 
 
 ;- util functions for checking condition
-
-(defn- puzzle-completion-text-scale-zero? []
-  (let [dereffed-game-state @game-state]
-    (= 0 (.. (:puzzle-completion-text dereffed-game-state) -scale -x))))
-
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
     (and (not (empty? (:sprites-state dereffed-game-state)))
-         puzzle-completion-text-scale-zero?)))
+         (nil? (:puzzle-completion-text dereffed-game-state)))))
 
 (defn- puzzle-completed? []
   (let [sprites-state (:sprites-state @game-state)
@@ -274,8 +270,6 @@
       (swap! game-state assoc :play-time-text play-time-text))
     (.setShadow ^js/Phaser.Text play-time-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
-
-
 (defn show-play-time-text! []
   (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 1 1)))
 
@@ -314,8 +308,8 @@
     (this-as this
       (.. ^js/Phaser.Game @game
           -add
-          (button (* 0.75 (.-innerWidth js/window))
-                  (* 0.5 (.-innerHeight js/window))
+          (button (- (* 0.90 (.-innerWidth js/window)) 270)
+                  (* 0.03 (.-innerHeight js/window))
                   "reset-button"
                   (fn []
                     (reset-game!)
@@ -323,6 +317,33 @@
                   this))))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
+
+
+;- util functions for audio-button
+(defn- toggle-sound-on-off []
+  (swap! game-state
+         update
+         :audio-on?
+         not)
+  (if (:audio-on? @game-state)
+    (set! (.. ^js/Phaser.Button (:audio-button @game-state) -frame) 0)
+    (set! (.. ^js/Phaser.Button (:audio-button @game-state) -frame) 1)))
+
+(defn make-audio-button! []
+  (swap!
+    game-state
+    assoc
+    :audio-button
+    (this-as this
+      (.. ^js/Phaser.Game @game
+          -add
+          (button (- (* 0.9 (.-innerWidth js/window)) 180)
+                  (* 0.03 (.-innerHeight js/window))
+                  "audio-onoff-toggle-button"
+                  toggle-sound-on-off
+                  this))))
+  (.. ^js/Phaser.Button (:audio-button @game-state) -scale (setTo 0.5 0.5))
+  (set! (.. ^js/Phaser.Button (:audio-button @game-state) -frame) 0))
 
 ;- util functions for puzzle-selection-button
 
@@ -370,8 +391,8 @@
     (.setShadow ^js/Phaser.Text intro-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
 (defn destroy-game-intro-text! []
-  (when-let [puzzle-completion-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
-    (.destroy puzzle-completion-text))
+  (when-let [puzzle-intro-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]
+    (.destroy puzzle-intro-text))
   (swap! game-state assoc :puzzle-game-intro-text nil))
 
 ;- util functions for puzzle completion msg
@@ -396,22 +417,21 @@
     (set! (.. congrats-msg -anchor -y) 0.5)
     (.setShadow ^js/Phaser.Text congrats-msg 3 3 "rgba(32,32,32, 0.8)" 1)))
 
-(defn show-congrats-msg! []
-  (.. ^js/Phaser.Text (:puzzle-completion-text @game-state) -scale (setTo 1 1)))
-
-(defn hide-congrats-msg! []
-  (.. ^js/Phaser.Text (:puzzle-completion-text @game-state) -scale (setTo 0 0)))
+(defn destroy-congrats-message! []
+  (when-let [congrats-message-text ^js/Phaser.Text (:puzzle-completion-text @game-state)]
+    (.destroy congrats-message-text))
+  (swap! game-state assoc :puzzle-completion-text nil))
 
 (defn congrats-finish-game! [send-puzzle-complete-fn!]
   (when (and (puzzle-completed?)
              ;for other client's (in case they didn't start a puzzle yet)
              (currently-playing-game?)
-             (puzzle-completion-text-scale-zero?))
+             (not (:puzzle-completion-text @game-state)))
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)
     (display-ranking-button!)
-    (show-congrats-msg!)
+    (make-congrats-message!)
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))
 
