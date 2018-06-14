@@ -68,6 +68,18 @@
   (/ (get-piece-width-height (:puzzle-width-height @game-state))
      (get-button-width button-sprite-col-num)))
 
+(defn set-play-button-size! []
+  (let [window-inner-width (.-innerWidth js/window)
+        window-inner-height (.-innerHeight js/window)
+        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
+    (if is-landscape
+      (do
+        (set! (.-width (:play-button @game-state)) (/ window-inner-width 4))
+        (set! (.-height (:play-button @game-state)) (/ window-inner-height 8)))
+      (do
+        (set! (.-width (:play-button @game-state)) (/ window-inner-width 2))
+        (set! (.-height (:play-button @game-state)) (/ window-inner-height 4))))))
+
 (defn- get-left-margin []
   (+ (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2)
      (* (get-button-width button-sprite-col-num) (get-scale-for-same-size-as-piece!))))
