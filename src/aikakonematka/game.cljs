@@ -115,7 +115,7 @@
   (util/hide-play-button!)
   (util/hide-ranking-button!)
   ;Change the scale of pieces according to the current sprites-state
-  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
   (send-start-timer-fn!)
   (util/show-play-time-text!))
 
@@ -175,7 +175,7 @@
                     (sound/play-beep! frequency)
                     (send-music-note-fn! frequency)
                     (flip-diagonal-pieces!)
-                    (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+                    (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
                     (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (zero? col)
@@ -195,7 +195,7 @@
                     (sound/play-beep! frequency)
                     (send-music-note-fn! frequency)
                     (flip-row! row)
-                    (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+                    (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
                     (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (= row (dec util/row-col-num))
@@ -217,7 +217,7 @@
                     (sound/play-beep! frequency)
                     (send-music-note-fn! frequency)
                     (flip-col! col)
-                    (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+                    (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
                     (send-sprites-state-fn!)
                     (util/congrats-finish-game! send-puzzle-complete-fn!)))))))))
     (when-not (:play-button @util/game-state)
@@ -241,7 +241,7 @@
   (when util/currently-playing-game?
     (util/hide-control-buttons!)
     (util/show-control-buttons!))
-  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
   (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]

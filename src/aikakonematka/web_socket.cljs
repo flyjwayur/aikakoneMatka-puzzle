@@ -57,7 +57,7 @@
     ;(println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
-                                (util/synchronize-puzzle-board! event-data)
+                                (util/synchronize-puzzle-board-when-playing! event-data)
                                 (util/congrats-finish-game! send-puzzle-complete!))
 
       :aikakone/game-start (do

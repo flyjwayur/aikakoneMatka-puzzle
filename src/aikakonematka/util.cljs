@@ -144,60 +144,63 @@
       [row col])))
 
 (defn- synchronize-puzzle-board! [sprites-state]
+  (swap! game-state assoc :sprites-state sprites-state)
+  (println "synchronizing.... :)")
+  (let [derefed-state @game-state
+        sprites (:sprites derefed-state)
+        piece-x-scale (get-piece-x-scale)
+        piece-y-scale (get-piece-y-scale)
+        row-flips-applied (reduce
+                            (fn [modified-sprites-state-per-piece [row flipped?]]
+                              ;flipped? from control button clicking or randomized flipped states
+                              (reduce
+                                (fn [sprites-state-per-piece col]
+                                  (update sprites-state-per-piece [row col] (if flipped? not identity)))
+                                modified-sprites-state-per-piece
+                                (range row-col-num)))
+                            ;Initially, pieces' sprites-state is all false,
+                            ;So if the flip happens in the game,
+                            ;initial game state will be changed by 'not'
+                            ;otherwise, it is same as false by 'identity'
+                            initial-sprites-state-per-piece
+                            (:row-flipped? sprites-state))
+        col-flips-applied (reduce
+                            (fn [modified-sprites-state [col flipped?]]
+                              (reduce
+                                (fn [sprites-state-per-piece row]
+                                  (update sprites-state-per-piece [row col] (if flipped? not identity)))
+                                modified-sprites-state
+                                (range row-col-num)))
+                            row-flips-applied
+                            (:col-flipped? sprites-state))
+        diagonal-flip-applied (reduce
+                                (fn [modified-sprites-state row-col]
+                                  (update modified-sprites-state
+                                          [(- row-col-num 1 row-col) row-col]
+                                          (if (:diagonal-flipped? sprites-state) not identity)))
+                                col-flips-applied
+                                (range row-col-num))]
+    (doseq [[[row col] sprite-flipped-state] diagonal-flip-applied]
+      (let [piece-scale (.-scale (sprites [row col]))
+            game-object-factory (.-add ^js/Phaser.Game @game)]
+        (if (= false sprite-flipped-state)
+          (.. game-object-factory
+              (tween piece-scale)
+              (to (clj->js {:x piece-x-scale
+                            :y piece-y-scale})
+                  500
+                  js/Phaser.Easing.Cubic.In
+                  true))
+          (.. game-object-factory
+              (tween piece-scale)
+              (to (clj->js {:x 0 :y 0})
+                  500
+                  js/Phaser.Easing.Cubic.In
+                  true)))))))
+
+(defn synchronize-puzzle-board-when-playing! [sprites-state]
   (when (currently-playing-game?)
-    (swap! game-state assoc :sprites-state sprites-state)
-    (println "synchronizing.... :)")
-    (let [derefed-state @game-state
-          sprites (:sprites derefed-state)
-          piece-x-scale (get-piece-x-scale)
-          piece-y-scale (get-piece-y-scale)
-          row-flips-applied (reduce
-                              (fn [modified-sprites-state-per-piece [row flipped?]]
-                                ;flipped? from control button clicking or randomized flipped states
-                                (reduce
-                                  (fn [sprites-state-per-piece col]
-                                    (update sprites-state-per-piece [row col] (if flipped? not identity)))
-                                  modified-sprites-state-per-piece
-                                  (range row-col-num)))
-                              ;Initially, pieces' sprites-state is all false,
-                              ;So if the flip happens in the game,
-                              ;initial game state will be changed by 'not'
-                              ;otherwise, it is same as false by 'identity'
-                              initial-sprites-state-per-piece
-                              (:row-flipped? sprites-state))
-          col-flips-applied (reduce
-                              (fn [modified-sprites-state [col flipped?]]
-                                (reduce
-                                  (fn [sprites-state-per-piece row]
-                                    (update sprites-state-per-piece [row col] (if flipped? not identity)))
-                                  modified-sprites-state
-                                  (range row-col-num)))
-                              row-flips-applied
-                              (:col-flipped? sprites-state))
-          diagonal-flip-applied (reduce
-                                  (fn [modified-sprites-state row-col]
-                                    (update modified-sprites-state
-                                            [(- row-col-num 1 row-col) row-col]
-                                            (if (:diagonal-flipped? sprites-state) not identity)))
-                                  col-flips-applied
-                                  (range row-col-num))]
-      (doseq [[[row col] sprite-flipped-state] diagonal-flip-applied]
-        (let [piece-scale (.-scale (sprites [row col]))
-              game-object-factory (.-add ^js/Phaser.Game @game)]
-          (if (= false sprite-flipped-state)
-            (.. game-object-factory
-                (tween piece-scale)
-                (to (clj->js {:x piece-x-scale
-                              :y piece-y-scale})
-                    500
-                    js/Phaser.Easing.Cubic.In
-                    true))
-            (.. game-object-factory
-                (tween piece-scale)
-                (to (clj->js {:x 0 :y 0})
-                    500
-                    js/Phaser.Easing.Cubic.In
-                    true))))))))
+    (synchronize-puzzle-board! sprites-state)))
 
 (defn- display-ranking-button! []
   (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0.5 0.5)))
@@ -245,7 +248,7 @@
     (display-control-buttons-and-use-tween-scale! control-button)))
 
 (defn hide-all-puzzle-pieces! []
-  (synchronize-puzzle-board!
+  (synchronize-puzzle-board-when-playing!
     {:row-flipped?      (reduce
                           #(assoc %1 %2 true)
                           {}
