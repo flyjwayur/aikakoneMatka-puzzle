@@ -108,7 +108,7 @@
 (defn- currently-playing-game? []
   (let [dereffed-game-state @game-state]
     (and (not (empty? (:sprites-state dereffed-game-state)))
-         (nil? (:puzzle-completion-text dereffed-game-state)))))
+         (not (.-visible (:puzzle-completion-text dereffed-game-state))))))
 
 (defn- puzzle-completed? []
   (let [sprites-state (:sprites-state @game-state)
@@ -271,10 +271,10 @@
     (.setShadow ^js/Phaser.Text play-time-text 3 3 "rgba(0,0,0,0.5)" 3)))
 
 (defn show-play-time-text! []
-  (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 1 1)))
+  (set! (.-visible (:play-time-text @game-state)) true))
 
 (defn hide-play-time-text! []
-  (.. ^js/Phaser.Text (:play-time-text @game-state) -scale (setTo 0 0)))
+  (set! (.-visible (:play-time-text @game-state)) false))
 
 (defn update-play-time-to-current-time! [play-time]
   (let [derefed-state @game-state
@@ -417,21 +417,21 @@
     (set! (.. congrats-msg -anchor -y) 0.5)
     (.setShadow ^js/Phaser.Text congrats-msg 3 3 "rgba(32,32,32, 0.8)" 1)))
 
-(defn destroy-congrats-message! []
-  (when-let [congrats-message-text ^js/Phaser.Text (:puzzle-completion-text @game-state)]
-    (.destroy congrats-message-text))
-  (swap! game-state assoc :puzzle-completion-text nil))
+(defn display-congrats-message! []
+  (set! (.-visible (:puzzle-completion-text @game-state)) true))
+
+(defn hide-congrats-message! []
+  (set! (.-visible (:puzzle-completion-text @game-state)) false))
 
 (defn congrats-finish-game! [send-puzzle-complete-fn!]
   (when (and (puzzle-completed?)
              ;for other client's (in case they didn't start a puzzle yet)
-             (currently-playing-game?)
-             (not (:puzzle-completion-text @game-state)))
+             (currently-playing-game?))
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)
     (display-ranking-button!)
-    (make-congrats-message!)
+    (display-congrats-message!)
     (send-puzzle-complete-fn! (:play-time @game-state))
     (swap! game-state assoc :sprites-state {})))
 
