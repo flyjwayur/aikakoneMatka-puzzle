@@ -444,35 +444,42 @@
 
 ;- util UI elements for positioning
 
-(defn positioning-ui-elements! []
+(defn positioning-ui-elements-for-portrait-mode! []
   (let [derefed-stated @game-state
         window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)]
     (set! (.-x (:play-button derefed-stated))
-          10)
+          (* 0.5 window-inner-width))
     (set! (.-y (:play-button derefed-stated))
-          10)
+          (* 0.6 window-inner-height))
     (set! (.-x (:ranking-button derefed-stated))
-          (* 0.75 window-inner-width))
+          (* 0.65 window-inner-width))
     (set! (.-y (:ranking-button derefed-stated))
-          (* 0.2 window-inner-height))
+          (* 0.85 window-inner-height))
     (set! (.-x (:reset-button derefed-stated))
-          (* 0.85 window-inner-width))
+          (* 0.55 window-inner-width))
     (set! (.-y (:reset-button derefed-stated))
-          (* 0.3 window-inner-height))
+          (* 0.85 window-inner-height))
     (set! (.-x (:audio-button derefed-stated))
-          (* 0.85 window-inner-width))
+          (* 0.45 window-inner-width))
     (set! (.-y (:audio-button derefed-stated))
-          (* 0.5 window-inner-height))
+          (* 0.85 window-inner-height))
     (set! (.-x (:puzzle-selection-button derefed-stated))
-          (* 0.75 window-inner-width))
+          (* 0.20 window-inner-width))
     (set! (.-y (:puzzle-selection-button derefed-stated))
-          (* 0.5 window-inner-height))
+          (* 0.85 window-inner-height))
     (set! (.-x (:play-time-text derefed-stated))
-          (* window-inner-width 0.8))
+          (/ window-inner-width 20))
     (set! (.-y (:play-time-text derefed-stated))
           (/ window-inner-height 20))
     (set! (.-x (:puzzle-completion-text derefed-stated))
-          (/ window-inner-width 5))
+          (* 0.5 window-inner-width))
     (set! (.-y (:puzzle-completion-text derefed-stated))
-          (/ window-inner-height 20))))
+          (* 0.3 window-inner-height))))
+
+(defn positioning-ui-elements! []
+  (let [window-inner-width (.-innerWidth js/window)
+        window-inner-height (.-innerHieght js/window)
+        is-landscape (< (/ window-inner-width window-inner-height) 1.3)]
+    (when-not is-landscape
+      (positioning-ui-elements-for-portrait-mode!))))
