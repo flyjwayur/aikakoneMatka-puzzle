@@ -89,6 +89,14 @@
         (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 8))
         (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 8))))))
 
+(defn set-text-size-in-portrait! []
+  (let [window-inner-width (.-innerWidth js/window)
+        window-inner-height (.-innerHeight js/window)
+        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
+    (when-not is-landscape
+      (set! (.-width (:puzzle-completion-text @game-state)) (* 0.9 window-inner-width))
+      (set! (.-height (:puzzle-completion-text @game-state)) (* 0.2 window-inner-height)))))
+
 (defn- get-left-margin []
   (+ (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2)
      (* (get-button-width button-sprite-col-num) (get-scale-for-same-size-as-piece!))))
@@ -413,11 +421,17 @@
                                :boundsAlignH    "center"
                                :boundsAlignV    "center"
                                :stroke          "#3D5A80"
-                               :strokeThickness "7"}))]
-    (swap! game-state assoc :puzzle-game-intro-text intro-text)
-    (set! (.. intro-text -anchor -x) 0.5)
-    (set! (.. intro-text -anchor -y) 0.5)
-    (.setShadow ^js/Phaser.Text intro-text 3 3 "rgba(0,0,0,0.5)" 3)))
+                               :strokeThickness "7"}))
+        is-landscape (> (/ (.-innerWidth js/window) (.-innerHeight js/window)) 1.3)]
+    (if is-landscape
+      (do
+        (swap! game-state assoc :puzzle-game-intro-text intro-text)
+        (set! (.. intro-text -anchor -x) 0.5)
+        (set! (.. intro-text -anchor -y) 0.5)
+        (.setShadow ^js/Phaser.Text intro-text 3 3 "rgba(0,0,0,0.5)" 3))
+      (do
+        (swap! game-state assoc :puzzle-game-intro-text intro-text)
+        (set! (.-visible (:puzzle-game-intro-text @game-state)) false)))))
 
 (defn destroy-game-intro-text! []
   (when-let [puzzle-intro-text ^js/Phaser.Text (:puzzle-game-intro-text @game-state)]

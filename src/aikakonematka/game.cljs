@@ -231,7 +231,9 @@
       (util/make-audio-button!)
       (util/make-congrats-message!)
       (util/hide-congrats-message!))
-      (util/positioning-ui-elements!)))
+    (util/positioning-ui-elements!)
+    (util/set-button-size-in-portrait!)
+    (util/set-text-size-in-portrait!)))
 
 (defn- game-update [])
 
@@ -244,6 +246,7 @@
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (util/set-play-button-size!)
   (util/set-button-size-in-portrait!)
+  (util/set-text-size-in-portrait!)
   (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]
