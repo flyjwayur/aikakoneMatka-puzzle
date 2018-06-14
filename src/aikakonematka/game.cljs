@@ -241,7 +241,7 @@
   (when util/currently-playing-game?
     (util/hide-control-buttons!)
     (util/show-control-buttons!))
-  (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
+  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]
