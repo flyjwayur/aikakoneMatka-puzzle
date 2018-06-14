@@ -229,7 +229,8 @@
       (util/make-reset-button! send-reset-fn!)
       (util/make-audio-button!)
       (util/make-congrats-message!)
-      (util/hide-congrats-message!))))
+      (util/hide-congrats-message!))
+    (util/positioning-ui-elements!)))
 
 (defn- game-update [])
 
