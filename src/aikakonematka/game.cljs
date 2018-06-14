@@ -238,8 +238,9 @@
 (defn- on-resize []
   (util/set-puzzle-width-height-in-relation-to-window-size!)
   ;Scale 0 in hide-control-buttons and Tween in show-control-buttons!
-  (util/hide-control-buttons!)
-  (util/show-control-buttons!)
+  (when util/currently-playing-game?
+    (util/hide-control-buttons!)
+    (util/show-control-buttons!))
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (util/positioning-ui-elements!))
 
