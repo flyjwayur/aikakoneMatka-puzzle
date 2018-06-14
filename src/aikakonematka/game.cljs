@@ -5,6 +5,9 @@
 
 (defn- create-preload [image-src]
   (fn []
+    (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.SHOW_ALL)
+    (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignHorizontally) true)
+    (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignVertically) true)
     (let [phaser-loader (.-load ^js/Phaser.Game @util/game)]
       (.spritesheet
         phaser-loader
@@ -137,12 +140,6 @@
                                                          "lovely-baby-in-puzzle"))]
     (.. baby-image -scale (setTo 0.9 0.9))))
 
-(defn- makeFullScreen []
-  (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignHorizontally) true)
-  (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignVertically) true)
-  (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.SHOW_ALL)
-  (set! (.. ^js/Phaser.Game @util/game -scale -setScreenSize)  true))
-
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
                             send-sprites-state-fn!
@@ -150,7 +147,6 @@
                             send-music-note-fn!]}]
   (fn []
     (rf/dispatch [:loading? false])
-    (makeFullScreen)
     (display-puzzle-background)
     (display-lovely-baby-in-bg)
     ;It only creates the puzzle piece/button sprites only once for each client.
