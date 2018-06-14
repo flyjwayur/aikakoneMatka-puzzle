@@ -55,14 +55,6 @@
         phaser-loader
         "lovely-baby-in-puzzle"
         "images/lovely-baby-in-puzzle.png")
-      (.image
-        phaser-loader
-        "audio-on-button"
-        "images/audio-on.png")
-      (.image
-        phaser-loader
-        "audio-off-button"
-        "images/audio-off.png")
       (.spritesheet
         phaser-loader
         "audio-onoff-toggle-button"
