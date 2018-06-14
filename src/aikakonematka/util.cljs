@@ -80,6 +80,15 @@
         (set! (.-width (:play-button @game-state)) (/ window-inner-width 2))
         (set! (.-height (:play-button @game-state)) (/ window-inner-height 4))))))
 
+(defn set-button-size-in-portrait! []
+  (let [window-inner-width (.-innerWidth js/window)
+        window-inner-height (.-innerHeight js/window)
+        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
+    (when-not is-landscape
+      (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
+        (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 8))
+        (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 8))))))
+
 (defn- get-left-margin []
   (+ (/ (- (.-innerWidth js/window) (:puzzle-width-height @game-state)) 2)
      (* (get-button-width button-sprite-col-num) (get-scale-for-same-size-as-piece!))))
@@ -517,7 +526,7 @@
     (set! (.-y (:play-button derefed-stated))
           (* 0.6 window-inner-height))
     (set! (.-x (:ranking-button derefed-stated))
-          (* 0.65 window-inner-width))
+          (* 0.75 window-inner-width))
     (set! (.-y (:ranking-button derefed-stated))
           (* 0.85 window-inner-height))
     (set! (.-x (:reset-button derefed-stated))
@@ -525,11 +534,11 @@
     (set! (.-y (:reset-button derefed-stated))
           (* 0.85 window-inner-height))
     (set! (.-x (:audio-button derefed-stated))
-          (* 0.45 window-inner-width))
+          (* 0.35 window-inner-width))
     (set! (.-y (:audio-button derefed-stated))
           (* 0.85 window-inner-height))
     (set! (.-x (:puzzle-selection-button derefed-stated))
-          (* 0.20 window-inner-width))
+          (* 0.10 window-inner-width))
     (set! (.-y (:puzzle-selection-button derefed-stated))
           (* 0.85 window-inner-height))
     (set! (.-x (:play-time-text derefed-stated))

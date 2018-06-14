@@ -243,6 +243,7 @@
     (util/show-control-buttons!))
   (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
   (util/set-play-button-size!)
+  (util/set-button-size-in-portrait!)
   (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]
