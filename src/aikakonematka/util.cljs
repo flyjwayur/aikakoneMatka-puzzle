@@ -525,7 +525,7 @@
 (defn positioning-ui-elements! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHieght js/window)
-        is-landscape (< (/ window-inner-width window-inner-height) 1.3)]
+        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
     (positioning-control-buttons-and-puzzle-pieces!)
     (when-not is-landscape
       (positioning-ui-elements-for-portrait-mode!))))
