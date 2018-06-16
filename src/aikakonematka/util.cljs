@@ -333,10 +333,10 @@
   (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
 
 (defn reset-game! []
-  (set-game-play-state! :before-started)
   (hide-all-puzzle-pieces!)
   (hide-control-buttons!)
   (hide-play-time-text!)
+  (set-game-play-state! :before-started)
   (display-play-button!)
   (display-ranking-button!))
 
