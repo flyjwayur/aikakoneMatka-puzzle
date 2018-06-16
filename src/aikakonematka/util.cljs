@@ -472,7 +472,8 @@
 (defn congrats-finish-game! [send-puzzle-complete-fn!]
   (when (and (puzzle-completed?)
              ;for other client's (in case they didn't start a puzzle yet)
-             (currently-playing-game?))
+             (currently-playing-game?)
+             (not (.-visible (:puzzle-completion-text @game-state))))
     (set-game-play-state! :solved)
     (hide-reset-button!)
     (hide-control-buttons!)
