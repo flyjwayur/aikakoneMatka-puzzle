@@ -130,6 +130,18 @@
                                                          "lovely-baby-in-puzzle"))]
     (.. baby-image -scale (setTo 0.9 0.9))))
 
+(defn- on-resize []
+  (util/set-puzzle-width-height-in-relation-to-window-size!)
+  ;Scale 0 in hide-control-buttons and Tween in show-control-buttons!
+  (when (util/currently-playing-game?)
+    (util/hide-control-buttons!)
+    (util/show-control-buttons!))
+  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (util/set-play-button-size!)
+  (util/set-button-size-in-portrait!)
+  (util/set-text-size-in-portrait!)
+  (util/positioning-ui-elements!))
+
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
                             send-sprites-state-fn!
@@ -231,23 +243,9 @@
       (util/make-audio-button!)
       (util/make-congrats-message!)
       (util/hide-congrats-message!))
-    (util/positioning-ui-elements!)
-    (util/set-button-size-in-portrait!)
-    (util/set-text-size-in-portrait!)))
+    (on-resize)))
 
 (defn- game-update [])
-
-(defn- on-resize []
-  (util/set-puzzle-width-height-in-relation-to-window-size!)
-  ;Scale 0 in hide-control-buttons and Tween in show-control-buttons!
-  (when (util/currently-playing-game?)
-    (util/hide-control-buttons!)
-    (util/show-control-buttons!))
-  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
-  (util/set-play-button-size!)
-  (util/set-button-size-in-portrait!)
-  (util/set-text-size-in-portrait!)
-  (util/positioning-ui-elements!))
 
 (defn- start-game! [image-src websocket-msg-send-fns]
   (rf/dispatch [:loading? true])
