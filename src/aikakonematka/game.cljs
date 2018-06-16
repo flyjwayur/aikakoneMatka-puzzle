@@ -5,6 +5,7 @@
 
 (defn- create-preload [image-src]
   (fn []
+    (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.RESIZE)
     (let [phaser-loader (.-load ^js/Phaser.Game @util/game)]
       (.spritesheet
         phaser-loader
@@ -52,14 +53,6 @@
         phaser-loader
         "lovely-baby-in-puzzle"
         "images/lovely-baby-in-puzzle.png")
-      (.image
-        phaser-loader
-        "audio-on-button"
-        "images/audio-on.png")
-      (.image
-        phaser-loader
-        "audio-off-button"
-        "images/audio-off.png")
       (.spritesheet
         phaser-loader
         "audio-onoff-toggle-button"
@@ -92,14 +85,14 @@
             "play-button"
             (fn []
               (send-game-start-fn!)
-              (util/destroy-congrats-message!)
+              (util/hide-congrats-message!)
               (util/destroy-game-intro-text!))
             this))))
   (set! (.. (:play-button @util/game-state) -anchor -x) 0.5)
   (set! (.. (:play-button @util/game-state) -anchor -y) 0.5))
 
-(defn- store-control-button-and-return-it! [^js/Phaser.Game control-button]
-  (swap! util/game-state update :control-buttons conj control-button)
+(defn- store-control-button-and-return-it! [key-for-control-button ^js/Phaser.Game control-button]
+  (swap! util/game-state assoc-in [:control-buttons key-for-control-button] control-button)
   (.. control-button -scale (setTo 0 0))
   (set! (.. control-button -anchor -x) 0.5)
   (set! (.. control-button -anchor -y) 0.5)
@@ -122,7 +115,7 @@
   (util/hide-play-button!)
   (util/hide-ranking-button!)
   ;Change the scale of pieces according to the current sprites-state
-  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (util/synchronize-puzzle-board-when-playing! (:sprites-state @util/game-state))
   (send-start-timer-fn!)
   (util/show-play-time-text!))
 
@@ -137,11 +130,19 @@
                                                          "lovely-baby-in-puzzle"))]
     (.. baby-image -scale (setTo 0.9 0.9))))
 
-(defn- makeFullScreen []
-  (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignHorizontally) true)
-  (set! (.. ^js/Phaser.Game @util/game -scale -pageAlignVertically) true)
-  (set! (.. ^js/Phaser.Game @util/game -scale -scaleMode) js/Phaser.ScaleManager.SHOW_ALL)
-  (set! (.. ^js/Phaser.Game @util/game -scale -setScreenSize)  true))
+(defn- on-resize []
+  (util/set-puzzle-width-height-in-relation-to-window-size!)
+  ;Scale 0 in hide-control-buttons and Tween in show-control-buttons!
+  (when (util/currently-playing-game?)
+    (util/hide-control-buttons!)
+    (util/show-control-buttons!))
+  ;Scale puzzle pieces on window resize even if game is not currently being played
+  (when-not (= :before-started (:game-play-state @util/game-state))
+    (util/synchronize-puzzle-board! (:sprites-state @util/game-state)))
+  (util/set-play-button-size!)
+  (util/set-button-size-in-portrait!)
+  (util/set-text-size-in-portrait!)
+  (util/positioning-ui-elements!))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -150,7 +151,6 @@
                             send-music-note-fn!]}]
   (fn []
     (rf/dispatch [:loading? false])
-    (makeFullScreen)
     (display-puzzle-background)
     (display-lovely-baby-in-bg)
     ;It only creates the puzzle piece/button sprites only once for each client.
@@ -172,6 +172,7 @@
           (when
             (and (zero? col) (= row (dec util/row-col-num)))
             (let [bottom-left-button (store-control-button-and-return-it!
+                                       :bottom-left
                                        (.sprite
                                          game-object-factory
                                          (- x-pos piece-width-height)
@@ -193,6 +194,7 @@
                     (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (zero? col)
             (let [left-button (store-control-button-and-return-it!
+                                [:left row]
                                 (.sprite
                                   game-object-factory
                                   (- x-pos piece-width-height)
@@ -212,6 +214,7 @@
                     (util/congrats-finish-game! send-puzzle-complete-fn!))))))
           (when (= row (dec util/row-col-num))
             (let [bottom-button (store-control-button-and-return-it!
+                                  [:bottom col]
                                   (.sprite
                                     game-object-factory
                                     x-pos
@@ -239,7 +242,10 @@
       (util/make-play-time!)
       (util/hide-play-time-text!)
       (util/make-reset-button! send-reset-fn!)
-      (util/make-audio-button!))))
+      (util/make-audio-button!)
+      (util/make-congrats-message!)
+      (util/hide-congrats-message!))
+    (on-resize)))
 
 (defn- game-update [])
 
@@ -261,6 +267,7 @@
                     "canvas"
                     (clj->js {:preload (create-preload image-src)
                               :create  (create-game websocket-msg-send-fns)
-                              :update  game-update}))))))
-    (swap! util/game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window) (.-innerHeight js/window)))))
+                              :update  game-update
+                              :resize on-resize}))))))
+    (util/set-puzzle-width-height-in-relation-to-window-size!)
     (set! (.-src puzzle-img) image-src)))
