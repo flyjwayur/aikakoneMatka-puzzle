@@ -14,6 +14,8 @@
             [re-frame.core :as rf]
             ))
 
+;- css & url definition
+
 (def table-header-style
   {:style
    {:font-size "4.5vw"
@@ -26,6 +28,9 @@
    {:font-size "3.5vw"
     :color "#696969"}})
 
+(def backend-url
+  (str config/protocol-to-backend "://" config/backend-host))
+
 ;- view functions & definition -
 
 (defn go-back-to-game-button []
@@ -37,7 +42,7 @@
 
 (defn ranking-dashboard []
   ;Fetch the ranking data from server using cljs-http
-  (go (let [response (<! (http/get (str config/protocol-to-backend "://" config/backend-host "/rankings")))
+  (go (let [response (<! (http/get (str backend-url "/rankings")))
             ranking (:body response)]
         ;JSON.parse turns a string of JSON text into a Javascript object.
         ;Here it creates Clojure data
