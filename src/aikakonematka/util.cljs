@@ -23,7 +23,8 @@
 (def game (atom nil))
 
 (def initial-game-state
-  {:sprites                 {}
+  {:game-play-state         :before-started
+   :sprites                 {}
    :sprites-state           {}
    :puzzle-width-height     0
    :play-button             nil
@@ -40,6 +41,9 @@
    :audio-on?               true})
 
 (defonce game-state (atom initial-game-state))
+
+(defn set-game-play-state! [play-state]
+  (swap! game-state assoc :game-play-state play-state))
 
 (defn set-puzzle-width-height-in-relation-to-window-size! []
   (swap! game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
@@ -140,9 +144,7 @@
 
 ;- util functions for checking condition
 (defn- currently-playing-game? []
-  (let [dereffed-game-state @game-state]
-    (and (not (empty? (:sprites-state dereffed-game-state)))
-         (not (.-visible (:puzzle-completion-text dereffed-game-state))))))
+  (= (:game-play-state @game-state) :playing))
 
 (defn- puzzle-completed? []
   (let [sprites-state (:sprites-state @game-state)
@@ -331,6 +333,7 @@
   (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
 
 (defn reset-game! []
+  (set-game-play-state! :before-started)
   (hide-all-puzzle-pieces!)
   (hide-control-buttons!)
   (hide-play-time-text!)
@@ -470,6 +473,7 @@
   (when (and (puzzle-completed?)
              ;for other client's (in case they didn't start a puzzle yet)
              (currently-playing-game?))
+    (set-game-play-state! :solved)
     (hide-reset-button!)
     (hide-control-buttons!)
     (display-play-button!)

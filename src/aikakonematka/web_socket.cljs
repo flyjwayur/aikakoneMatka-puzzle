@@ -63,6 +63,7 @@
       :aikakone/game-start (do
                              (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
+                             (util/set-game-play-state! :playing)
                              (game/display-puzzle-board! {:send-start-timer-fn! send-start-timer!})
                              (send-sprites-state!))
 

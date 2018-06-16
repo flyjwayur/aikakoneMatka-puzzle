@@ -137,7 +137,8 @@
     (util/hide-control-buttons!)
     (util/show-control-buttons!))
   ;Scale puzzle pieces on window resize even if game is not currently being played
-  (util/synchronize-puzzle-board! (:sprites-state @util/game-state))
+  (when-not (= :before-started (:game-play-state @util/game-state))
+    (util/synchronize-puzzle-board! (:sprites-state @util/game-state)))
   (util/set-play-button-size!)
   (util/set-button-size-in-portrait!)
   (util/set-text-size-in-portrait!)
