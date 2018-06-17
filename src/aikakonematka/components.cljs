@@ -174,10 +174,7 @@
                               :send-sprites-state-fn!   web-socket/send-sprites-state!
                               :send-puzzle-complete-fn! web-socket/send-puzzle-complete!
                               :send-music-note-fn!      web-socket/send-button-music-notes!})
-     :reagent-render      (fn [] [:div#canvas {:style  {:position "absolute"
-                                                        :display  "block"}
-                                               :width  "100%"
-                                               :height "100%"}])}))
+     :reagent-render      (fn [] [:div#canvas])}))
 
 (defn app []
   (let [search-word->game-img-url @(rf/subscribe [:search-keyword->game-img-url])
