@@ -139,7 +139,8 @@
   ;Scale puzzle pieces on window resize even if game is not currently being played
   (when-not (= :before-started (:game-play-state @util/game-state))
     (util/synchronize-puzzle-board! (:sprites-state @util/game-state)))
-  (util/set-play-button-size!)
+  (when-not (util/currently-playing-game?)
+    (util/set-play-button-size!))
   (util/set-button-size-in-portrait!)
   (util/set-text-size-in-portrait!)
   (util/positioning-ui-elements!))
