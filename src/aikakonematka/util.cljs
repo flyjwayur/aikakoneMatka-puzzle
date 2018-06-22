@@ -251,10 +251,10 @@
     (synchronize-puzzle-board! sprites-state)))
 
 (defn- display-ranking-button! []
-  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0.5 0.5)))
+  (set! (.-visible (:ranking-button @game-state)) true))
 
 (defn hide-ranking-button! []
-  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0 0)))
+  (set! (.-visible (:ranking-button @game-state)) false))
 
 (defn make-ranking-button! []
   (swap!
@@ -269,6 +269,7 @@
                   "ranking-button"
                   #(rf/dispatch [:screen-change :ranking-dashboard])
                   this))))
+  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0.5 0.5))
   (display-ranking-button!))
 
 (defn set-on-click-callback! [^js/Phaser.Sprite sprite callback-fn]
@@ -344,10 +345,10 @@
 ;- util functions to create/display/hide reset button
 
 (defn show-reset-button! []
-  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.5 0.5)))
+  (set! (.-visible (:reset-button @game-state)) true))
 
 (defn hide-reset-button! []
-  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
+  (set! (.-visible (:reset-button @game-state)) false))
 
 (defn reset-game! []
   (hide-all-puzzle-pieces!)
@@ -372,6 +373,7 @@
                     (reset-game!)
                     (send-reset-fn))
                   this))))
+  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.5 0.5))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
 
@@ -405,7 +407,7 @@
 ;- util functions for puzzle-selection-button
 
 (defn- display-puzzle-selection-button! []
-  (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5)))
+  (set! (.-visible (:puzzle-selection-button @game-state)) true))
 
 (defn make-puzzle-selection-button! []
   (swap!
@@ -420,6 +422,7 @@
                   "puzzle-selection-button"
                   #(rf/dispatch [:screen-change :puzzle-selection])
                   this))))
+  (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5))
   (display-puzzle-selection-button!))
 
 ;- util functions for game intro message
