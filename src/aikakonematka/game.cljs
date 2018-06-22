@@ -143,9 +143,7 @@
     (util/set-play-button-size!))
   (util/positioning-ui-elements!)
   (util/set-button-size-in-portrait!)
-  (util/set-text-size-in-portrait!)
-  (println :window-inner-width (.-innerWidth js/window))
-  (println :window-inner-height (.-innerHeight js/window)))
+  (util/set-text-size-in-portrait!))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -271,6 +269,6 @@
                     (clj->js {:preload (create-preload image-src)
                               :create  (create-game websocket-msg-send-fns)
                               :update  game-update
-                              :resize on-resize}))))))
+                              :resize  on-resize}))))))
     (util/set-puzzle-width-height-in-relation-to-window-size!)
     (set! (.-src puzzle-img) image-src)))

@@ -47,7 +47,7 @@
 
 (defn set-puzzle-width-height-in-relation-to-window-size! []
   (swap! game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
-                                                                     (.-innerHeight js/window))))))
+                                                                (.-innerHeight js/window))))))
 
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
@@ -528,12 +528,12 @@
                 y-pos (+ (* piece-width-height row) (get-top-margin) (+ 2 row))]]
     (repositioning-puzzle-pieces! {:x-pos x-pos
                                    :y-pos y-pos
-                                   :row row
-                                   :col col})
-    (repositioning-control-button! {:row row
-                                    :col col
-                                    :x-pos x-pos
-                                    :y-pos y-pos
+                                   :row   row
+                                   :col   col})
+    (repositioning-control-button! {:row                row
+                                    :col                col
+                                    :x-pos              x-pos
+                                    :y-pos              y-pos
                                     :piece-width-height piece-width-height})))
 
 (defn positioning-ui-elements-for-landscape-mode! []

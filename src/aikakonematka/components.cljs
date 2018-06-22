@@ -18,15 +18,15 @@
 
 (def table-header-style
   {:style
-   {:font-size "4.5vw"
-    :font-weight "700"
-    :color "#fff"
+   {:font-size        "4.5vw"
+    :font-weight      "700"
+    :color            "#fff"
     :background-color "rgba(238, 108, 77, 0.7)"}})
 
 (def table-body-style
   {:style
    {:font-size "3.5vw"
-    :color "#696969"}})
+    :color     "#696969"}})
 
 (def backend-url
   (str config/protocol-to-backend "://" config/backend-host))
@@ -69,7 +69,7 @@
                 [ui/table-row
                  [ui/table-row-column table-body-style (inc rank)]
                  [ui/table-row-column table-body-style (ranking rank)]]))]]
-     [:div {:style {:display "flex"
+     [:div {:style {:display         "flex"
                     :justify-content "flex-end"}}
       [go-back-to-game-button]]]))
 
@@ -98,12 +98,12 @@
             :src    "images/puzzle-selection-door.png"
             :width  "25%"
             :height "33.5%"}]
-     [:img {:style  {:position "absolute"
-                     :z-index  "3"
-                     :right    "3%"
-                     :bottom   "37%"
-                     :width    "16%"}
-            :src    "images/choose-image.png"}]]
+     [:img {:style {:position "absolute"
+                    :z-index  "3"
+                    :right    "3%"
+                    :bottom   "37%"
+                    :width    "16%"}
+            :src   "images/choose-image.png"}]]
     (map (fn [{:keys [search-keyword img-pos-in-puzzle-selection-view]}]
            ^{:key search-keyword} [:img
                                    {:id       search-keyword

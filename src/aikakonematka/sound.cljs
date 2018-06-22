@@ -36,10 +36,10 @@
   (when (:audio-on? @util/game-state)
     (run-with
       (connect->
-        (square sq-freq)                                      ;Define the periodic waves
+        (square sq-freq)                                    ;Define the periodic waves
         (low-pass 600)
-        (percussive 0.01 0.4)                                 ;Define how log it takes the note and a decay
-        (gain 0.3)                                            ;Alter amplitude of the wave                                       ;                                         ;
+        (percussive 0.01 0.4)                               ;Define how log it takes the note and a decay
+        (gain 0.3)                                          ;Alter amplitude of the wave                                       ;                                         ;
         destination)
       context
       (current-time context)
