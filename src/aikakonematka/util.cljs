@@ -47,7 +47,7 @@
 
 (defn set-puzzle-width-height-in-relation-to-window-size! []
   (swap! game-state assoc :puzzle-width-height (int (* 0.7 (min (.-innerWidth js/window)
-                                                                     (.-innerHeight js/window))))))
+                                                                (.-innerHeight js/window))))))
 
 (def puzzle-image-width (atom nil))
 (def puzzle-image-height (atom nil))
@@ -87,7 +87,7 @@
 (defn set-button-size-in-portrait! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
-        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
+        is-landscape (< (/ window-inner-height window-inner-width) 1.3)]
     (when-not is-landscape
       (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
         (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 8))
@@ -96,7 +96,7 @@
 (defn set-text-size-in-portrait! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
-        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
+        is-landscape (< (/ window-inner-height window-inner-width) 1.3)]
     (when-not is-landscape
       (set! (.-width (:puzzle-completion-text @game-state)) (* 0.9 window-inner-width))
       (set! (.-height (:puzzle-completion-text @game-state)) (* 0.2 window-inner-height)))))
@@ -425,7 +425,7 @@
                                :boundsAlignV    "center"
                                :stroke          "#3D5A80"
                                :strokeThickness "7"}))
-        is-landscape (> (/ (.-innerWidth js/window) (.-innerHeight js/window)) 1.3)]
+        is-landscape (< (/ (.-innerHeight js/window) (.-innerWidth js/window)) 1.3)]
     (if is-landscape
       (do
         (swap! game-state assoc :puzzle-game-intro-text intro-text)
@@ -528,13 +528,46 @@
                 y-pos (+ (* piece-width-height row) (get-top-margin) (+ 2 row))]]
     (repositioning-puzzle-pieces! {:x-pos x-pos
                                    :y-pos y-pos
-                                   :row row
-                                   :col col})
-    (repositioning-control-button! {:row row
-                                    :col col
-                                    :x-pos x-pos
-                                    :y-pos y-pos
+                                   :row   row
+                                   :col   col})
+    (repositioning-control-button! {:row                row
+                                    :col                col
+                                    :x-pos              x-pos
+                                    :y-pos              y-pos
                                     :piece-width-height piece-width-height})))
+
+(defn positioning-ui-elements-for-landscape-mode! []
+  (let [derefed-stated @game-state
+        window-inner-width (.-innerWidth js/window)
+        window-inner-height (.-innerHeight js/window)]
+    (set! (.-x (:play-button derefed-stated))
+          (* 0.5 window-inner-width))
+    (set! (.-y (:play-button derefed-stated))
+          (* 0.6 window-inner-height))
+    (set! (.-x (:ranking-button derefed-stated))
+          (* 0.85 window-inner-width))
+    (set! (.-y (:ranking-button derefed-stated))
+          (* 0.75 window-inner-height))
+    (set! (.-x (:reset-button derefed-stated))
+          (* 0.85 window-inner-width))
+    (set! (.-y (:reset-button derefed-stated))
+          (* 0.55 window-inner-height))
+    (set! (.-x (:audio-button derefed-stated))
+          (* 0.85 window-inner-width))
+    (set! (.-y (:audio-button derefed-stated))
+          (* 0.35 window-inner-height))
+    (set! (.-x (:puzzle-selection-button derefed-stated))
+          (* 0.85 window-inner-width))
+    (set! (.-y (:puzzle-selection-button derefed-stated))
+          (* 0.15 window-inner-height))
+    (set! (.-x (:play-time-text derefed-stated))
+          (/ window-inner-width 20))
+    (set! (.-y (:play-time-text derefed-stated))
+          (/ window-inner-height 20))
+    (set! (.-x (:puzzle-completion-text derefed-stated))
+          (* 0.5 window-inner-width))
+    (set! (.-y (:puzzle-completion-text derefed-stated))
+          (* 0.3 window-inner-height))))
 
 (defn positioning-ui-elements-for-portrait-mode! []
   (let [derefed-stated @game-state
@@ -571,8 +604,9 @@
 
 (defn positioning-ui-elements! []
   (let [window-inner-width (.-innerWidth js/window)
-        window-inner-height (.-innerHieght js/window)
-        is-landscape (> (/ window-inner-width window-inner-height) 1.3)]
+        window-inner-height (.-innerHeight js/window)
+        is-landscape (< (/ window-inner-height window-inner-width) 1.3)]
     (positioning-control-buttons-and-puzzle-pieces!)
-    (when-not is-landscape
+    (if is-landscape
+      (positioning-ui-elements-for-landscape-mode!)
       (positioning-ui-elements-for-portrait-mode!))))

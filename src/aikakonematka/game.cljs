@@ -139,10 +139,11 @@
   ;Scale puzzle pieces on window resize even if game is not currently being played
   (when-not (= :before-started (:game-play-state @util/game-state))
     (util/synchronize-puzzle-board! (:sprites-state @util/game-state)))
-  (util/set-play-button-size!)
+  (when-not (util/currently-playing-game?)
+    (util/set-play-button-size!))
+  (util/positioning-ui-elements!)
   (util/set-button-size-in-portrait!)
-  (util/set-text-size-in-portrait!)
-  (util/positioning-ui-elements!))
+  (util/set-text-size-in-portrait!))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
@@ -268,6 +269,6 @@
                     (clj->js {:preload (create-preload image-src)
                               :create  (create-game websocket-msg-send-fns)
                               :update  game-update
-                              :resize on-resize}))))))
+                              :resize  on-resize}))))))
     (util/set-puzzle-width-height-in-relation-to-window-size!)
     (set! (.-src puzzle-img) image-src)))
