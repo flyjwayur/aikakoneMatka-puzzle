@@ -141,9 +141,11 @@
     (util/synchronize-puzzle-board! (:sprites-state @util/game-state)))
   (when-not (util/currently-playing-game?)
     (util/set-play-button-size!))
+  (util/positioning-ui-elements!)
   (util/set-button-size-in-portrait!)
   (util/set-text-size-in-portrait!)
-  (util/positioning-ui-elements!))
+  (println :window-inner-width (.-innerWidth js/window))
+  (println :window-inner-height (.-innerHeight js/window)))
 
 (defn- create-game [{:keys [send-game-start-fn!
                             send-reset-fn!
