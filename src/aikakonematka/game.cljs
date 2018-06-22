@@ -140,9 +140,9 @@
   (when-not (= :before-started (:game-play-state @util/game-state))
     (util/synchronize-puzzle-board! (:sprites-state @util/game-state)))
   (when-not (util/currently-playing-game?)
-    (util/set-play-button-size!))
+    (util/set-play-button-size-in-portrait-landscape-mode!))
   (util/positioning-ui-elements!)
-  (util/set-button-size-in-portrait!)
+  (util/set-button-size-in-portrait-landscape-mode!)
   (util/set-text-size-in-portrait!))
 
 (defn- create-game [{:keys [send-game-start-fn!
