@@ -114,7 +114,6 @@
                                                :top        (:top img-pos-in-puzzle-selection-view)}
                                     :src      (let [game-imgs @(rf/subscribe [:search-keyword->game-img-url])]
                                                 (when game-imgs
-                                                  (println game-imgs)
                                                   (game-imgs search-keyword "")))
                                     :width    "20%"
                                     :height   "27.5%"

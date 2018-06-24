@@ -24,7 +24,6 @@
   (chsk-send! [:aikakone/game-start]))
 
 (defn send-sprites-state! []
-  (println "sending " (:sprites-state @util/game-state))
   (chsk-send! [:aikakone/sprites-state (:sprites-state @util/game-state)]))
 
 (defn send-start-timer! []
@@ -37,7 +36,6 @@
   (chsk-send! [:aikakone/puzzle-complete! play-time]))
 
 (defn send-button-music-notes! [note]
-  (println "sending music notes : " note)
   (chsk-send! [:aikakone/music note]))
 
 ;Initialize event-msg-handlers for handling different socket events.
@@ -54,14 +52,12 @@
 (defmethod event-msg-handler :chsk/recv [{:keys [?data]}]
   ;when client received a pushed msg from the server via web socket
   (let [[event-id event-data] ?data]
-    ;(println "received " [event-id event-data])
     (case event-id
       :aikakone/sprites-state (do
                                 (util/synchronize-puzzle-board-when-playing! event-data)
                                 (util/congrats-finish-game! send-puzzle-complete!))
 
       :aikakone/game-start (do
-                             (println "Start game with initial state " event-data)
                              (swap! util/game-state assoc :sprites-state event-data)
                              (util/set-game-play-state! :playing)
                              (game/display-puzzle-board! {:send-start-timer-fn! send-start-timer!})
