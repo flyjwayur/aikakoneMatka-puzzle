@@ -72,43 +72,47 @@
   (/ (get-piece-width-height (:puzzle-width-height @game-state))
      (get-button-width button-sprite-col-num)))
 
+(int (* 0.7 (min (.-innerWidth js/window)
+                 (.-innerHeight js/window))))
 (defn set-play-button-size-in-portrait-landscape-mode! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
+        get-max-length (int (max window-inner-width window-inner-height))
         is-landscape (> (/ window-inner-width window-inner-height) 1.3)
         is-landscape-in-phone (and (< window-inner-width 1366) (< window-inner-height 800))]
     (if is-landscape
       (cond
         is-landscape-in-phone
         (do
-          (set! (.-width (:play-button @game-state)) (/ window-inner-width 3))
-          (set! (.-height (:play-button @game-state)) (/ window-inner-height 3)))
+          (set! (.-width (:play-button @game-state)) (int (/ get-max-length 3)))
+          (set! (.-height (:play-button @game-state)) (int (/ get-max-length 5))))
         :else
         (do
-          (set! (.-width (:play-button @game-state)) (/ window-inner-width 4))
-          (set! (.-height (:play-button @game-state)) (/ window-inner-height 4))))
+          (set! (.-width (:play-button @game-state)) (int (/ get-max-length 4)))
+          (set! (.-height (:play-button @game-state)) (int (/ get-max-length 6)))))
       (do
-        (set! (.-width (:play-button @game-state)) (/ window-inner-width 2))
-        (set! (.-height (:play-button @game-state)) (/ window-inner-height 4))))))
+        (set! (.-width (:play-button @game-state)) (int (/ get-max-length 3)))
+        (set! (.-height (:play-button @game-state)) (int (/ get-max-length 5)))))))
 
 (defn set-button-size-in-portrait-landscape-mode! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
+        get-min-length (int (min window-inner-width window-inner-height))
         is-landscape (> (/ window-inner-width window-inner-height) 1.3)
         is-landscape-in-phone (and (< window-inner-width 1366) (< window-inner-height 800))]
     (if is-landscape
       (cond
         is-landscape-in-phone
         (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-          (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 12))
-          (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 12)))
+          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 5)))
+          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 5))))
         :else
         (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-          (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 12))
-          (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 12))))
+          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 8)))
+          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 8)))))
       (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-        (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 8))
-        (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 8))))))
+        (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 6)))
+        (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 6)))))))
 
 (defn set-text-size-in-portrait! []
   (let [window-inner-width (.-innerWidth js/window)
