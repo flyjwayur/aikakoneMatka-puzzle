@@ -72,8 +72,6 @@
   (/ (get-piece-width-height (:puzzle-width-height @game-state))
      (get-button-width button-sprite-col-num)))
 
-(int (* 0.7 (min (.-innerWidth js/window)
-                 (.-innerHeight js/window))))
 (defn set-play-button-size-in-portrait-landscape-mode! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
@@ -104,12 +102,12 @@
       (cond
         is-landscape-in-phone
         (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 5)))
-          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 5))))
+          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 6)))
+          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 6))))
         :else
         (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 8)))
-          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 8)))))
+          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 10)))
+          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 10)))))
       (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
         (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 6)))
         (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 6)))))))
