@@ -75,37 +75,42 @@
 (defn set-play-button-size-in-portrait-landscape-mode! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
-        is-phone-landscape (> (/ window-inner-width window-inner-height) 1.6)
-        is-portrait (< (/ window-inner-width window-inner-height) 1.3)]
-    (cond
-      is-portrait
+        get-max-length (int (max window-inner-width window-inner-height))
+        is-landscape (> (/ window-inner-width window-inner-height) 1.3)
+        is-landscape-in-phone (and (< window-inner-width 1366) (< window-inner-height 800))]
+    (if is-landscape
+      (cond
+        is-landscape-in-phone
+        (do
+          (set! (.-width (:play-button @game-state)) (int (/ get-max-length 3)))
+          (set! (.-height (:play-button @game-state)) (int (/ get-max-length 5))))
+        :else
+        (do
+          (set! (.-width (:play-button @game-state)) (int (/ get-max-length 4)))
+          (set! (.-height (:play-button @game-state)) (int (/ get-max-length 6)))))
       (do
-        (set! (.-width (:play-button @game-state)) (/ window-inner-width 2))
-        (set! (.-height (:play-button @game-state)) (/ window-inner-height 4)))
-      is-phone-landscape
-      (do
-        (set! (.-width (:play-button @game-state)) (/ window-inner-width 3))
-        (set! (.-height (:play-button @game-state)) (/ window-inner-height 3)))
-      :else
-      (do
-        (set! (.-width (:play-button @game-state)) (/ window-inner-width 4))
-        (set! (.-height (:play-button @game-state)) (/ window-inner-height 6))))))
+        (set! (.-width (:play-button @game-state)) (int (/ get-max-length 3)))
+        (set! (.-height (:play-button @game-state)) (int (/ get-max-length 5)))))))
 
 (defn set-button-size-in-portrait-landscape-mode! []
   (let [window-inner-width (.-innerWidth js/window)
         window-inner-height (.-innerHeight js/window)
-        is-phone-landscape (> (/ window-inner-width window-inner-height) 1.6)
-        is-portrait (< (/ window-inner-width window-inner-height) 1.3)]
-    (cond
-      is-portrait (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-                    (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 8))
-                    (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 8)))
-      is-phone-landscape (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-                           (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 14))
-                           (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 14)))
-      :else (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
-              (set! (.-width (ui-button-element @game-state)) (/ window-inner-width 10))
-              (set! (.-height (ui-button-element @game-state)) (/ window-inner-height 10))))))
+        get-min-length (int (min window-inner-width window-inner-height))
+        is-landscape (> (/ window-inner-width window-inner-height) 1.3)
+        is-landscape-in-phone (and (< window-inner-width 1366) (< window-inner-height 800))]
+    (if is-landscape
+      (cond
+        is-landscape-in-phone
+        (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
+          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 6)))
+          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 6))))
+        :else
+        (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
+          (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 10)))
+          (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 10)))))
+      (doseq [ui-button-element [:puzzle-selection-button :reset-button :ranking-button :audio-button]]
+        (set! (.-width (ui-button-element @game-state)) (int (/ get-min-length 6)))
+        (set! (.-height (ui-button-element @game-state)) (int (/ get-min-length 6)))))))
 
 (defn set-text-size-in-portrait! []
   (let [window-inner-width (.-innerWidth js/window)
@@ -248,10 +253,10 @@
     (synchronize-puzzle-board! sprites-state)))
 
 (defn- display-ranking-button! []
-  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0.5 0.5)))
+  (set! (.-visible (:ranking-button @game-state)) true))
 
 (defn hide-ranking-button! []
-  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0 0)))
+  (set! (.-visible (:ranking-button @game-state)) false))
 
 (defn make-ranking-button! []
   (swap!
@@ -266,6 +271,7 @@
                   "ranking-button"
                   #(rf/dispatch [:screen-change :ranking-dashboard])
                   this))))
+  (.. ^js/Phaser.Button (:ranking-button @game-state) -scale (setTo 0.5 0.5))
   (display-ranking-button!))
 
 (defn set-on-click-callback! [^js/Phaser.Sprite sprite callback-fn]
@@ -341,10 +347,10 @@
 ;- util functions to create/display/hide reset button
 
 (defn show-reset-button! []
-  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.5 0.5)))
+  (set! (.-visible (:reset-button @game-state)) true))
 
 (defn hide-reset-button! []
-  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0 0)))
+  (set! (.-visible (:reset-button @game-state)) false))
 
 (defn reset-game! []
   (hide-all-puzzle-pieces!)
@@ -369,6 +375,7 @@
                     (reset-game!)
                     (send-reset-fn))
                   this))))
+  (.. ^js/Phaser.Button (:reset-button @game-state) -scale (setTo 0.5 0.5))
   ;Make reset button when game start. It is not needed until the player starts playing the game.
   (hide-reset-button!))
 
@@ -402,7 +409,7 @@
 ;- util functions for puzzle-selection-button
 
 (defn- display-puzzle-selection-button! []
-  (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5)))
+  (set! (.-visible (:puzzle-selection-button @game-state)) true))
 
 (defn make-puzzle-selection-button! []
   (swap!
@@ -417,6 +424,7 @@
                   "puzzle-selection-button"
                   #(rf/dispatch [:screen-change :puzzle-selection])
                   this))))
+  (.. (:puzzle-selection-button @game-state) -scale (setTo 0.5 0.5))
   (display-puzzle-selection-button!))
 
 ;- util functions for game intro message
@@ -500,7 +508,6 @@
 ;- util function for updating music
 
 (defn update-music-notes! [music-pitches]
-  (println "music notes : " music-pitches)
   (swap! game-state assoc :music-pitches music-pitches)
   (swap! game-state assoc :music-durations (map (fn [_] (rand 1)) music-pitches)))
 
@@ -586,7 +593,8 @@
 (defn positioning-ui-elements-for-portrait-mode! []
   (let [derefed-stated @game-state
         window-inner-width (.-innerWidth js/window)
-        window-inner-height (.-innerHeight js/window)]
+        window-inner-height (.-innerHeight js/window)
+        is-landscape-in-phone (and (< window-inner-width 1366) (< window-inner-height 800))]
     (set! (.-x (:play-button derefed-stated))
           (* 0.5 window-inner-width))
     (set! (.-y (:play-button derefed-stated))
