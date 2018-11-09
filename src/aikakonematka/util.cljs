@@ -10,8 +10,8 @@
    {:search-keyword "Mannerheimintie" :img-pos-in-puzzle-selection-view {:left "39.3%" :top "13.7%"}}
    {:search-keyword "Lapinlahdenkatu" :img-pos-in-puzzle-selection-view {:left "60%" :top "13.7%"}}
    {:search-keyword "kamppi" :img-pos-in-puzzle-selection-view {:left "18.5%" :top "43.5%"}}
-   {:search-keyword "tuomiokirkko" :img-pos-in-puzzle-selection-view {:left "39.3%" :top "43.5%"}}
-   {:search-keyword "mustikka" :img-pos-in-puzzle-selection-view {:left "60%" :top "43.5%"}}
+   {:search-keyword "kirjasto" :img-pos-in-puzzle-selection-view {:left "39.3%" :top "43.5%"}}
+   {:search-keyword "Rautatientori" :img-pos-in-puzzle-selection-view {:left "60%" :top "43.5%"}}
    {:search-keyword "Rovaniemi" :img-pos-in-puzzle-selection-view {:left "18.5%" :top "73.2%"}}
    {:search-keyword "suomenlinna" :img-pos-in-puzzle-selection-view {:left "60%" :top "73.2%"}}])
 
